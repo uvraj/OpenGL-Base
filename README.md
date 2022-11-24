@@ -1,6 +1,6 @@
 # OpenGL-Base
 A base for my (future) OpenGL-based projects. At the moment, it renders a simple triangle using ```glDrawElements()```. 
-Classes for texture loading and shader loading are present.
+Classes for texture loading and shader loading are present (see /src/include/).
 
 # Building
 ## Windows: 
