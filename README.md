@@ -6,6 +6,7 @@ Classes for texture loading and shader loading are present.
 ## Windows: 
 Prerequisites: CMake 3.10, MinGW GCC or MSVC.
 Example:
+
 ```mkdir build```
 
 ```cd build```
