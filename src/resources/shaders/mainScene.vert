@@ -10,7 +10,7 @@ uniform mat4 cameraViewMatrix;
 uniform mat4 modelMatrix;
 
 void main() {
-    gl_Position = vec4(aPosition, 1.0);
+    gl_Position = cameraProjectionMatrix * cameraViewMatrix * vec4(aPosition, 1.0);
     color = aColor;
 }
 

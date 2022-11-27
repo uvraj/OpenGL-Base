@@ -276,7 +276,8 @@ int main(void) {
 
         // Update camera
         // Projection Matrix
-        cameraProjectionMatrix = glm::perspective(glm::radians(mainCamera.FoV), (float) viewWidth / (float) viewHeight, 0.1f, 100.0f); 
+        //cameraProjectionMatrix = glm::perspective(glm::radians(mainCamera.FoV), (float) viewWidth / (float) viewHeight, 0.1f, 5.0f); 
+        cameraProjectionMatrix = glm::ortho(-1.0, 1.0, -1.0, 1.0);
         cameraProjectionMatrixInverse = glm::inverse(cameraProjectionMatrix);
 
         // View Matrix
