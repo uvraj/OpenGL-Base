@@ -247,7 +247,6 @@ int main(void) {
     glm::mat4 cameraViewMatrix;
     glm::mat4 cameraViewMatrixInverse;
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
     
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -276,9 +275,11 @@ int main(void) {
 
         // Update camera
         // Projection Matrix
-        //cameraProjectionMatrix = glm::perspective(glm::radians(mainCamera.FoV), (float) viewWidth / (float) viewHeight, 0.1f, 5.0f); 
-        cameraProjectionMatrix = glm::ortho(-1.0, 1.0, -1.0, 1.0);
+        cameraProjectionMatrix = glm::perspective(glm::radians(mainCamera.FoV), (float) viewWidth / (float) viewHeight, 0.1f, 5.0f); 
+        //cameraProjectionMatrix = glm::ortho(-1.0, 1.0, -1.0, 1.0);
         cameraProjectionMatrixInverse = glm::inverse(cameraProjectionMatrix);
+
+        model = glm::rotate(model, glm::radians((float) std::fmod(currentFrame / 10.0, 360.0)), glm::vec3(1.0f, 0.0f, 0.0f)); 
 
         // View Matrix
         cameraViewMatrix = mainCamera.GetViewMatrix();
@@ -309,6 +310,13 @@ int main(void) {
 
         ImGui::Begin("Performance Metrics", NULL, window_flags);
         ImGui::Text("FPS: %.2f", io.Framerate);
+        ImGui::Text("Camera Position:");
+        ImGui::TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "X: %.2f", mainCamera.Position.x);
+        ImGui::TextColored(ImVec4(0.0, 1.0, 0.0, 1.0), "Y: %.2f", mainCamera.Position.y);
+        ImGui::TextColored(ImVec4(0.0, 0.0, 1.0, 1.0), "Z: %.2f", mainCamera.Position.z); 
+        ImGui::Text("Camera FoV:\t%.2f", mainCamera.FoV);
+        ImGui::Text("Camera Pitch:\t%.2f", mainCamera.Pitch);
+        ImGui::Text("Camera Yaw:\t%.2f", mainCamera.Yaw);
 
         ImGui::End();
 
@@ -316,7 +324,7 @@ int main(void) {
 
         // Main Pass
         glBindFramebuffer(GL_FRAMEBUFFER, mainFBO);
-        glClear(GL_COLOR_BUFFER_BIT);
+        //glClear(GL_COLOR_BUFFER_BIT);
 
         
 
