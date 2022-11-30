@@ -29,8 +29,8 @@
 
 #define TITLE "OpenGL Base"
 
-#define APPLICATION_GL_VERSION_MAJOR 3 
-#define APPLICATION_GL_VERSION_MINOR 3
+#define APPLICATION_GL_VERSION_MAJOR 4 
+#define APPLICATION_GL_VERSION_MINOR 6
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
@@ -168,8 +168,8 @@ int main(void) {
     std::printf("Window and OpenGL context created!\n");
 
     // OpenGL can be used safely, let's enable debug messages.
-    // glEnable(GL_DEBUG_OUTPUT);
-    // glDebugMessageCallback(messageCallBack, 0);
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(messageCallBack, 0);
 
     // Create a viewport with:
     glViewport(
@@ -218,12 +218,18 @@ int main(void) {
     glGenFramebuffers(1, &mainFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, mainFBO);
 
-    GLuint imageLinear;
+    GLuint imageLinear, sceneDepth;
     glGenTextures(1, &imageLinear);
+    glGenTextures(1, &sceneDepth);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, imageLinear);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, sceneDepth);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  
@@ -231,6 +237,7 @@ int main(void) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, imageLinear, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, sceneDepth, 0); 
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         printError("Framebuffer incomplete!\n");
@@ -247,6 +254,8 @@ int main(void) {
     glm::mat4 cameraViewMatrix;
     glm::mat4 cameraViewMatrixInverse;
     glm::mat4 model = glm::mat4(1.0f);
+
+    
     
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -322,9 +331,11 @@ int main(void) {
 
         ImGui::Render();
 
+        //glEnable(GL_DEPTH_TEST);
+
         // Main Pass
         glBindFramebuffer(GL_FRAMEBUFFER, mainFBO);
-        //glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         
 
@@ -335,6 +346,8 @@ int main(void) {
         mainSceneShader.pushMat4Uniform("cameraProjectionMatrixInverse", cameraProjectionMatrixInverse);
         mainSceneShader.pushMat4Uniform("modelMatrix", model);
         mainScene.draw();
+
+        //glDisable(GL_DEPTH_TEST);
 
         // Post-processing pass
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
