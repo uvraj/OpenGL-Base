@@ -35,16 +35,24 @@
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
-Camera mainCamera(glm::vec3(1.0f, 0.0f, 0.0f));
-
-float lastX = SCREEN_WIDTH / 2.0f;
-float lastY = SCREEN_HEIGHT / 2.0f;
 bool firstMouse = true;
+bool sineTaylorEnabled = true;
+bool expTaylorEnabled = true;
+
+int sineTaylorIterations = 10;
+int expTaylorIterations = 10;
+
+int viewWidth = SCREEN_WIDTH;
+int viewHeight = SCREEN_HEIGHT;
+float aspectRatio = 1.0f;
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+float graphScale = 1.0f;
+float graphMovementSpeed = 1.0f;
 
-bool mouseCaught = true;
+glm::vec2 cursorPosition = glm::vec2(0.0f);
+glm::vec2 graphOffset = glm::vec2(0.0f);
 
 void frameBufferSizeCallBack(GLFWwindow *window, int width, int height) {
     // Zhis function handles the user changing the resolution of the window.
@@ -63,42 +71,31 @@ void GLAPIENTRY messageCallBack(GLenum source, GLenum type, GLuint id, GLenum se
 
 void handleInput(GLFWwindow *window, float time) {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        mainCamera.ProcessKeyboard(FORWARD, deltaTime);
+        graphOffset.y += deltaTime * graphMovementSpeed;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        mainCamera.ProcessKeyboard(BACKWARD, deltaTime);
+        graphOffset.y -= deltaTime * graphMovementSpeed;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        mainCamera.ProcessKeyboard(LEFT, deltaTime);
+        graphOffset.x += deltaTime * graphMovementSpeed;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        mainCamera.ProcessKeyboard(RIGHT, deltaTime);
+        graphOffset.y -= deltaTime * graphMovementSpeed;
 }
 
 void mouseCallback(GLFWwindow* window, double xposIn, double yposIn) {
-    float xpos = xposIn;
-    float ypos = yposIn;
-
-    if (firstMouse) {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-    lastX = xpos;
-    lastY = ypos;
-
-    if(mouseCaught)
-        mainCamera.ProcessMouseMovement(xoffset, yoffset);
+    cursorPosition.x = graphScale * aspectRatio * (static_cast <float> (xposIn) / viewWidth - 0.5);
+    cursorPosition.y = -graphScale * (static_cast <float> (yposIn) / viewHeight - 0.5);
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-    mainCamera.ProcessMouseScroll(yoffset);
+    graphScale -= static_cast <float> (yoffset);
+
+    if(graphScale < 0.25f) 
+        graphScale = 0.25f;
+    
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        mouseCaught = !mouseCaught;
+    if(key == GLFW_KEY_R)
+        graphOffset = glm::vec2(0.0f);
 }
 
 void handleDPI(GLFWwindow *window, ImGuiIO &io) {
@@ -168,8 +165,8 @@ int main(void) {
     std::printf("Window and OpenGL context created!\n");
 
     // OpenGL can be used safely, let's enable debug messages.
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(messageCallBack, 0);
+    // glEnable(GL_DEBUG_OUTPUT);
+    // glDebugMessageCallback(messageCallBack, 0);
 
     // Create a viewport with:
     glViewport(
@@ -200,44 +197,32 @@ int main(void) {
     ImGui_ImplOpenGL3_Init("#version 330");
 
     // Initilize our OpenGL objects.
-    scene mainScene;
     quad quadVAO;
 
     // Shaders
-    shader mainSceneShader;
-    mainSceneShader.load("mainScene.vert", "mainScene.frag");
+    shader graphRender;
+    graphRender.load("graphRender.vert", "graphRender.frag");
 
     shader postProcess;
     postProcess.load("postProcess.vert", "postProcess.frag");
-
-    // Textures
-    texture3D_binaryDump colorLookup("FUJI_ETERNA_250D_FUJI_3510.DAT", 1, 21, 21, 21, 3, GL_RGB32F, GL_RGB, GL_FLOAT);
 
     // Main Framebuffer
     GLuint mainFBO;
     glGenFramebuffers(1, &mainFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, mainFBO);
 
-    GLuint imageLinear, sceneDepth;
+    GLuint imageLinear;
     glGenTextures(1, &imageLinear);
-    glGenTextures(1, &sceneDepth);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, imageLinear);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, sceneDepth);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
-
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);  
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, imageLinear, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, sceneDepth, 0); 
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         printError("Framebuffer incomplete!\n");
@@ -245,18 +230,6 @@ int main(void) {
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // Loop variables
-    int viewWidth = 0;
-    int viewHeight = 0;
-    bool useColorGrade = false;
-    glm::mat4 cameraProjectionMatrix;
-    glm::mat4 cameraProjectionMatrixInverse;
-    glm::mat4 cameraViewMatrix;
-    glm::mat4 cameraViewMatrixInverse;
-    glm::mat4 model = glm::mat4(1.0f);
-
-    
-    
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         // Time...
@@ -268,31 +241,10 @@ int main(void) {
         glfwPollEvents();
         handleInput(window, currentFrame);
         glfwGetFramebufferSize(window, &viewWidth, &viewHeight);
-
-        // Catch / Uncatch mouse based on mouseCaught.
-        if(mouseCaught) {
-            // Capture our mouse
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        }
-
-        else {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        }
+        aspectRatio = static_cast <float> (viewWidth) / static_cast <float> (viewHeight);
 
         // Resize fonts upon DPI change.
         handleDPI(window, io);
-
-        // Update camera
-        // Projection Matrix
-        cameraProjectionMatrix = glm::perspective(glm::radians(mainCamera.FoV), (float) viewWidth / (float) viewHeight, 0.1f, 5.0f); 
-        //cameraProjectionMatrix = glm::ortho(-1.0, 1.0, -1.0, 1.0);
-        cameraProjectionMatrixInverse = glm::inverse(cameraProjectionMatrix);
-
-        model = glm::rotate(model, glm::radians((float) std::fmod(currentFrame / 10.0, 360.0)), glm::vec3(1.0f, 0.0f, 0.0f)); 
-
-        // View Matrix
-        cameraViewMatrix = mainCamera.GetViewMatrix();
-        cameraViewMatrixInverse = inverse(cameraViewMatrix);
 
         // Start ImGUI frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -303,10 +255,14 @@ int main(void) {
 
         ImGui::Begin("Main Window");
 
-        ImGui::Checkbox("Use Color Grade", &useColorGrade);
+        // ImGui::SliderFloat("Speed", &graphMovementSpeed, 0.0, 5.0);
+        ImGui::Checkbox("Sine Taylor Approx.", &sineTaylorEnabled);
+        ImGui::SliderInt("Sine Taylor Approx. Steps", &sineTaylorIterations, 1, 100);
+        ImGui::Checkbox("Exp. Taylor Approx.", &expTaylorEnabled);
+        ImGui::SliderInt("Exp. Taylor Approx. Steps", &expTaylorIterations, 1, 100);
 
         if(ImGui::Button("Reload Shaders")) {
-            mainSceneShader.load("mainScene.vert", "mainScene.frag");
+            graphRender.load("graphRender.vert", "graphRender.frag");
             postProcess.load("postProcess.vert", "postProcess.frag");
         }
 
@@ -319,35 +275,30 @@ int main(void) {
 
         ImGui::Begin("Performance Metrics", NULL, window_flags);
         ImGui::Text("FPS: %.2f", io.Framerate);
-        ImGui::Text("Camera Position:");
-        ImGui::TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "X: %.2f", mainCamera.Position.x);
-        ImGui::TextColored(ImVec4(0.0, 1.0, 0.0, 1.0), "Y: %.2f", mainCamera.Position.y);
-        ImGui::TextColored(ImVec4(0.0, 0.0, 1.0, 1.0), "Z: %.2f", mainCamera.Position.z); 
-        ImGui::Text("Camera FoV:\t%.2f", mainCamera.FoV);
-        ImGui::Text("Camera Pitch:\t%.2f", mainCamera.Pitch);
-        ImGui::Text("Camera Yaw:\t%.2f", mainCamera.Yaw);
+        ImGui::Text("Cursor Position:");
+        ImGui::TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "X: %.2f", cursorPosition.x);
+        ImGui::TextColored(ImVec4(0.0, 1.0, 0.0, 1.0), "Y: %.2f", cursorPosition.y);
+        ImGui::Text("Scale: %f", graphScale);
 
         ImGui::End();
 
         ImGui::Render();
 
-        //glEnable(GL_DEPTH_TEST);
-
         // Main Pass
         glBindFramebuffer(GL_FRAMEBUFFER, mainFBO);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-        
+        graphRender.useProgram();
 
-        mainSceneShader.useProgram();
-        mainSceneShader.pushMat4Uniform("cameraViewMatrix", cameraViewMatrix);
-        mainSceneShader.pushMat4Uniform("cameraViewMatrixInverse", cameraViewMatrixInverse);
-        mainSceneShader.pushMat4Uniform("cameraProjectionMatrix", cameraProjectionMatrix);
-        mainSceneShader.pushMat4Uniform("cameraProjectionMatrixInverse", cameraProjectionMatrixInverse);
-        mainSceneShader.pushMat4Uniform("modelMatrix", model);
-        mainScene.draw();
+        graphRender.pushBoolUniform("sineTaylorEnabled", sineTaylorEnabled);
+        graphRender.pushBoolUniform("expTaylorEnabled", expTaylorEnabled);
+        graphRender.pushIntUniform("sineTaylorIterations", sineTaylorIterations);
+        graphRender.pushIntUniform("expTaylorIterations", expTaylorIterations);
+        graphRender.pushFloatUniform("graphScale", graphScale);
+        graphRender.pushFloatUniform("aspectRatio", aspectRatio);
+        graphRender.pushVec2Uniform("graphOffset", graphOffset.x, graphOffset.y);
 
-        //glDisable(GL_DEPTH_TEST);
+        quadVAO.draw();
 
         // Post-processing pass
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -356,14 +307,8 @@ int main(void) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, imageLinear);
 
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_3D, colorLookup.textureID);
-
         postProcess.useProgram();
         postProcess.pushIntUniform("imageLinear", 0);
-        postProcess.pushIntUniform("colorLookup", 1);
-
-        postProcess.pushIntUniform("useColorGrade", useColorGrade);
 
         quadVAO.draw();
 
@@ -373,8 +318,6 @@ int main(void) {
         // Turn the back side of the buffer over (or vice-versa)
         glfwSwapBuffers(window);
     }
-
-    glDeleteTextures(1, &colorLookup.textureID);
 
     glDeleteFramebuffers(1, &mainFBO);
 
