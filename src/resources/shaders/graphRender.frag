@@ -15,7 +15,7 @@ out vec4 fragColor;
 
 void drawGraph(inout vec4 color, vec2 coord, float yValue, const vec4 graphColor) {
     color += 
-        abs(coord.y - yValue) < 0.01 ? 
+        abs(coord.y - yValue) < 0.02 ? 
         graphColor : 
         vec4(0.0);
 }
@@ -30,12 +30,14 @@ int fact(int x){
     return factOut;
 }
 
-float sineTaylorApproxmation(float x) {
-    float y;
-    for(int i = 0; i < 10; i++) {
-        y += (pow(-1.0, i) / float(fact(2 * i + 1))) * pow(x, 2.0 * i + 1.0);
+float sineTaylorApproximation(float x) {
+    float y = 0.0;
+    int sign = 1;
+    for(int i = 0; i < sineTaylorIterations; i++) {
+        y += sign / float(fact(2 * i + 1)) * pow(x, 2.0 * i + 1.0);
+        sign *= -1;
     }
-    return y;
+    return x - pow(x, 3) / float(fact(3)) + pow(x, 5) / float(fact(5));
 } 
 
 float derivative(float x) {
@@ -47,6 +49,6 @@ void main() {
     vec2 graphCoord = (texcoord - 0.5) * graphScale;
     graphCoord.x *= aspectRatio;
 
-    drawGraph(fragColor, graphCoord, sineTaylorApproxmation(graphCoord.x), vec4(1.0, 0.0, 0.0, 0.0));
-    drawGraph(fragColor, graphCoord, sin(graphCoord.x), vec4(1.0, 0.0, 0.0, 0.0));
+    drawGraph(fragColor, graphCoord, sineTaylorApproximation(graphCoord.x), vec4(1.0, 0.0, 0.0, 0.0));
+    drawGraph(fragColor, graphCoord, sin(graphCoord.x), vec4(0.0, 0.4039, 0.8627, 0.0));
 }
