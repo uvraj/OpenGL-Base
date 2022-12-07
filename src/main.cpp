@@ -1,3 +1,9 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <cmath>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -8,11 +14,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-#include <cstdio>
-#include <cstring>
-#include <vector>
-#include <cmath>
 
 #define STBI_MAX_DIMENSIONS (1 << 26)
 #define STB_IMAGE_IMPLEMENTATION
@@ -35,13 +36,13 @@
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
-Camera mainCamera(glm::vec3(1.0f, 0.0f, 0.0f));
+Camera mainCamera(glm::vec3(0.0f, 0.0f, 0.0f));
 
 float lastX = SCREEN_WIDTH / 2.0f;
 float lastY = SCREEN_HEIGHT / 2.0f;
 bool firstMouse = true;
 
-float deltaTime = 0.0f;
+float frameTime = 0.0f;
 float lastFrame = 0.0f;
 
 bool mouseCaught = true;
@@ -53,23 +54,24 @@ void frameBufferSizeCallBack(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
     glActiveTexture(GL_TEXTURE0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, NULL);
+    glActiveTexture(GL_TEXTURE1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 }
 
 void GLAPIENTRY messageCallBack(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
     printGLError("GL Output: \n");
-    std::printf("%s", message);
-    std::printf("\n");
+    std::cout << message << std::endl;
 }
 
 void handleInput(GLFWwindow *window, float time) {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        mainCamera.ProcessKeyboard(FORWARD, deltaTime);
+        mainCamera.ProcessKeyboard(FORWARD, frameTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        mainCamera.ProcessKeyboard(BACKWARD, deltaTime);
+        mainCamera.ProcessKeyboard(BACKWARD, frameTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        mainCamera.ProcessKeyboard(LEFT, deltaTime);
+        mainCamera.ProcessKeyboard(LEFT, frameTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        mainCamera.ProcessKeyboard(RIGHT, deltaTime);
+        mainCamera.ProcessKeyboard(RIGHT, frameTime);
 }
 
 void mouseCallback(GLFWwindow* window, double xposIn, double yposIn) {
@@ -168,8 +170,8 @@ int main(void) {
     std::printf("Window and OpenGL context created!\n");
 
     // OpenGL can be used safely, let's enable debug messages.
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(messageCallBack, 0);
+    // glEnable(GL_DEBUG_OUTPUT);
+    // glDebugMessageCallback(messageCallBack, 0);
 
     // Create a viewport with:
     glViewport(
@@ -193,11 +195,11 @@ int main(void) {
 
     // Create a style instance
     ImGuiStyle &style = ImGui::GetStyle();
-    style.WindowRounding = 7.5f; // Round our windows a bi
+    style.WindowRounding = 7.5f; // Round our windows a bit
     
     // Start the ImGUI GLFW / OpenGL impl.
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
+    ImGui_ImplOpenGL3_Init("#version 420 core");
 
     // Initilize our OpenGL objects.
     scene mainScene;
@@ -211,7 +213,7 @@ int main(void) {
     postProcess.load("postProcess.vert", "postProcess.frag");
 
     // Textures
-    texture3D_binaryDump colorLookup("FUJI_ETERNA_250D_FUJI_3510.DAT", 1, 21, 21, 21, 3, GL_RGB32F, GL_RGB, GL_FLOAT);
+    texture3D_binaryDump colorLookup("FUJI_ETERNA_250D_FUJI_3510.DAT", 2, 21, 21, 21, 3, GL_RGB32F, GL_RGB, GL_FLOAT);
 
     // Main Framebuffer
     GLuint mainFBO;
@@ -224,17 +226,18 @@ int main(void) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, imageLinear);
 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
 
-    glActiveTexture(GL_TEXTURE2);
+    glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, sceneDepth);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, imageLinear, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, sceneDepth, 0); 
@@ -244,30 +247,28 @@ int main(void) {
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     // Loop variables
-    int viewWidth = 0;
-    int viewHeight = 0;
-    bool useColorGrade = false;
-    glm::mat4 cameraProjectionMatrix;
-    glm::mat4 cameraProjectionMatrixInverse;
-    glm::mat4 cameraViewMatrix;
-    glm::mat4 cameraViewMatrixInverse;
     glm::mat4 model = glm::mat4(1.0f);
+    glm::ivec2 viewDimensions = glm::ivec2(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    
+    float currentFrame = 0.0f;
+    float aspectRatio = 1.0f;
+    bool useColorGrade = false;
     
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         // Time...
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
+        currentFrame = glfwGetTime();
+        frameTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
         // Poll and handle events (inputs, window resize, etc.)
         glfwPollEvents();
         handleInput(window, currentFrame);
-        glfwGetFramebufferSize(window, &viewWidth, &viewHeight);
+        glfwGetFramebufferSize(window, &viewDimensions[0], &viewDimensions[1]);
+        aspectRatio = static_cast <float> (viewDimensions.x) / static_cast <float> (viewDimensions.y);
 
         // Catch / Uncatch mouse based on mouseCaught.
         if(mouseCaught) {
@@ -282,17 +283,8 @@ int main(void) {
         // Resize fonts upon DPI change.
         handleDPI(window, io);
 
-        // Update camera
-        // Projection Matrix
-        cameraProjectionMatrix = glm::perspective(glm::radians(mainCamera.FoV), (float) viewWidth / (float) viewHeight, 0.1f, 5.0f); 
-        //cameraProjectionMatrix = glm::ortho(-1.0, 1.0, -1.0, 1.0);
-        cameraProjectionMatrixInverse = glm::inverse(cameraProjectionMatrix);
-
-        model = glm::rotate(model, glm::radians((float) std::fmod(currentFrame / 10.0, 360.0)), glm::vec3(1.0f, 0.0f, 0.0f)); 
-
-        // View Matrix
-        cameraViewMatrix = mainCamera.GetViewMatrix();
-        cameraViewMatrixInverse = inverse(cameraViewMatrix);
+        // Update camera data
+        mainCamera.updateCameraData(currentFrame, aspectRatio);
 
         // Start ImGUI frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -331,23 +323,24 @@ int main(void) {
 
         ImGui::Render();
 
-        //glEnable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         // Main Pass
         glBindFramebuffer(GL_FRAMEBUFFER, mainFBO);
+        glClearColor(0.2, 0.2, 0.2, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        
-
         mainSceneShader.useProgram();
-        mainSceneShader.pushMat4Uniform("cameraViewMatrix", cameraViewMatrix);
-        mainSceneShader.pushMat4Uniform("cameraViewMatrixInverse", cameraViewMatrixInverse);
-        mainSceneShader.pushMat4Uniform("cameraProjectionMatrix", cameraProjectionMatrix);
-        mainSceneShader.pushMat4Uniform("cameraProjectionMatrixInverse", cameraProjectionMatrixInverse);
+        mainSceneShader.pushMat4Uniform("cameraViewMatrix", mainCamera.viewMatrix);
+        mainSceneShader.pushMat4Uniform("cameraViewMatrixInverse", mainCamera.viewMatrixInverse);
+        mainSceneShader.pushMat4Uniform("cameraProjectionMatrix", mainCamera.projectionMatrix);
+        mainSceneShader.pushMat4Uniform("cameraProjectionMatrixInverse", mainCamera.projectionMatrixInverse);
         mainSceneShader.pushMat4Uniform("modelMatrix", model);
         mainScene.draw();
 
-        //glDisable(GL_DEPTH_TEST);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glDisable(GL_DEPTH_TEST);
 
         // Post-processing pass
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -357,11 +350,12 @@ int main(void) {
         glBindTexture(GL_TEXTURE_2D, imageLinear);
 
         glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, sceneDepth);
+
+        glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_3D, colorLookup.textureID);
 
         postProcess.useProgram();
-        postProcess.pushIntUniform("imageLinear", 0);
-        postProcess.pushIntUniform("colorLookup", 1);
 
         postProcess.pushIntUniform("useColorGrade", useColorGrade);
 

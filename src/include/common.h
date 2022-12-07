@@ -9,7 +9,7 @@ class shader {
         GLuint vsID = glCreateShader(GL_VERTEX_SHADER);
         GLuint fsID = glCreateShader(GL_FRAGMENT_SHADER);
         
-        void load(const GLchar* vertexFileName, const GLchar *fragmentFileName) {
+        void load(const std::string vertexFileName, const std::string fragmentFileName) {
             /* 
             * This functions handles:
             * - loading shaders from a file
@@ -28,134 +28,58 @@ class shader {
             // glObjectLabel(GL_VERTEX_SHADER, vsID, strlen(vertexFileName), vertexFileName);
             // glObjectLabel(GL_FRAGMENT_SHADER, fsID, strlen(fragmentFileName), fragmentFileName);
 
-            GLchar vertexFilePath[128] = SHADER_PATH;
-            GLchar fragmentFilePath[128] = SHADER_PATH;
+            std::string vertexFilePath = SHADER_PATH + vertexFileName;
+            std::string fragmentFilePath = SHADER_PATH + fragmentFileName;
 
-            strcat(vertexFilePath, vertexFileName);
-            strcat(fragmentFilePath, fragmentFileName);
+            // The shader text itself
+            std::string vertexShader;
+            std::string fragmentShader;
 
-            // This will hold out vertex shader data
-            GLchar *vertexShaderBuffer = NULL;
-            // This will hold the size / length of the vertex shader data
-            unsigned long vertexFileLength = 0;
+            // Create two instances of the fstream class, each with ios::in for read
+            // VS
+            std::ifstream vertexShaderFile(vertexFilePath);
 
-            // Do the same for the fragment shader.
-            GLchar *fragmentShaderBuffer = NULL;
-            unsigned long fragmentFileLength = 0;
-
-            // Create two instances of the FILE struct, each with "r" for "read"
-            FILE *vertexShaderFile = std::fopen(vertexFilePath, "r");
-            FILE *fragmentShaderFile = std::fopen(fragmentFilePath, "r");
+            // FS
+            std::ifstream fragmentShaderFile(fragmentFilePath);
             
-            // If the FILE loading succeeded:
-            if (vertexShaderFile) {
-                // Check the return value of fseek().
-                // Sets the FILE position to the end
-                if(fseek(vertexShaderFile, 0, SEEK_END)) {
-                    printError(); 
-                    std::printf("fseek() failed.");
-                }
-
-                // Get the length of the vertex shader file.    
-                vertexFileLength = ftell(vertexShaderFile);
-
-                // Check the return value of fseek() again.
-                // Sets the FILE position to the beginning
-                if(fseek(vertexShaderFile, 0, SEEK_SET)) {
-                    printError(); 
-                    std::printf("fseek() failed.");
-                }
-
-                // Allocate the required amount of memory. Plus 1 for the null terminator
-                vertexShaderBuffer = (GLchar*) malloc(vertexFileLength + 1);
-
-                // Variable for remembering the end index for the null terminator
-                size_t endPos = 0;
-
-                // If the memory allocation succeded:
-                // read the file and set endPos.
-                if (vertexShaderBuffer) {
-                    endPos = std::fread(vertexShaderBuffer, 1, vertexFileLength, vertexShaderFile);
-                }
-
-                // If it didn't: 
-                else {
-                    printError();
-                    std::printf("vertex memory allocation failed.");
-                }
-
-                // Add the null terminator
-                vertexShaderBuffer[endPos] = '\0';
-                
-                // Close the file. We're done.
-                fclose(vertexShaderFile);
-            }
-
-            //If it didn't: 
-            else {
-                printError();
-                std::printf("Loading vertex shader from file ");
-                std::printf(vertexFilePath);
-                std::printf(" failed!\n");
-                return;
-            }
-            
-            // If the FILE loading succeeded:
-            if (fragmentShaderFile) {
-                // Check the return value of fseek().
-                // Sets the FILE position to the end
-                if(fseek(fragmentShaderFile, 0, SEEK_END)) {
-                    printError(); 
-                    std::printf("fseek() failed.");
-                }
-
-                // Get the length of the fragment shader file.    
-                fragmentFileLength = ftell(fragmentShaderFile);
-
-                // Check the return value of fseek() again.
-                // Sets the FILE position to the beginning
-                if(fseek(fragmentShaderFile, 0, SEEK_SET)) {
-                    printError(); 
-                    std::printf("fseek() failed.");
-                }
-
-                // Allocate the required amount of memory. Plus 1 for the null terminator
-                fragmentShaderBuffer = (GLchar*) malloc(fragmentFileLength + 1);
-
-                // Variable for remembering the end index for the null terminator
-                size_t endPos = 0;
-
-                // If the memory allocation succeded:
-                // read the file and set endPos.
-                if (fragmentShaderBuffer) {
-                    endPos = std::fread(fragmentShaderBuffer, 1, fragmentFileLength, fragmentShaderFile);
-                }
-
-                // If it didn't: 
-                else {
-                    printError();
-                    std::printf("fragment memory allocation failed.");
-                }
-
-                // Add the null terminator
-                fragmentShaderBuffer[endPos] = '\0';
-                
-                // Close the file. We're done.
-                fclose(fragmentShaderFile);
+            // If the file loading succeeded
+            if (vertexShaderFile.is_open()) {
+                std::ostringstream oss;
+                oss << vertexShaderFile.rdbuf();
+                vertexShader = oss.str();
             }
 
             // If it didn't: 
             else {
                 printError();
-                std::printf("Loading fragment shader from file ");
-                std::printf(fragmentFilePath);
-                std::printf(" failed!\n");
+                std::cout << "Loading vertex shader from file ";
+                std::cout << vertexFilePath;
+                std::cout << " failed!\n";
+                return;
+            }
+            
+            // If the file loading succeeded
+            if (fragmentShaderFile.is_open()) {
+                std::ostringstream oss;
+                oss << fragmentShaderFile.rdbuf();
+                fragmentShader = oss.str();
+            }
+
+            // If it didn't: 
+            else {
+                printError();
+                std::cout << "Loading fragment shader from file ";
+                std::cout << fragmentFilePath;
+                std::cout << " failed!\n";
                 return;
             }
 
             // Push our stuff into a const GLchar* so OpenGL (gcc) doesn't yell at me
-            const GLchar *vertexShaderSource = vertexShaderBuffer;
-            const GLchar *fragmentShaderSource = fragmentShaderBuffer;
+            const GLchar *vertexShaderSource = vertexShader.c_str();
+            const GLchar *fragmentShaderSource = fragmentShader.c_str();
+
+            std::cout << vertexShader << std::endl;
+            std::cout << fragmentShader << std::endl;
 
             // Attach the shader source to the created ID
             glShaderSource(vsID, 1, &vertexShaderSource, NULL);
@@ -172,10 +96,6 @@ class shader {
 
             // Check for errors
             checkErrors(fsID, vsID, programID);
-
-            // And finally: Free our stuff.
-            free(vertexShaderBuffer);
-            free(fragmentShaderBuffer);
         }
 
 
@@ -381,5 +301,18 @@ class scene {
         }
 
 };
+
+/*
+This seemed like a good idea at first.
+class FrameData {
+    public:
+        glm::ivec2 viewDimensions = glm::ivec2(SCREEN_WIDTH, SCREEN_HEIGHT);
+        float aspectRatio = static_cast <float> (viewDimensions.x) / static_cast <float> (viewDimensions.y);
+        float frameTime = 0.0f;
+        float currentFrame = 0.0f;
+        int frameIndex = 0;
+        
+};
+*/
 
 #endif

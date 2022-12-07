@@ -1,8 +1,9 @@
-#version 330 core
+#version 420 core
 
-uniform sampler3D colorLookup;
+layout (binding = 0) uniform sampler2D imageLinear;
+//uniform sampler2D sceneDepth;
 
-uniform sampler2D imageLinear;
+layout (binding = 2) uniform sampler3D colorLookup;
 
 uniform bool useColorGrade;
 

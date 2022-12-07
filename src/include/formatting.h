@@ -2,83 +2,83 @@
 #define FORMATTING_H
 
 void textRed() {
-    std::printf("\033[1;31m");
+    std::cout << "\033[1;31m";
 }
 
 void textGreen() {
-    std::printf("\033[1;32m");
+    std::cout << "\033[1;32m";
 }
 
 void textCyan() {
-    std::printf("\033[1;36m");
+    std::cout << "\033[1;36m";
 }
 
 void textYellow() {
-    std::printf("\033[1;33m");	
+    std::cout << "\033[1;33m";	
 }
 
 void textReset() {
-    std::printf("\033[0m");
+    std::cout << "\033[0m";
 }
 
 void printSuccess() {
-    std::printf("[");
+    std::cout << "[";
     textGreen();
-    std::printf("SUCCESS");
+    std::cout << "SUCCESS";
     textReset();
-    std::printf("]\t");
+    std::cout << "]\t";
 }
 
-void printSuccess(const char *text) {
-    std::printf("[");
+void printSuccess(const std::string text) {
+    std::cout << "[";
     textGreen();
-    std::printf("SUCCESS");
+    std::cout << "SUCCESS";
     textReset();
-    std::printf("]\t");
-    std::printf(text);
+    std::cout << "]\t";
+    std::cout << text;
 }
 
 void printError() {
-    std::printf("[");
+    std::cout << "[";
     textRed();
-    std::printf("ERROR");
+    std::cout << "ERROR";
     textReset();
-    std::printf("]\t\t");
+    std::cout << "]\t\t";
 }
 
-void printError(const char *text) {
-    std::printf("[");
+void printError(const std::string text) {
+    std::cout << "[";
     textRed();
-    std::printf("ERROR");
+    std::cout << "ERROR";
     textReset();
-    std::printf("]\t\t");
-    std::printf(text);
+    std::cout << "]\t\t";
+    std::cout << text;
 }
 
-void printGLError(const char *text) {
-    std::printf("[");
+void printGLError(const std::string text) {
+    std::cout << "[";
     textYellow();
-    std::printf("GL_INFO");
+    std::cout << "GL_INFO";
     textReset();
-    std::printf("]\t");
-    std::printf(text);
+    std::cout << "]\t";
+    std::cout << text;
 }
 
 void printInfo() {
-    std::printf("[");
+    std::cout << "[";
     textCyan();
-    std::printf("INFO");
+    std::cout << "INFO";
     textReset();
-    std::printf("]\t\t");
+    std::cout << "]\t\t";
 }
 
-void printInfo(const char *text) {
-    std::printf("[");
+void printInfo(const std::string text) {
+    std::cout << "[";
     textCyan();
-    std::printf("INFO");
+    std::cout << "INFO";
     textReset();
-    std::printf("]\t\t");
-    std::printf(text);
+    std::cout << "]\t\t";
+    std::cout << text;
 }
 
 #endif

@@ -15,10 +15,13 @@ const float SPEED       =  1.0f;
 const float SENSITIVITY =  0.1f;
 const float FOV        =  70.0f;
 
-
 // A camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL / GLSL
 class Camera {
     public:
+        glm::mat4 projectionMatrix = glm::mat4(1.0f);
+        glm::mat4 projectionMatrixInverse = glm::mat4(1.0f);
+        glm::mat4 viewMatrix = glm::mat4(1.0f);
+        glm::mat4 viewMatrixInverse = glm::mat4(1.0f);
         // camera Attributes
         glm::vec3 Position;
         glm::vec3 Front;
@@ -98,6 +101,18 @@ class Camera {
                 FoV = 1.0f;
             if (FoV > 180.0f)
                 FoV = 180.0f; 
+        }
+
+        void updateCameraData(float currentFrame, float aspectRatio) {
+            // Projection Matrix
+            projectionMatrix = glm::perspective(glm::radians(FoV), aspectRatio, 0.1f, 5.0f); 
+            // projectionMatrix = glm::ortho(-1.0 * aspectRatio, 1.0 * aspectRatio, -1.0, 1.0);
+            // projectionMatrix = glm::scale(projectionMatrix, glm::vec3(1.0 / FoV));
+            projectionMatrixInverse = glm::inverse(projectionMatrix);
+
+            // View Matrix
+            viewMatrix = GetViewMatrix();
+            viewMatrixInverse = glm::inverse(viewMatrixInverse);
         }
 
     private:
