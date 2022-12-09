@@ -1,22 +1,24 @@
 #ifndef TEXTURES_H
 #define TEXTURES_H
 
-class texture2D {
+class Texture2D {
     public: 
         GLuint textureID = 0;
 
-        texture2D(const GLchar *filePath, GLuint texUnit){
-            GLchar completeFilePath[128] = RESOURCE_PATH;
-            strcat(completeFilePath, filePath);
+        Texture2D(const std::string fileName, GLuint texUnit){
+            std::string filePath = RESOURCE_PATH + fileName;
+
+            // Tell STB that I want to flip the y coord
+            stbi_set_flip_vertically_on_load(true);
 
             // Image parameters.
             int width, height, nrChannels;
-            unsigned char *data = stbi_load(completeFilePath, &width, &height, &nrChannels, 4);
+            std::uint8_t *data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 4);
 
             if(!data) {
                 printError();
-                std::printf("Loading texture %s failed!\n", filePath);
-                return;
+                std::cout << "Loading texture %s failed!\n";
+                assert(data);
             }
 
             glGenTextures(1, &textureID);
@@ -35,131 +37,118 @@ class texture2D {
 
             glBindTexture(GL_TEXTURE_2D, 0);
         }
+
+        ~Texture2D() {
+            glDeleteTextures(1, &textureID);
+        }
+
+        void bind() {
+            glBindTexture(GL_TEXTURE_2D, textureID);
+        }
 };
 
-
-class texture2D_binaryDump {
+class Texture2D_bin {
     public:
         GLuint textureID = 0;
-        GLuint elemSizeInBytes = 0;
-        FILE *binaryFile = NULL;
-        unsigned char *binaryData = NULL;
-        
-        texture2D_binaryDump(const GLchar *filePath, const GLuint texUnit, const GLuint width, const GLuint height, const GLuint channels, const GLuint internalFormat, const GLuint format, const GLuint pixelType) {
 
-            switch(pixelType) {
-                case GL_HALF_FLOAT:
-                     elemSizeInBytes = 2;
-                     break;
-                case GL_FLOAT:
-                     elemSizeInBytes = 4;
-                     break;
-            }
+        Texture2D_bin(
+            const std::string fileName, 
+            const GLuint texUnit, 
+            const GLuint width, 
+            const GLuint height, 
+            const GLuint internalFormat, 
+            const GLuint format, 
+            const GLuint pixelType,
+            const GLuint wrapParam = GL_CLAMP_TO_EDGE,
+            const GLuint filterParam = GL_LINEAR
+        ) {
+            std::string filePath = RESOURCE_PATH + fileName;
+            std::ifstream binaryFile(filePath, std::ios::binary);
 
-            GLchar completeFilePath[128] = RESOURCE_PATH;
-            strcat(completeFilePath, filePath);
+            std::vector <std::uint8_t> binaryData;
+            binaryData.assign(std::istreambuf_iterator <char> (binaryFile), {});
 
-            binaryData = (unsigned char*) malloc(width * height * channels * elemSizeInBytes);
-
-            if(!binaryData) {
+            if(!binaryFile.is_open()) {
                 printError();
-                std::printf("Allocating binary 2D texture %s failed!", filePath);
-                return;
-            }
-
-            binaryFile = std::fopen(completeFilePath, "rb");
-            std::fread(binaryData, 1, width * height * channels * elemSizeInBytes, binaryFile);
-
-            if(!binaryData) {
-                printError();
-                std::printf("Loading binary 2D texture %s failed!", filePath);
-                return;
+                std::cout << "Loading binary 2D texture " << filePath << " failed!\n";
+                assert(0);
             }
 
             glGenTextures(1, &textureID);
 
             glActiveTexture(GL_TEXTURE0 + texUnit);
             glBindTexture(GL_TEXTURE_2D, textureID);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapParam);	
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapParam);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterParam);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterParam);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, pixelType, binaryData);
-            glGenerateMipmap(GL_TEXTURE_2D);
-
-            free(binaryData);
+            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, pixelType, &binaryData[0]);
 
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
+
+        ~Texture2D_bin() {
+            glDeleteTextures(1, &textureID); 
+        }
+
+        void bind() {
+            glBindTexture(GL_TEXTURE_2D, textureID);
+        }
+
 };
 
-
-class texture3D_binaryDump {
+class Texture3D_bin {
     public:
         GLuint textureID = 0;
-        GLuint elemSizeInBytes = 0;
-        FILE *binaryFile = NULL;
-        unsigned char *binaryData = NULL;
-        
-        texture3D_binaryDump(
-            const GLchar *filePath, 
+
+        Texture3D_bin(
+            const std::string fileName, 
             const GLuint texUnit, 
             const GLuint width, 
             const GLuint height, 
-            const GLuint depth, 
-            const GLuint channels, 
+            const GLuint depth,  
             const GLuint internalFormat, 
             const GLuint format, 
-            const GLuint pixelType
+            const GLuint pixelType,
+            const GLuint wrapParam = GL_CLAMP_TO_EDGE,
+            const GLuint filterParam = GL_LINEAR
         ) {
+            std::string filePath = RESOURCE_PATH + fileName;
+            std::ifstream binaryFile(filePath, std::ios::binary);
 
-            // TODO: All pixel types
-            switch(pixelType) {
-                case GL_HALF_FLOAT:
-                     elemSizeInBytes = 2;
-                     break;
-                case GL_FLOAT:
-                     elemSizeInBytes = 4;
-                     break;
-            }
+            std::vector <std::uint8_t> binaryData;
+            binaryData.assign(std::istreambuf_iterator <char> (binaryFile), {});
 
-            GLchar completeFilePath[128] = RESOURCE_PATH;
-            strcat(completeFilePath, filePath);
-
-            binaryData = (unsigned char*) malloc(width * height * depth * channels * elemSizeInBytes);
-
-            if(!binaryData) {
+            if(!binaryFile.is_open()) {
                 printError();
-                std::printf("Allocating binary 3D texture %s failed!", filePath);
-                return;
-            }
-
-            binaryFile = std::fopen(completeFilePath, "rb");
-            std::fread(binaryData, 1, width * height * depth * channels * elemSizeInBytes, binaryFile);
-
-            if(!binaryData) {
-                printError();
-                std::printf("Loading binary 3D texture %s failed!", filePath);
-                return;
+                std::cout << "Loading binary 3D texture " << filePath << " failed!\n";
+                assert(0);
             }
 
             glGenTextures(1, &textureID);
 
             glActiveTexture(GL_TEXTURE0 + texUnit);
             glBindTexture(GL_TEXTURE_3D, textureID);
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, wrapParam);	
+            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, wrapParam);
+            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, wrapParam);
+            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, filterParam);
+            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, filterParam);
 
-            glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, width, height, depth, 0, format, pixelType, binaryData);
-
-            free(binaryData);
+            glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, width, height, depth, 0, format, pixelType, &binaryData[0]);
 
             glBindTexture(GL_TEXTURE_3D, 0);
+        }
+
+
+        ~Texture3D_bin() {
+            glDeleteTextures(1, &textureID);
+        }
+
+        void bind() {
+            glBindTexture(GL_TEXTURE_3D, textureID);
         }
 
 };

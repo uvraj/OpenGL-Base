@@ -103,7 +103,7 @@ class Camera {
                 FoV = 180.0f; 
         }
 
-        void updateCameraData(float currentFrame, float aspectRatio) {
+        void updateCameraData(float aspectRatio) {
             // Projection Matrix
             projectionMatrix = glm::perspective(glm::radians(FoV), aspectRatio, 0.1f, 5.0f); 
             // projectionMatrix = glm::ortho(-1.0 * aspectRatio, 1.0 * aspectRatio, -1.0, 1.0);

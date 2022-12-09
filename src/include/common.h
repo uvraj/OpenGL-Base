@@ -40,7 +40,7 @@ class shader {
             std::ifstream vertexShaderFile(vertexFilePath);
 
             // FS
-            std::ifstream fragmentShaderFile(fragmentFilePath);
+            std::ifstream fragmentShaderFile(fragmentFilePath); 
             
             // If the file loading succeeded
             if (vertexShaderFile.is_open()) {
@@ -78,9 +78,6 @@ class shader {
             const GLchar *vertexShaderSource = vertexShader.c_str();
             const GLchar *fragmentShaderSource = fragmentShader.c_str();
 
-            std::cout << vertexShader << std::endl;
-            std::cout << fragmentShader << std::endl;
-
             // Attach the shader source to the created ID
             glShaderSource(vsID, 1, &vertexShaderSource, NULL);
             glCompileShader(vsID);
@@ -113,16 +110,24 @@ class shader {
             glUniform1i(glGetUniformLocation(programID, name), value);
         }
 
-        void pushBoolUniform(const GLchar *name, GLboolean value) {
-            glUniform1i(glGetUniformLocation(programID, name), value);
-        }
-
         void pushUnsignedIntUniform(const GLchar *name, GLint value) {
             glUniform1ui(glGetUniformLocation(programID, name), value); 
         }
 
+        void pushBoolUniform(const GLchar *name, GLboolean value) {
+            glUniform1i(glGetUniformLocation(programID, name), value);
+        }
+
         void pushVec2Uniform(const GLchar *name, GLfloat x, GLfloat y) {
             glUniform2f(glGetUniformLocation(programID, name), x, y);
+        }
+
+        void pushVec2Uniform(const GLchar *name, glm::vec2 vec){
+            glUniform2fv(glGetUniformLocation(programID, name), 2, &vec[0]);
+        }
+
+        void pushIVec2Uniform(const GLchar *name, glm::ivec2 vec) {
+            glUniform2iv(glGetUniformLocation(programID, name), 2, &vec[0]);
         }
 
         void pushVec3Uniform(const GLchar *name, GLfloat x, GLfloat y, GLfloat z) {
@@ -133,7 +138,7 @@ class shader {
             glUniform4f(glGetUniformLocation(programID, name), x, y, z, w);
         }
 
-        void pushMat4Uniform(const GLchar *name, const glm::mat4 &mat) {
+        void pushMat4Uniform(const GLchar *name, const glm::mat4 mat) {
             glUniformMatrix4fv(glGetUniformLocation(programID, name), 1, GL_FALSE, &mat[0][0]);
         }
 
@@ -150,9 +155,7 @@ class shader {
             if (!success) {
                 glGetShaderInfoLog(vsID, 512, NULL, infoLog);
                 printError();
-                std::printf("OpenGL Output: \n");
-                std::printf(infoLog);
-                std::printf("\n");
+                std::cout << "OpenGL Output: \n" << infoLog << '\n';
             }
 
             // Continue doing this for the rest.
@@ -162,9 +165,7 @@ class shader {
             if (!success) {
                 glGetShaderInfoLog(fsID, 512, NULL, infoLog);
                 printError();
-                std::printf("OpenGL Output: \n");
-                std::printf(infoLog);
-                std::printf("\n");
+                std::cout << "OpenGL Output: \n" << infoLog << '\n';
             }
 
 
@@ -173,9 +174,7 @@ class shader {
             if (!success) {
                 glGetProgramInfoLog(programID, 512, NULL, infoLog);
                 printError();
-                std::printf("OpenGL Output: \n");
-                std::printf(infoLog);
-                std::printf("\n");
+                std::cout << "OpenGL Output: \n" << infoLog << '\n';
             }
         }
 };
