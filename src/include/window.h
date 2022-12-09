@@ -14,9 +14,11 @@ class Window {
         float frameTime = 0.0f;
         float aspectRatio = 1.0f;
 
+        std::time_t stdTime = std::time(0);
+        std::uint64_t frameIndex = 0;
+
         int viewWidth = SCREEN_WIDTH;
         int viewHeight = SCREEN_HEIGHT;
-        int frameIndex = 0.0f;
 
         bool mouseCaught = true;
         bool firstMouse = true;
@@ -36,7 +38,7 @@ class Window {
                 printError();
                 std::printf("GLFW window creation failed.\n");
                 glfwTerminate();
-                assert(0);
+                assert(glfwWindow);
             }
 
             // Make "window" the main context on the current thread
@@ -46,7 +48,7 @@ class Window {
             if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
                 printError();
                 std::printf("GLAD initialization failed.\n");
-                assert(0);
+                assert(false);
             }
 
             printSuccess();
@@ -135,6 +137,7 @@ class Window {
         }
 
         void swapBuffers() {
+            frameIndex += 1;
             glfwSwapBuffers(glfwWindow);
         }
 

@@ -55,7 +55,7 @@ class shader {
                 std::cout << "Loading vertex shader from file ";
                 std::cout << vertexFilePath;
                 std::cout << " failed!\n";
-                return;
+                assert(vertexShaderFile.is_open());
             }
             
             // If the file loading succeeded
@@ -71,7 +71,7 @@ class shader {
                 std::cout << "Loading fragment shader from file ";
                 std::cout << fragmentFilePath;
                 std::cout << " failed!\n";
-                return;
+                assert(fragmentShaderFile.is_open());
             }
 
             // Push our stuff into a const GLchar* so OpenGL (gcc) doesn't yell at me

@@ -46,9 +46,6 @@ void GLAPIENTRY messageCallBack(GLenum source, GLenum type, GLuint id, GLenum se
 }
 
 int main(void) {
-    // Initialize time_t.
-    std::time_t stdTime = std::time(0);
-
     Camera camera(glm::vec3(0.0f));
     Window window(&camera);
 

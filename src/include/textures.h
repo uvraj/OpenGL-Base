@@ -71,7 +71,7 @@ class Texture2D_bin {
             if(!binaryFile.is_open()) {
                 printError();
                 std::cout << "Loading binary 2D texture " << filePath << " failed!\n";
-                assert(0);
+                assert(binaryFile.is_open());
             }
 
             glGenTextures(1, &textureID);
@@ -124,7 +124,7 @@ class Texture3D_bin {
             if(!binaryFile.is_open()) {
                 printError();
                 std::cout << "Loading binary 3D texture " << filePath << " failed!\n";
-                assert(0);
+                assert(binaryFile.is_open());
             }
 
             glGenTextures(1, &textureID);
