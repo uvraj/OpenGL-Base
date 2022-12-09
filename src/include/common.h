@@ -95,8 +95,14 @@ class shader {
             checkErrors(fsID, vsID, programID);
         }
 
+        ~shader() {
+            glDeleteShader(vsID);
+            glDeleteShader(fsID);
+            glDeleteProgram(programID);
+        }
 
-        void useProgram(){
+
+        void useProgram() {
             glUseProgram(programID);
         }
     
