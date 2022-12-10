@@ -132,8 +132,10 @@ class Window {
             else {
                 glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
+        }
 
-            camera->updateCameraData(aspectRatio);
+        bool shouldClose() {
+            return glfwWindowShouldClose(glfwWindow);
         }
 
         void swapBuffers() {

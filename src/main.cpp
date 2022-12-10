@@ -124,12 +124,15 @@ int main(void) {
     glEnable(GL_DEPTH_TEST);
 
     // Loop variables
-    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     bool useColorGrade = false;
     
     // Main loop
-    while (!glfwWindowShouldClose(window.glfwWindow)) {
+    while (!window.shouldClose()) {
         window.renderLoop(io);
+        camera.updateCameraData(window.aspectRatio);
+
+        model = glm::rotate(model, (float) glm::radians(window.currentFrame * 0.01), glm::vec3(1.0f, 0.0f, 0.0f));
 
         // Start ImGUI frame
         ImGui_ImplOpenGL3_NewFrame();
