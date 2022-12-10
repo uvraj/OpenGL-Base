@@ -1,15 +1,30 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-class shader {
+class Shader {
     // This class encapsulates everything shader-related
     // It covers shader creation, user outputting and uniform creation
     public:
         GLuint programID = glCreateProgram();
         GLuint vsID = glCreateShader(GL_VERTEX_SHADER);
         GLuint fsID = glCreateShader(GL_FRAGMENT_SHADER);
-        
-        void load(const std::string vertexFileName, const std::string fragmentFileName) {
+        std::string programName;
+        std::string vertexFileName;
+        std::string fragmentFileName;
+
+        Shader(const std::string currentProgramName, const std::string currentVSFileName, const std::string currentFSFileName) {
+            programName = currentProgramName;
+            vertexFileName = currentVSFileName;
+            fragmentFileName = currentFSFileName;
+        }
+
+        ~Shader() {
+            glDeleteShader(vsID);
+            glDeleteShader(fsID);
+            glDeleteProgram(programID);
+        }
+
+        void load() {
             /* 
             * This functions handles:
             * - loading shaders from a file
@@ -18,15 +33,14 @@ class shader {
             */ 
             // Load the shaders from their respective file paths
             // A path prefix is passed from CMAKE, so that the user can choose where to load the shaders from
-            // This is also required for MSVC support, since MS doesn't put the exectuable directly into the build folder!
             // The path prefix is then concatenated with the shader name
             // I.e.: RESOURCE_PATH + FOLDER + SHADER_NAME = COMPLETE_SHADER_LOCATION
             // With these concatenation conventions, it is also possible to load our resources from the "src" path directly
             // without copying over the files
 
-            // glObjectLabel(GL_PROGRAM, programID, strlen(programName), programName);
-            // glObjectLabel(GL_VERTEX_SHADER, vsID, strlen(vertexFileName), vertexFileName);
-            // glObjectLabel(GL_FRAGMENT_SHADER, fsID, strlen(fragmentFileName), fragmentFileName);
+            glObjectLabel(GL_PROGRAM, programID, programName.length(), programName.c_str());
+            glObjectLabel(GL_VERTEX_SHADER, vsID, vertexFileName.length(), vertexFileName.c_str());
+            glObjectLabel(GL_FRAGMENT_SHADER, fsID, fragmentFileName.length(), fragmentFileName.c_str());
 
             std::string vertexFilePath = SHADER_PATH + vertexFileName;
             std::string fragmentFilePath = SHADER_PATH + fragmentFileName;
@@ -95,13 +109,6 @@ class shader {
             checkErrors(fsID, vsID, programID);
         }
 
-        ~shader() {
-            glDeleteShader(vsID);
-            glDeleteShader(fsID);
-            glDeleteProgram(programID);
-        }
-
-
         void useProgram() {
             glUseProgram(programID);
         }
@@ -152,7 +159,7 @@ class shader {
         void checkErrors(GLuint fsID, GLuint vsID, GLuint programID) {
             // Print potential errors into the console
             int success = 0;
-            GLchar infoLog[1024];
+            GLchar infoLog[2048];
 
             // Check if compilation was successful
             glGetShaderiv(vsID, GL_COMPILE_STATUS, &success);
@@ -171,7 +178,9 @@ class shader {
             if (!success) {
                 glGetShaderInfoLog(fsID, 512, NULL, infoLog);
                 printError();
+                textYellow();
                 std::cout << "OpenGL Output: \n" << infoLog << '\n';
+                textReset();
             }
 
 
@@ -180,12 +189,14 @@ class shader {
             if (!success) {
                 glGetProgramInfoLog(programID, 512, NULL, infoLog);
                 printError();
+                textYellow();
                 std::cout << "OpenGL Output: \n" << infoLog << '\n';
+                textReset();
             }
         }
 };
 
-class quad {
+class Quad {
     /*
      * This class handles:
      * creating all the OpenGL data necessary for drawing a quad
@@ -211,7 +222,7 @@ class quad {
         GLuint vertexArrayObjects  = 0;
         GLuint EBO = 0;
 
-        quad() {
+        Quad() {
             // Generate the required stuff
             glGenBuffers(1, &vertexBufferObjects);
             glGenBuffers(1, &EBO);
@@ -241,6 +252,12 @@ class quad {
             glBindVertexArray(0);
         }
 
+        ~Quad() {
+            glDeleteBuffers(1, &vertexBufferObjects);
+            glDeleteBuffers(1, &EBO);
+            glDeleteVertexArrays(1, &vertexArrayObjects);
+        }
+
         void draw() {
             // Actually draw everything.
             // Bind the VAO and the EBO. Draw our Elements
@@ -252,7 +269,7 @@ class quad {
 
 };
 
-class scene {
+class Scene {
     public:
         GLuint EBO, VBO, VAO;
 
@@ -268,7 +285,7 @@ class scene {
 
         GLuint indices[9] = {0, 1, 2, 3, 4, 5, 5, 6, 4};
 
-        scene() {
+        Scene() {
             // Generate the required objects.
             glGenBuffers(1, &EBO);
             glGenBuffers(1, &VBO);
@@ -296,6 +313,12 @@ class scene {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
+        }
+
+        ~Scene() {
+            glDeleteBuffers(1, &VBO);
+            glDeleteBuffers(1, &EBO);
+            glDeleteVertexArrays(1, &VAO);
         }
 
         void draw() {

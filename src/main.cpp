@@ -74,15 +74,15 @@ int main(void) {
     setImGuiStyle(window.glfwWindow);
 
     // Initilize our OpenGL objects.
-    scene mainScene;
-    quad quadVAO;
+    Scene mainScene;
+    Quad quadVAO;
 
     // Shaders
-    shader mainSceneShader;
-    mainSceneShader.load("mainScene.vert", "mainScene.frag");
+    Shader mainSceneShader("mainScene", "mainScene.vert", "mainScene.frag");
+    mainSceneShader.load();
 
-    shader postProcess;
-    postProcess.load("postProcess.vert", "postProcess.frag");
+    Shader postProcess("postProcess", "postProcess.vert", "postProcess.frag");
+    postProcess.load();
 
     // Textures
     Texture3D_bin colorLookup("FUJI_ETERNA_250D_FUJI_3510.DAT", 2, 21, 21, 21, GL_RGB32F, GL_RGB, GL_FLOAT);
@@ -121,6 +121,8 @@ int main(void) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    glEnable(GL_DEPTH_TEST);
+
     // Loop variables
     glm::mat4 model = glm::mat4(1.0f);
     bool useColorGrade = false;
@@ -141,8 +143,8 @@ int main(void) {
         ImGui::Checkbox("Use Color Grade", &useColorGrade);
 
         if(ImGui::Button("Reload Shaders")) {
-            mainSceneShader.load("mainScene.vert", "mainScene.frag");
-            postProcess.load("postProcess.vert", "postProcess.frag");
+            mainSceneShader.load();
+            postProcess.load();
         }
 
         ImGui::End();
@@ -165,11 +167,11 @@ int main(void) {
         ImGui::End();
 
         ImGui::Render();
-
-        glEnable(GL_DEPTH_TEST);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        
 
         // Main Pass
+        glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, 11, "Main Scene");
+        glEnable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, mainFBO);
         glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -182,12 +184,12 @@ int main(void) {
         mainSceneShader.pushMat4Uniform("modelMatrix", model);
         mainScene.draw();
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glDisable(GL_DEPTH_TEST);
+        glPopDebugGroup();
 
         // Post-processing pass
+        glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, 13, "Post Process");
+        glDisable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClear(GL_COLOR_BUFFER_BIT);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, sceneAlbedo);
@@ -200,14 +202,20 @@ int main(void) {
 
         postProcess.useProgram();
 
-        postProcess.pushIntUniform("useColorGrade", useColorGrade);
+        postProcess.pushIntUniform("useColorGrade", useColorGrade); 
 
         quadVAO.draw();
+
+        glPopDebugGroup();
+
+        glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, 13, "ImGui Render");
 
         // Finally draw the imgui stuff
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        // Turn the back side of the buffer over (or vice-versa)
+        glPopDebugGroup();
+
+        // Swap GLFW framebuffers
         window.swapBuffers();
     }
 
