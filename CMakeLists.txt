@@ -64,15 +64,15 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${GLM_DIR}")
 # OPENGL
 find_package(OpenGL REQUIRED)
 
-# imgui
-file(GLOB "imgui_src" "${IMGUI_DIR}/*.cpp")
-add_library(imgui "${imgui_src}")
+# ImGui
+file(GLOB imgui_src "${IMGUI_DIR}/*.cpp")
+add_library(imgui ${imgui_src})
 
 target_include_directories(imgui PRIVATE ${IMGUI_DIR})
 target_include_directories(imgui PRIVATE "${GLFW_DIR}/include")
 target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_DIR})
 
-# stb
+# STB
 target_include_directories(${PROJECT_NAME} PRIVATE ${STB_DIR})
 
 # Link everything
@@ -80,21 +80,21 @@ target_link_libraries(${PROJECT_NAME} imgui glfw glad)
 
 # Handle shaders and resources
 if(NOT MSVC)
-if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND  $(CMAKE_COMMAND) -E copy_directory ${RESOURCES_DIR}   ${EXECUTABLE_OUTPUT_PATH}/resources
-    )
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND  $(CMAKE_COMMAND) -E copy_directory ${RESOURCES_DIR}   ${EXECUTABLE_OUTPUT_PATH}/resources
+        )
 
-    add_compile_definitions(RESOURCE_PATH="resources/")
-    add_compile_definitions(SHADER_PATH="resources/shaders/")
+        add_compile_definitions(RESOURCE_PATH="resources/")
+        add_compile_definitions(SHADER_PATH="resources/shaders/")
 
-else()
+    else()
 
-    add_compile_definitions(RESOURCE_PATH="../../src/resources/")
-    add_compile_definitions(SHADER_PATH="../../src/resources/shaders/")
+        add_compile_definitions(RESOURCE_PATH="../../src/resources/")
+        add_compile_definitions(SHADER_PATH="../../src/resources/shaders/")
 
-endif()
+    endif()
 
 else()
 

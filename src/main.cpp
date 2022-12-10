@@ -83,6 +83,7 @@ int main(void) {
 
     // Textures
     Texture3D_bin colorLookup("FUJI_ETERNA_250D_FUJI_3510.DAT", 2, 21, 21, 21, GL_RGB32F, GL_RGB, GL_FLOAT);
+    // Texture2D testImage("testImage.png", 3);
 
     // Main Framebuffer
     GLuint mainFBO;
