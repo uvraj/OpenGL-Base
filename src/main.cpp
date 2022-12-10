@@ -21,9 +21,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#define STB_INCLUDE_IMPLEMENTATION
-#include <stb_include.h>
-
 #define TITLE "OpenGL Base"
 
 #define APPLICATION_GL_VERSION_MAJOR 4 
@@ -168,6 +165,8 @@ int main(void) {
         ImGui::Text("Camera Yaw:\t%.2f", camera.Yaw);
 
         ImGui::End();
+
+        ImGui::ShowDemoWindow();
 
         ImGui::Render();
         
