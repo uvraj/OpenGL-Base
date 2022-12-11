@@ -22,6 +22,8 @@ class Shader {
             glDeleteShader(vsID);
             glDeleteShader(fsID);
             glDeleteProgram(programID);
+            printInfo("Deleted program ");
+            std::cout << programName << '\n';
         }
 
         void load() {
@@ -256,6 +258,7 @@ class Quad {
             glDeleteBuffers(1, &vertexBufferObjects);
             glDeleteBuffers(1, &EBO);
             glDeleteVertexArrays(1, &vertexArrayObjects);
+            printInfo("Deleted Quad Objects. \n");
         }
 
         void draw() {
@@ -319,6 +322,7 @@ class Scene {
             glDeleteBuffers(1, &VBO);
             glDeleteBuffers(1, &EBO);
             glDeleteVertexArrays(1, &VAO);
+            printInfo("Deleted Scene Objects. \n");
         }
 
         void draw() {

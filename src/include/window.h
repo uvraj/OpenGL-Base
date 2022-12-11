@@ -67,6 +67,7 @@ class Window {
 
         ~Window() {
             glfwTerminate();
+            printInfo("Deleted window object");
         }
 
         static void frameBufferSizeCallBack(GLFWwindow *window, int width, int height) {
