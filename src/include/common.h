@@ -39,8 +39,8 @@ class Shader {
             // without copying over the files
 
             glObjectLabel(GL_PROGRAM, programID, programName.length(), programName.c_str());
-            glObjectLabel(GL_VERTEX_SHADER, vsID, vertexFileName.length(), vertexFileName.c_str());
-            glObjectLabel(GL_FRAGMENT_SHADER, fsID, fragmentFileName.length(), fragmentFileName.c_str());
+            glObjectLabel(GL_SHADER, vsID, vertexFileName.length(), vertexFileName.c_str());
+            glObjectLabel(GL_SHADER, fsID, fragmentFileName.length(), fragmentFileName.c_str());
 
             std::string vertexFilePath = SHADER_PATH + vertexFileName;
             std::string fragmentFilePath = SHADER_PATH + fragmentFileName;

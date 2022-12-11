@@ -37,10 +37,28 @@
 #include "include/camera.h"
 #include "include/window.h"
 
-void GLAPIENTRY messageCallBack(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
-    printGLError("GL Output: \n");
-    std::cout << message << '\n';
-}
+/*
+class Application() {
+    public:
+        void run() {
+            appInit();
+            appLoop();
+            appExit();
+        }
+    
+    private:
+        void init() {
+
+        }
+
+        void appLoop() {
+
+        }
+
+        void appExit() {
+
+        }
+};*/
 
 int main(void) {
     Camera camera(glm::vec3(0.0f));
@@ -121,16 +139,17 @@ int main(void) {
 
     glEnable(GL_DEPTH_TEST);
 
-    // Loop variables
-    glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    bool useColorGrade = false;
+    
     
     // Main loop
     while (!window.shouldClose()) {
         window.renderLoop(io);
         camera.updateCameraData(window.aspectRatio);
 
-        model = glm::rotate(model, (float) glm::radians(window.currentFrame * 0.01), glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::rotate(model, (float) window.currentFrame, glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::translate(model, glm::vec3(10.0f, 0.0, 0.0));
+        bool useColorGrade = false;
 
         // Start ImGUI frame
         ImGui_ImplOpenGL3_NewFrame();
