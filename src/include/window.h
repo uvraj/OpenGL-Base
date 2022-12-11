@@ -113,7 +113,7 @@ class Window {
                 windowptr->mouseCaught = !windowptr->mouseCaught;
         }
 
-        void renderLoop(ImGuiIO &io){
+        void renderLoop(ImGuiIO *io){
             handleDPI(io);
             currentFrame = glfwGetTime();
             frameTime = currentFrame - lastFrame;
@@ -155,7 +155,7 @@ class Window {
                 camera->ProcessKeyboard(RIGHT, frameTime);
         }
 
-        void handleDPI(ImGuiIO &io) {
+        void handleDPI(ImGuiIO *io) {
             static float prevScale = 1.0;
             /*
             * This function handles:
@@ -174,11 +174,11 @@ class Window {
             if (xScale != prevScale) {
                 // If it did, reload the fonts at the desired scale and rebuild the font atlas.
                 prevScale = xScale;
-                io.Fonts->Clear();
+                io->Fonts->Clear();
 
-                io.Fonts->AddFontFromMemoryCompressedBase85TTF(OpenSans_compressed_data_base85, 20 * xScale);
+                io->Fonts->AddFontFromMemoryCompressedBase85TTF(OpenSans_compressed_data_base85, 20 * xScale);
 
-                io.Fonts->Build();
+                io->Fonts->Build();
                 ImGui_ImplOpenGL3_DestroyFontsTexture();
                 ImGui_ImplOpenGL3_CreateFontsTexture();
                 
