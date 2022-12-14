@@ -145,7 +145,7 @@ class Texture3D_bin {
 
         ~Texture3D_bin() {
             glDeleteTextures(1, &textureID);
-            printInfo("Deleted 3D Texture ");
+            printInfo("Destroyed 3D Texture ");
             std::cout << textureID << '\n';
         }
 

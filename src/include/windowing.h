@@ -1,5 +1,5 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef WINDOWING_H
+#define WINDOWING_H
 
 class Window {
     public:
@@ -17,8 +17,8 @@ class Window {
         std::time_t stdTime = std::time(0);
         std::uint64_t frameIndex = 0;
 
-        int viewWidth = SCREEN_WIDTH;
-        int viewHeight = SCREEN_HEIGHT;
+        glm::vec2 viewDimensions = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
+        glm::vec2 mousePos = glm::vec2(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f);
 
         bool mouseCaught = true;
         bool firstMouse = true;
@@ -67,7 +67,7 @@ class Window {
 
         ~Window() {
             glfwTerminate();
-            printInfo("Deleted window object");
+            printInfo("Destroyed window object \n");
         }
 
         static void frameBufferSizeCallBack(GLFWwindow *window, int width, int height) {
@@ -88,16 +88,16 @@ class Window {
             Window *windowptr = (Window*) glfwGetWindowUserPointer(window);
 
             if (windowptr->firstMouse) {
-                windowptr->lastX = xpos;
-                windowptr->lastY = ypos;
+                windowptr->mousePos.x = xpos;
+                windowptr->mousePos.y = ypos;
                 windowptr->firstMouse = false;
             }
 
-            float xoffset = xpos - windowptr->lastX;
-            float yoffset = windowptr->lastY - ypos; // reversed since y-coordinates go from bottom to top
+            float xoffset = xpos - windowptr->mousePos.x;
+            float yoffset = windowptr->mousePos.y - ypos; // reversed since y-coordinates go from bottom to top
 
-            windowptr->lastX = xpos;
-            windowptr->lastY = ypos;
+            windowptr->mousePos.x = xpos;
+            windowptr->mousePos.y = ypos;
 
             if(windowptr->mouseCaught)
                 windowptr->camera->ProcessMouseMovement(xoffset, yoffset);
@@ -122,8 +122,8 @@ class Window {
 
             glfwPollEvents();
             handleInput();
-            glfwGetFramebufferSize(glfwWindow, &viewWidth, &viewHeight);
-            aspectRatio = (float) viewWidth / (float) viewHeight;
+            glfwGetFramebufferSize(glfwWindow, (int *) &viewDimensions.x, (int *) &viewDimensions.y);
+            aspectRatio = viewDimensions.x / viewDimensions.y;
 
             if(mouseCaught) {
             // Capture our mouse
