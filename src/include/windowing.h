@@ -36,7 +36,7 @@ class Window {
 
             if (!glfwWindow) {
                 printError();
-                std::printf("GLFW window creation failed.\n");
+                std::cout << "GLFW window creation failed.\n";
                 glfwTerminate();
                 assert(glfwWindow);
             }
@@ -47,7 +47,7 @@ class Window {
             // Pass GLAD the function to load the address of OS-specific OPENGL function pointers.
             if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
                 printError();
-                std::printf("GLAD initialization failed.\n");
+                std::cout << "GLAD initialization failed.\n";
                 assert(false);
             }
 
