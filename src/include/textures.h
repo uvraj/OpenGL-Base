@@ -5,7 +5,7 @@ class Texture2D {
     public: 
         GLuint textureID = 0;
 
-        Texture2D(const std::string fileName, GLuint texUnit){
+        Texture2D(const std::string fileName, const GLuint texUnit){
             std::string filePath = RESOURCE_PATH + fileName;
 
             // Tell STB that I want to flip the y coord

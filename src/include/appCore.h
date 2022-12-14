@@ -103,8 +103,6 @@ class Application {
                 camera.updateCameraData(window.aspectRatio);
 
                 glm::mat4 model = glm::mat4(1.0f);
-                model = glm::rotate(model, (float) window.currentFrame, glm::vec3(0.0f, 0.0f, 1.0f));
-                model = glm::translate(model, glm::vec3(10.0f, 0.0, 0.0));
 
                 // Start ImGUI frame
                 ImGui_ImplOpenGL3_NewFrame();
@@ -175,10 +173,15 @@ class Application {
                 glBindTexture(GL_TEXTURE_2D, sceneDepth);
 
                 glActiveTexture(GL_TEXTURE3);
-                glBindTexture(GL_TEXTURE_3D, colorLookup.textureID);
+                colorLookup.bind();
 
                 postProcess.useProgram();
 
+                postProcess.pushMat4Uniform("cameraViewMatrix", camera.viewMatrix);
+                postProcess.pushMat4Uniform("cameraViewMatrixInverse", camera.viewMatrixInverse);
+                postProcess.pushMat4Uniform("cameraProjectionMatrix", camera.projectionMatrix);
+                postProcess.pushMat4Uniform("cameraProjectionMatrixInverse", camera.projectionMatrixInverse);
+                postProcess.pushMat4Uniform("modelMatrix", model);
                 postProcess.pushIntUniform("useColorGrade", useColorGrade); 
 
                 quadVAO.draw();

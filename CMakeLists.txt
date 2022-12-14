@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 project(OpenGL-Base)
 
 message("Build type of project is: " ${CMAKE_BUILD_TYPE})
@@ -59,7 +59,10 @@ target_include_directories(glad PRIVATE "${GLAD_DIR}/include")
 target_include_directories(${PROJECT_NAME} PRIVATE "${GLAD_DIR}/include")
 
 # GLM
-target_include_directories(${PROJECT_NAME} PRIVATE "${GLM_DIR}")
+file(GLOB glm_src "${GLM_DIR}/glm/*.hpp")
+target_include_directories(${PROJECT_NAME} PRIVATE ${GLM_DIR})
+# We might want to make this PUBLIC in the future.
+target_precompile_headers(${PROJECT_NAME} PRIVATE ${glm_src})
 
 # OPENGL
 find_package(OpenGL REQUIRED)
@@ -73,7 +76,10 @@ target_include_directories(imgui PRIVATE "${GLFW_DIR}/include")
 target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_DIR})
 
 # STB
+file(GLOB stb_src "${STB_DIR}/.h")
 target_include_directories(${PROJECT_NAME} PRIVATE ${STB_DIR})
+# We might want to make this PUBLIC in the future.
+target_precompile_headers(${PROJECT_NAME} PRIVATE ${stb_src})
 
 # Link everything
 target_link_libraries(${PROJECT_NAME} imgui glfw glad)
