@@ -23,6 +23,8 @@ class Application {
 
         Texture3D_bin colorLookup{"FUJI_ETERNA_250D_FUJI_3510.DAT", 2, 21, 21, 21, GL_RGB32F, GL_RGB, GL_FLOAT};
 
+        glm::mat4 model = glm::mat4(1.0f);
+
         GLuint mainFBO;
         GLuint sceneAlbedo, sceneDepth;
 
@@ -95,14 +97,14 @@ class Application {
             glBindTexture(GL_TEXTURE_2D, 0);
 
             glEnable(GL_DEPTH_TEST);
+
+            model = glm::translate(model, glm::vec3(mainScene.width / 2.0, 0.0, mainScene.height / 2.0));
         }
 
         void appLoop() {
             while (!window.shouldClose()) {
                 window.renderLoop(io);
                 camera.updateCameraData(window.aspectRatio);
-
-                glm::mat4 model = glm::mat4(1.0f);
 
                 // Start ImGUI frame
                 ImGui_ImplOpenGL3_NewFrame();
@@ -136,6 +138,8 @@ class Application {
                 ImGui::Text("Camera FoV:\t%.2f", camera.FoV);
                 ImGui::Text("Camera Pitch:\t%.2f", camera.Pitch);
                 ImGui::Text("Camera Yaw:\t%.2f", camera.Yaw);
+                ImGui::Text("Vertices:\t%d", mainScene.numVerts);
+                ImGui::Text("Memory:\t%2.f Bytes", mainScene.numVerts * 3.0 / 8.0);
 
                 ImGui::End();
 
@@ -145,10 +149,11 @@ class Application {
                 
 
                 // Main Pass
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, 11, "Main Scene");
                 glEnable(GL_DEPTH_TEST);
                 glBindFramebuffer(GL_FRAMEBUFFER, mainFBO);
-                glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+                glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
                 mainSceneShader.useProgram();
@@ -162,6 +167,7 @@ class Application {
                 glPopDebugGroup();
 
                 // Post-processing pass
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, 13, "Post Process");
                 glDisable(GL_DEPTH_TEST);
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);

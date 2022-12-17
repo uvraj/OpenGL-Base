@@ -11,7 +11,7 @@ enum Camera_Movement {
 // Default camera values
 const float YAW         = -90.0f;
 const float PITCH       =  0.0f;
-const float SPEED       =  1.0f;
+const float SPEED       =  20.0f;
 const float SENSITIVITY =  0.1f;
 const float FOV        =  70.0f;
 
@@ -105,8 +105,8 @@ class Camera {
 
         void updateCameraData(float aspectRatio) {
             // Projection Matrix
-            projectionMatrix = glm::perspective(glm::radians(FoV), aspectRatio, 0.1f, 50.0f); 
-            // projectionMatrix = glm::ortho(-1.0 * aspectRatio, 1.0 * aspectRatio, -1.0, 1.0);
+            projectionMatrix = glm::perspective(glm::radians(FoV), aspectRatio, 0.1f, 5000.0f); 
+            // projectionMatrix = glm::ortho(-1.0f * aspectRatio, 1.0f * aspectRatio, -1.0f, 1.0f, 0.1f, 5000.0f / FOV);
             // projectionMatrix = glm::scale(projectionMatrix, glm::vec3(1.0 / FoV));
             projectionMatrixInverse = glm::inverse(projectionMatrix);
 

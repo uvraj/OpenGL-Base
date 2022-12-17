@@ -75,23 +75,73 @@ class Quad {
 
 };
 
+size_t twoDtoOneD(size_t x, size_t y, size_t width, size_t height) {
+    return x + y * width;
+}
+
 class Scene {
     public:
         GLuint EBO, VBO, VAO;
 
-        GLfloat vertexData[42] = {
-            -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.0f,      0.0f, 1.0f, 0.0f,
-            0.0f, 0.5f, 0.0f,       0.0f, 0.0f, 1.0f,
-            1.0f, -1.0f, -1.0f,     0.5f, 0.5f, 0.5f,
-            -1.0f, -1.0f, -1.0f,    0.5f, 0.5f, 0.5f,
-            1.0f, -1.0f, 1.0f,      0.5f, 0.5f, 0.5f,
-            -1.0f, -1.0f, 1.0f,      0.5f, 0.5f, 0.5f
-        };
+        size_t numStrips = 0;
+        size_t numVertsPerStrip = 0;
+        size_t numVerts = 0;
+        size_t numIndices = 0;
+        size_t numTriangles = 0;
 
-        GLuint indices[9] = {0, 1, 2, 3, 4, 5, 5, 6, 4};
+        int width = 0;
+        int height = 0;
+        int channels = 0;
+
+        std::vector <glm::vec3> vertexData;
+        std::vector <glm::vec3> normalData;
+        std::vector <GLuint> indices;
 
         Scene() {
+            // Load heightmap
+            int width, height, channels;
+
+            uint8_t *heightData = stbi_load("../../src/resources/height.png", &width, &height, &channels, 1);
+
+            if (!heightData) {
+                printError("Loading Heightmap failed!");
+                assert(heightData);
+            }
+
+            numStrips = height - 1;
+            numTriangles = (width - 1) * (height - 1) * 2;
+            numVertsPerStrip = 2 * width;
+
+            // Generate vertices
+            for (size_t z = 0; z < height; z++) {
+                for (size_t x = 0; x < width; x++) {
+                    size_t y = twoDtoOneD(x, z, width, height);
+                    vertexData.push_back(
+                        glm::vec3(
+                            x,
+                            sin(0.1 * y),
+                            z
+                        )
+                    );
+                    numVerts++;
+                }
+            }
+
+            // Generate indices
+            for (size_t strip = 0; strip < numStrips; i++) {
+                for (size_t column = 0; column < width; j++) {
+                    for (size_t k = 0; k < 2; k++) {
+                        size_t index = column + width * (strip + k);
+                        indices.push_back(index);
+                        numIndices++;
+                    }
+                }
+            } 
+
+            /*for (size_t i = 0; i < numTriangles; i++) {
+
+            }*/
+
             // Generate the required objects.
             glGenBuffers(1, &EBO);
             glGenBuffers(1, &VBO);
@@ -102,18 +152,15 @@ class Scene {
 
             // Bind the VBO, fill some data in it
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(glm::vec3), vertexData.data(), GL_STATIC_DRAW);
 
             // Same for the EBO
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
             // Setup our vertex attributes
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*) 0); 
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*) 0); 
             glEnableVertexAttribArray(0);
-
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*) (3 * sizeof(GLfloat)));
-            glEnableVertexAttribArray(1);
 
             // Unbind everything.
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -131,7 +178,11 @@ class Scene {
         void draw() {
             glBindVertexArray(VAO);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-            glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, NULL);
+
+            for (size_t i = 0; i < numStrips; ++i) {
+                glDrawElements(GL_TRIANGLE_STRIP, numVertsPerStrip, GL_UNSIGNED_INT, (void *) (sizeof(GLuint) * numVertsPerStrip * i));
+            }
+            
             glBindVertexArray(0);
         }
 
