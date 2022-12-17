@@ -139,7 +139,8 @@ class Application {
                 ImGui::Text("Camera Pitch:\t%.2f", camera.Pitch);
                 ImGui::Text("Camera Yaw:\t%.2f", camera.Yaw);
                 ImGui::Text("Vertices:\t%d", (int) mainScene.numVerts);
-                ImGui::Text("Memory:\t%d Bytes", mainScene.numVerts * 3.0 / 8.0);
+                ImGui::Text("Triangles:\t%d", (int) mainScene.numTriangles);
+                ImGui::Text("Size:\t%.2f MB", (mainScene.numVerts * 3.0 * sizeof(float)) * 1e-6);
 
                 ImGui::End();
 
