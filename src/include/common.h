@@ -128,8 +128,8 @@ class Scene {
             }
 
             // Generate indices
-            for (size_t strip = 0; strip < numStrips; i++) {
-                for (size_t column = 0; column < width; j++) {
+            for (size_t strip = 0; strip < numStrips; strip++) {
+                for (size_t column = 0; column < width; column++) {
                     for (size_t k = 0; k < 2; k++) {
                         size_t index = column + width * (strip + k);
                         indices.push_back(index);

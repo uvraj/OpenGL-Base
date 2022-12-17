@@ -138,8 +138,8 @@ class Application {
                 ImGui::Text("Camera FoV:\t%.2f", camera.FoV);
                 ImGui::Text("Camera Pitch:\t%.2f", camera.Pitch);
                 ImGui::Text("Camera Yaw:\t%.2f", camera.Yaw);
-                ImGui::Text("Vertices:\t%d", mainScene.numVerts);
-                ImGui::Text("Memory:\t%2.f Bytes", mainScene.numVerts * 3.0 / 8.0);
+                ImGui::Text("Vertices:\t%d", (int) mainScene.numVerts);
+                ImGui::Text("Memory:\t%d Bytes", mainScene.numVerts * 3.0 / 8.0);
 
                 ImGui::End();
 
