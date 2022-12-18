@@ -31,12 +31,12 @@
 
 #include "include/openSans.h"
 #include "include/formatting.h"
-#include "include/common.h"
 #include "include/shaders.h"
 #include "include/textures.h"
-
 #include "include/camera.h"
 #include "include/windowing.h"
+#include "include/common.h"
+
 #include "include/appCore.h"
 
 int main(void) {

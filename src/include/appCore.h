@@ -144,7 +144,7 @@ class Application {
 
                 ImGui::End();
 
-                ImGui::ShowDemoWindow();
+                // ImGui::ShowDemoWindow();
 
                 ImGui::Render();
                 

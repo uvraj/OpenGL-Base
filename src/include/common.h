@@ -75,7 +75,7 @@ class Quad {
 
 };
 
-size_t twoDtoOneD(size_t x, size_t y, size_t width, size_t height) {
+size_t twoDtoOneD(size_t x, size_t y, size_t width) {
     return x + y * width;
 }
 
@@ -115,7 +115,7 @@ class Scene {
             // Generate vertices
             for (size_t z = 0; z < height; z++) {
                 for (size_t x = 0; x < width; x++) {
-                    size_t y = twoDtoOneD(x, z, width, height);
+                    size_t y = twoDtoOneD(x, z, width);
                     vertexData.push_back(
                         glm::vec3(
                             x,
@@ -128,19 +128,21 @@ class Scene {
             }
 
             // Generate indices
-            for (size_t strip = 0; strip < numStrips; strip++) {
-                for (size_t column = 0; column < width; column++) {
-                    for (size_t k = 0; k < 2; k++) {
-                        size_t index = column + width * (strip + k);
-                        indices.push_back(index);
-                        numIndices++;
-                    }
-                }
-            } 
-
-            /*for (size_t i = 0; i < numTriangles; i++) {
-
-            }*/
+        for (size_t z = 0; z < height - 1; z++) {
+            for (size_t x = 0; x < width - 1; x++) {
+                size_t y = twoDtoOneD(x, z, width);
+                size_t index0 = y;
+                size_t index1 = y + 1;
+                size_t index2 = y + width;
+                size_t index3 = y + width + 1;
+                indices.push_back(index0);
+                indices.push_back(index2);
+                indices.push_back(index1);
+                indices.push_back(index1);
+                indices.push_back(index2);
+                indices.push_back(index3);
+            }
+        }
 
             // Generate the required objects.
             glGenBuffers(1, &EBO);
@@ -178,10 +180,8 @@ class Scene {
         void draw() {
             glBindVertexArray(VAO);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-            for (size_t i = 0; i < numStrips; ++i) {
-                glDrawElements(GL_TRIANGLE_STRIP, numVertsPerStrip, GL_UNSIGNED_INT, (void *) (sizeof(GLuint) * numVertsPerStrip * i));
-            }
+            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void *) 0);
+            
             
             glBindVertexArray(0);
         }
