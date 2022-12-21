@@ -149,6 +149,10 @@ class Shader {
             glUniform3f(glGetUniformLocation(programID, name), x, y, z);
         }
 
+        void pushVec3Uniform(const GLchar *name, const glm::vec3 vec) {
+            glUniform3fv(glGetUniformLocation(programID, name), 1, &vec[0]);
+        }
+
         void pushVec4Uniform(const GLchar *name, GLfloat x, GLfloat y, GLfloat z, GLfloat w) {
             glUniform4f(glGetUniformLocation(programID, name), x, y, z, w);
         }

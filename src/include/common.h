@@ -93,6 +93,7 @@ class Scene {
         int height = 0;
         int channels = 0;
 
+        std::vector <glm::vec3> data_VAO;
         std::vector <glm::vec3> vertexData;
         std::vector <glm::vec3> normalData;
         std::vector <GLuint> indices;
@@ -119,7 +120,7 @@ class Scene {
                     vertexData.push_back(
                         glm::vec3(
                             x,
-                            heightData[y] * 0.62,
+                            10 * sin(0.01 * x),
                             z
                         )
                     );
@@ -128,21 +129,55 @@ class Scene {
             }
 
             // Generate indices
-        for (size_t z = 0; z < height - 1; z++) {
-            for (size_t x = 0; x < width - 1; x++) {
-                size_t y = twoDtoOneD(x, z, width);
-                size_t index0 = y;
-                size_t index1 = y + 1;
-                size_t index2 = y + width;
-                size_t index3 = y + width + 1;
-                indices.push_back(index0);
-                indices.push_back(index2);
-                indices.push_back(index1);
-                indices.push_back(index1);
-                indices.push_back(index2);
-                indices.push_back(index3);
+            for (size_t z = 0; z < height - 1; z++) {
+                for (size_t x = 0; x < width - 1; x++) {
+                    size_t y = twoDtoOneD(x, z, width);
+                    size_t index0 = y;
+                    size_t index1 = y + 1;
+                    size_t index2 = y + width;
+                    size_t index3 = y + width + 1;
+                    indices.push_back(index0);
+                    indices.push_back(index2);
+                    indices.push_back(index1);
+                    indices.push_back(index1);
+                    indices.push_back(index2);
+                    indices.push_back(index3);
+                }
             }
-        }
+
+            normalData.resize(numVerts);
+
+            // Generate normal data
+            for (size_t i = 0; i < indices.size(); i += 3) {
+                // Get the indices of the three vertices of the triangular face
+                size_t index0 = indices[i];
+                size_t index1 = indices[i + 1];
+                size_t index2 = indices[i + 2];
+
+                // Get the position of each vertex
+                glm::vec3 v0 = vertexData[index0];
+                glm::vec3 v1 = vertexData[index1];
+                glm::vec3 v2 = vertexData[index2];
+
+                // Compute the normal vector for the triangular face
+                glm::vec3 normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+
+                // Add the normal vector to the normal data for each vertex
+                normalData[index0] += normal;
+                normalData[index1] += normal;
+                normalData[index2] += normal;
+            }
+
+
+            // Normalize
+            for (size_t i = 0; i < normalData.size(); i++) {
+                normalData[i] = glm::normalize(normalData[i]);
+            }
+
+            for (size_t i = 0; i < numVerts; i++) {
+                data_VAO.push_back(vertexData[i]);
+                data_VAO.push_back(normalData[i]);
+            }
 
             // Generate the required objects.
             glGenBuffers(1, &EBO);
@@ -154,15 +189,17 @@ class Scene {
 
             // Bind the VBO, fill some data in it
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(glm::vec3), vertexData.data(), GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, data_VAO.size() * sizeof(glm::vec3), data_VAO.data(), GL_STATIC_DRAW);
 
             // Same for the EBO
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
             // Setup our vertex attributes
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*) 0); 
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*) 0); 
             glEnableVertexAttribArray(0);
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*) (3 * sizeof(GLfloat)));
+            glEnableVertexAttribArray(1); 
 
             // Unbind everything.
             glBindBuffer(GL_ARRAY_BUFFER, 0);

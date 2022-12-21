@@ -24,6 +24,8 @@ class Application {
         Texture3D_bin colorLookup{"FUJI_ETERNA_250D_FUJI_3510.DAT", 2, 21, 21, 21, GL_RGB32F, GL_RGB, GL_FLOAT};
 
         glm::mat4 model = glm::mat4(1.0f);
+        glm::vec3 lightAngles = glm::vec3(0.0f);
+        glm::vec3 lightVector = glm::vec3(0.0f);
 
         GLuint mainFBO;
         GLuint sceneAlbedo, sceneDepth;
@@ -115,6 +117,8 @@ class Application {
 
                 ImGui::Begin("Main Window");
 
+                ImGui::SliderFloat3("Light Vector Direction", &lightAngles[0], 0.0f, 360.0f, "%.2f°");
+
                 ImGui::Checkbox("Use Color Grade", &useColorGrade);
 
                 if(ImGui::Button("Reload Shaders")) {
@@ -147,10 +151,14 @@ class Application {
                 // ImGui::ShowDemoWindow();
 
                 ImGui::Render();
-                
+
+                // Update misc. data
+                lightVector = static_cast <glm::mat3> (glm::rotate(glm::mat4(1.0f), glm::radians(lightAngles.x), glm::vec3(1.0f, 0.0f, 0.0f))) * glm::vec3(0.0f, 1.0f, 0.0f);
+                lightVector = static_cast <glm::mat3> (glm::rotate(glm::mat4(1.0f), glm::radians(lightAngles.y), glm::vec3(0.0f, 1.0f, 0.0f))) * lightVector;
+                lightVector = static_cast <glm::mat3> (glm::rotate(glm::mat4(1.0f), glm::radians(lightAngles.z), glm::vec3(0.0f, 0.0f, 1.0f))) * lightVector;
 
                 // Main Pass
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, 11, "Main Scene");
                 glEnable(GL_DEPTH_TEST);
                 glBindFramebuffer(GL_FRAMEBUFFER, mainFBO);
@@ -158,6 +166,7 @@ class Application {
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
                 mainSceneShader.useProgram();
+                mainSceneShader.pushVec3Uniform("lightVector", lightVector);
                 mainSceneShader.pushMat4Uniform("cameraViewMatrix", camera.viewMatrix);
                 mainSceneShader.pushMat4Uniform("cameraViewMatrixInverse", camera.viewMatrixInverse);
                 mainSceneShader.pushMat4Uniform("cameraProjectionMatrix", camera.projectionMatrix);
