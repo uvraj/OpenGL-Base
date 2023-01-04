@@ -120,7 +120,7 @@ class Scene {
                     vertexData.push_back(
                         glm::vec3(
                             x,
-                            10 * sin(0.01 * x),
+                            heightData[y],
                             z
                         )
                     );

@@ -17,9 +17,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <rapidjson/document.h>
+
 #define STBI_MAX_DIMENSIONS (1 << 26)
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+
+#define STB_INCLUDE_IMPLEMENTATION
+#include <stb_include.h>
 
 #define TITLE "OpenGL Base"
 
@@ -36,6 +41,7 @@
 #include "include/camera.h"
 #include "include/windowing.h"
 #include "include/common.h"
+#include "include/pipeline.h"
 
 #include "include/appCore.h"
 

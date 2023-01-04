@@ -16,6 +16,7 @@ set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(RESOURCES_DIR "${SRC_DIR}/resources")
 set(EXT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
 set(GLFW_DIR "${EXT_DIR}/glfw")
+set(RAPIDJSON_DIR "${EXT_DIR}/rapidjson")
 set(GLAD_DIR "${EXT_DIR}/glad")
 set(GLM_DIR "${EXT_DIR}/glm-master")
 set(IMGUI_DIR "${EXT_DIR}/imgui")
@@ -52,6 +53,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $
 # GLFW 
 add_subdirectory(external/glfw)
 target_include_directories(${PROJECT_NAME} PUBLIC "${GLFW_DIR}/include")
+
+# RAPIDJSON
+target_include_directories(${PROJECT_NAME} PUBLIC "${RAPIDJSON_DIR}/include")
 
 # GLAD
 add_library(glad "${GLAD_DIR}/src/glad.c")

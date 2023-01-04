@@ -114,7 +114,7 @@ class Window {
                 windowptr->mouseCaught = !windowptr->mouseCaught;
         }
 
-        void renderLoop(ImGuiIO *io){
+        void renderLoop(ImGuiIO *io) {
             handleDPI(io);
             currentFrame = glfwGetTime();
             frameTime = currentFrame - lastFrame;

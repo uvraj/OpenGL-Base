@@ -1,23 +1,67 @@
-#if !defined SHADERS_H
-#define SHADERS_H
+#pragma once
+class ShaderText {
+    public:
+        static std::string getSource(const std::string filePath) {
+            const std::string incIdentifier {"#include"};
+            std::string source {};
+            std::ifstream file {filePath};
+
+            if(!file.is_open()) {
+                printError("Error loading shader from ");
+                std::cout << filePath << '\n';
+                return source;
+            }
+
+            std::string buffer {};
+
+            while(std::getline(file, buffer)) {
+                if(buffer.find(incIdentifier) != buffer.npos) {
+                    buffer.erase(0, incIdentifier.size() + 1);
+                    processFileName(buffer);
+                    std::ifstream includeFile(SHADER_PATH + buffer);
+
+                    if(!includeFile.is_open()) {
+                        printError("Failed resolving #include directive ");
+                        std::cout << buffer << '\n';
+                    }
+
+                    buffer.erase(0, buffer.size());
+
+                    if(includeFile.is_open()) {
+                        std::ostringstream oss;
+                        oss << includeFile.rdbuf();
+                        buffer += oss.str();
+                    }
+                }
+
+                source += buffer + '\n';
+            }
+
+            source += '\0';
+            return source;
+        }
+
+    private:
+        static void processFileName(std::string &currentFileName) {
+            size_t loc1 = currentFileName.find_first_of('"');
+            size_t loc2 = currentFileName.find_last_of('"');
+            currentFileName.erase(loc1, 1);
+            currentFileName.erase(loc2 - 1, 1);
+        }
+};
 
 class Shader {
     // This class encapsulates everything shader-related
     // It covers shader creation, user outputting and uniform creation
     public:
-        GLuint programID = glCreateProgram();
-        GLuint vsID = glCreateShader(GL_VERTEX_SHADER);
-        GLuint fsID = glCreateShader(GL_FRAGMENT_SHADER);
-        std::string programName;
-        std::string vertexFileName;
-        std::string fragmentFileName;
-
+        // Constructor. Populates the above strings
         Shader(const std::string currentProgramName, const std::string currentVSFileName, const std::string currentFSFileName) {
             programName = currentProgramName;
             vertexFileName = currentVSFileName;
             fragmentFileName = currentFSFileName;
         }
-
+        
+        // Destructor. Deletes shaders.
         ~Shader() {
             glDeleteShader(vsID);
             glDeleteShader(fsID);
@@ -40,61 +84,24 @@ class Shader {
             // With these concatenation conventions, it is also possible to load our resources from the "src" path directly
             // without copying over the files
 
+            // Label all OpenGL objects
             glObjectLabel(GL_PROGRAM, programID, programName.length(), programName.c_str());
             glObjectLabel(GL_SHADER, vsID, vertexFileName.length(), vertexFileName.c_str());
             glObjectLabel(GL_SHADER, fsID, fragmentFileName.length(), fragmentFileName.c_str());
 
+            // Concatenate the SHADER_PATH macro with the file names to create the final file path 
+            // the shaders will be loaded from
             std::string vertexFilePath = SHADER_PATH + vertexFileName;
             std::string fragmentFilePath = SHADER_PATH + fragmentFileName;
 
-            // The shader text itself
-            std::string vertexShader;
-            std::string fragmentShader;
-
-            // Create two instances of the fstream class, each with ios::in for read
-            // VS
-            std::ifstream vertexShaderFile(vertexFilePath);
-
-            // FS
-            std::ifstream fragmentShaderFile(fragmentFilePath); 
-            
-            // If the file loading succeeded
-            if (vertexShaderFile.is_open()) {
-                std::ostringstream oss;
-                oss << vertexShaderFile.rdbuf();
-                vertexShader = oss.str();
-            }
-
-            // If it didn't: 
-            else {
-                printError();
-                std::cout << "Loading vertex shader from file ";
-                std::cout << vertexFilePath;
-                std::cout << " failed!\n";
-                assert(vertexShaderFile.is_open());
-            }
-            
-            // If the file loading succeeded
-            if (fragmentShaderFile.is_open()) {
-                std::ostringstream oss;
-                oss << fragmentShaderFile.rdbuf();
-                fragmentShader = oss.str();
-            }
-
-            // If it didn't: 
-            else {
-                printError();
-                std::cout << "Loading fragment shader from file ";
-                std::cout << fragmentFilePath;
-                std::cout << " failed!\n";
-                assert(fragmentShaderFile.is_open());
-            }
+            std::string vertexShader = ShaderText::getSource(vertexFilePath);
+            std::string fragmentShader = ShaderText::getSource(fragmentFilePath);
 
             // Push our stuff into a const GLchar* so OpenGL (gcc) doesn't yell at me
             const GLchar *vertexShaderSource = vertexShader.c_str();
             const GLchar *fragmentShaderSource = fragmentShader.c_str();
 
-            // Attach the shader source to the created ID
+            // Provide the shader source
             glShaderSource(vsID, 1, &vertexShaderSource, NULL);
             glCompileShader(vsID);
 
@@ -108,7 +115,7 @@ class Shader {
             glLinkProgram(programID);
 
             // Check for errors
-            checkErrors(fsID, vsID, programID);
+            checkErrors(programID);
         }
 
         void useProgram() {
@@ -161,45 +168,78 @@ class Shader {
             glUniformMatrix4fv(glGetUniformLocation(programID, name), 1, GL_FALSE, &mat[0][0]);
         }
 
-    private:
-        void checkErrors(GLuint fsID, GLuint vsID, GLuint programID) {
+    protected:
+        Shader() {
+            
+        }
+
+        void checkErrors(GLuint programID) {
             // Print potential errors into the console
             int success = 0;
-            GLchar infoLog[2048];
-
-            // Check if compilation was successful
-            glGetShaderiv(vsID, GL_COMPILE_STATUS, &success);
-
-            // If it wasn't get the info log and print it!
-            if (!success) {
-                glGetShaderInfoLog(vsID, 512, NULL, infoLog);
-                printError();
-                std::cout << "OpenGL Output: \n" << infoLog << '\n';
-            }
-
-            // Continue doing this for the rest.
-
-            glGetShaderiv(fsID, GL_COMPILE_STATUS, &success);
-
-            if (!success) {
-                glGetShaderInfoLog(fsID, 512, NULL, infoLog);
-                printError();
-                textYellow();
-                std::cout << "OpenGL Output: \n" << infoLog << '\n';
-                textReset();
-            }
-
+            GLchar infoLog[2048] = {0};
 
             glGetProgramiv(programID, GL_LINK_STATUS, &success);
 
             if (!success) {
-                glGetProgramInfoLog(programID, 512, NULL, infoLog);
+                glGetProgramInfoLog(programID, 2048, NULL, infoLog);
                 printError();
                 textYellow();
                 std::cout << "OpenGL Output: \n" << infoLog << '\n';
                 textReset();
             }
         }
+
+    private:
+        // OpenGL objects
+        GLuint programID = glCreateProgram();
+        GLuint vsID = glCreateShader(GL_VERTEX_SHADER);
+        GLuint fsID = glCreateShader(GL_FRAGMENT_SHADER);
+
+        // Various strings used throughout the class
+        std::string programName = "";
+        std::string vertexFileName = "";
+        std::string fragmentFileName = "";
 };
 
-#endif
+class ComputeShader : public Shader {
+    // This class encapsulates compute shaders.
+    public:
+        ComputeShader(const std::string currentProgramName, const std::string currentFileName) {
+            programName = currentProgramName;
+            fileName = currentFileName;
+        } 
+
+        ~ComputeShader() {
+            glDeleteShader(csID);
+            glDeleteProgram(programID);
+        }
+
+        void load() {
+            glObjectLabel(GL_SHADER, csID, -1, fileName.c_str());
+            glObjectLabel(GL_PROGRAM, programID, -1, programName.c_str());
+            
+            const std::string filePath = SHADER_PATH + fileName;
+            std::string computeShader = ShaderText::getSource(filePath);
+
+            const char* computeShaderSource = computeShader.c_str();
+            glShaderSource(csID, 1, &computeShaderSource, NULL);
+            glCompileShader(csID);
+
+            glAttachShader(programID, csID);
+            glLinkProgram(programID);
+            checkErrors(programID);
+        }
+
+        void use() {
+            glUseProgram(programID);
+        }
+    
+    private:
+        // OpenGL Objects
+        GLuint programID = glCreateProgram();
+        GLuint csID = glCreateShader(GL_COMPUTE_SHADER);
+
+        // Various strings used throughout the class
+        std::string fileName = "";
+        std::string programName = "";
+};
