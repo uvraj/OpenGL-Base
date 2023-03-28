@@ -107,7 +107,6 @@ class Application {
             pipelineDoc.Parse(jsonSource.c_str());
             
             const rapidjson::Value &textures = pipelineDoc["textures"];
-            
 
             for(std::size_t i = 0; i < textures.Size(); i++) {
                 std::string name            = textures[i]["name"].GetString();

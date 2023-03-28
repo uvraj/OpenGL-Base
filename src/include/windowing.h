@@ -23,6 +23,7 @@ class Window {
         bool mouseCaught = true;
         bool firstMouse = true;
 
+        // TODO: Get the camera class out of here.
         Window(Camera *currentCamera) {
             // Initialize GLFW
             glfwInit();
