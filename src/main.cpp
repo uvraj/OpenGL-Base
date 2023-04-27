@@ -36,12 +36,16 @@
 #include "include/camera.h"
 #include "include/windowing.h"
 #include "include/common.h"
+#include "include/delta.h"
 
 #include "include/appCore.h"
 
 int main(void) {
-    Application application;
-    application.run();
+    DeltaKinematics robot(0.55, 0.25, 0.35, 0.8);
+    robot.moveToTCP(glm::vec3(0, 0, -0.4));
+    robot.executeRobotMovement();
+    //Application application;
+    //application.run();
 
     return 0;
 }

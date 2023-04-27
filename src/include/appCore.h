@@ -30,8 +30,6 @@ class Application {
         GLuint mainFBO;
         GLuint sceneAlbedo, sceneDepth;
 
-        bool useColorGrade = false;
-
         void appInit() {
             glViewport(
                 0, 0, // The location
@@ -100,7 +98,7 @@ class Application {
 
             glEnable(GL_DEPTH_TEST);
 
-            model = glm::translate(model, glm::vec3(mainScene.width / 2.0, 0.0, mainScene.height / 2.0));
+            model = glm::mat4(1.0f);
         }
 
         void appLoop() {
@@ -116,10 +114,6 @@ class Application {
                 ImGui::SetNextWindowPos(ImVec2(1000.0f, 10.0f), ImGuiCond_Once);
 
                 ImGui::Begin("Main Window");
-
-                ImGui::SliderFloat3("Light Vector Direction", &lightAngles[0], 0.0f, 360.0f, "%.2f°");
-
-                ImGui::Checkbox("Use Color Grade", &useColorGrade);
 
                 if(ImGui::Button("Reload Shaders")) {
                     mainSceneShader.load();
@@ -142,20 +136,12 @@ class Application {
                 ImGui::Text("Camera FoV:\t%.2f", camera.FoV);
                 ImGui::Text("Camera Pitch:\t%.2f", camera.Pitch);
                 ImGui::Text("Camera Yaw:\t%.2f", camera.Yaw);
-                ImGui::Text("Vertices:\t%d", (int) mainScene.numVerts);
-                ImGui::Text("Triangles:\t%d", (int) mainScene.numTriangles);
-                ImGui::Text("Size:\t%.2f MB", (mainScene.numVerts * 3.0 * sizeof(float)) * 1e-6);
 
                 ImGui::End();
 
                 // ImGui::ShowDemoWindow();
 
                 ImGui::Render();
-
-                // Update misc. data
-                lightVector = static_cast <glm::mat3> (glm::rotate(glm::mat4(1.0f), glm::radians(lightAngles.x), glm::vec3(1.0f, 0.0f, 0.0f))) * glm::vec3(0.0f, 1.0f, 0.0f);
-                lightVector = static_cast <glm::mat3> (glm::rotate(glm::mat4(1.0f), glm::radians(lightAngles.y), glm::vec3(0.0f, 1.0f, 0.0f))) * lightVector;
-                lightVector = static_cast <glm::mat3> (glm::rotate(glm::mat4(1.0f), glm::radians(lightAngles.z), glm::vec3(0.0f, 0.0f, 1.0f))) * lightVector;
 
                 // Main Pass
                 // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -166,7 +152,6 @@ class Application {
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
                 mainSceneShader.useProgram();
-                mainSceneShader.pushVec3Uniform("lightVector", lightVector);
                 mainSceneShader.pushMat4Uniform("cameraViewMatrix", camera.viewMatrix);
                 mainSceneShader.pushMat4Uniform("cameraViewMatrixInverse", camera.viewMatrixInverse);
                 mainSceneShader.pushMat4Uniform("cameraProjectionMatrix", camera.projectionMatrix);
@@ -188,17 +173,13 @@ class Application {
                 glActiveTexture(GL_TEXTURE1);
                 glBindTexture(GL_TEXTURE_2D, sceneDepth);
 
-                glActiveTexture(GL_TEXTURE3);
-                colorLookup.bind();
-
                 postProcess.useProgram();
 
                 postProcess.pushMat4Uniform("cameraViewMatrix", camera.viewMatrix);
                 postProcess.pushMat4Uniform("cameraViewMatrixInverse", camera.viewMatrixInverse);
                 postProcess.pushMat4Uniform("cameraProjectionMatrix", camera.projectionMatrix);
                 postProcess.pushMat4Uniform("cameraProjectionMatrixInverse", camera.projectionMatrixInverse);
-                postProcess.pushMat4Uniform("modelMatrix", model);
-                postProcess.pushIntUniform("useColorGrade", useColorGrade); 
+                postProcess.pushMat4Uniform("modelMatrix", model); 
 
                 quadVAO.draw();
 
