@@ -1,2 +1,0 @@
-C:\TDM-GCC-64\bin\ar.exe qc bin\libimgui.a CMakeFiles/imgui.dir/external/imgui/imgui.cpp.obj CMakeFiles/imgui.dir/external/imgui/imgui_demo.cpp.obj CMakeFiles/imgui.dir/external/imgui/imgui_draw.cpp.obj CMakeFiles/imgui.dir/external/imgui/imgui_impl_glfw.cpp.obj CMakeFiles/imgui.dir/external/imgui/imgui_impl_opengl3.cpp.obj CMakeFiles/imgui.dir/external/imgui/imgui_tables.cpp.obj CMakeFiles/imgui.dir/external/imgui/imgui_widgets.cpp.obj
-C:\TDM-GCC-64\bin\ranlib.exe bin\libimgui.a
