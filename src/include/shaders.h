@@ -1,4 +1,5 @@
 #pragma once
+
 class ShaderText {
     public:
         static std::string getSource(const std::string filePath) {
@@ -50,24 +51,31 @@ class ShaderText {
         }
 };
 
+
 class Shader {
     // This class encapsulates everything shader-related
     // It covers shader creation, user outputting and uniform creation
     public:
-        // Constructor. Populates the above strings
         Shader(const std::string currentProgramName, const std::string currentVSFileName, const std::string currentFSFileName) {
             programName = currentProgramName;
             vertexFileName = currentVSFileName;
             fragmentFileName = currentFSFileName;
         }
-        
-        // Destructor. Deletes shaders.
-        ~Shader() {
+
+        void destroy() {
             glDeleteShader(vsID);
             glDeleteShader(fsID);
             glDeleteProgram(programID);
             printInfo("Destroyed program ");
             std::cout << programName << '\n';
+        }
+
+        void create() {
+            programID = glCreateProgram();
+            vsID = glCreateShader(GL_VERTEX_SHADER);
+            fsID = glCreateShader(GL_FRAGMENT_SHADER);
+
+            load();
         }
 
         void load() {
@@ -84,7 +92,7 @@ class Shader {
             // With these concatenation conventions, it is also possible to load our resources from the "src" path directly
             // without copying over the files
 
-            // Label all OpenGL objects
+ 
             glObjectLabel(GL_PROGRAM, programID, programName.length(), programName.c_str());
             glObjectLabel(GL_SHADER, vsID, vertexFileName.length(), vertexFileName.c_str());
             glObjectLabel(GL_SHADER, fsID, fragmentFileName.length(), fragmentFileName.c_str());
@@ -105,7 +113,6 @@ class Shader {
             glShaderSource(vsID, 1, &vertexShaderSource, NULL);
             glCompileShader(vsID);
 
-            // Do the same for the fragment shader
             glShaderSource(fsID, 1, &fragmentShaderSource, NULL);
             glCompileShader(fsID);
 
@@ -169,8 +176,11 @@ class Shader {
         }
 
     protected:
+        GLuint programID;
+        std::string programName;
+
         Shader() {
-            
+
         }
 
         void checkErrors(GLuint programID) {
@@ -191,12 +201,10 @@ class Shader {
 
     private:
         // OpenGL objects
-        GLuint programID = glCreateProgram();
-        GLuint vsID = glCreateShader(GL_VERTEX_SHADER);
-        GLuint fsID = glCreateShader(GL_FRAGMENT_SHADER);
+        GLuint vsID; 
+        GLuint fsID;
 
         // Various strings used throughout the class
-        std::string programName = "";
         std::string vertexFileName = "";
         std::string fragmentFileName = "";
 };
@@ -204,14 +212,30 @@ class Shader {
 class ComputeShader : public Shader {
     // This class encapsulates compute shaders.
     public:
-        ComputeShader(const std::string currentProgramName, const std::string currentFileName) {
+        ComputeShader(const std::string currentProgramName, const std::string currentFileName, const GLuint inDispatchSizeX, const GLuint inDispatchSizeY, const GLuint inDispatchSizeZ, std::vector<std::string> inBoundImages, std::vector<std::string> inBoundSamplers) {
             programName = currentProgramName;
             fileName = currentFileName;
+            dispatchSizeX = inDispatchSizeX;
+            dispatchSizeY = inDispatchSizeY;
+            dispatchSizeZ = inDispatchSizeZ;
+            boundImages = inBoundImages;
+            boundSamplers = inBoundSamplers;
         } 
 
-        ~ComputeShader() {
+        void destroy() {
             glDeleteShader(csID);
             glDeleteProgram(programID);
+        }
+
+        void create() {
+            programID = glCreateProgram();
+            csID = glCreateShader(GL_COMPUTE_SHADER);
+
+            load();
+        }
+
+        void dispatch() {
+            glDispatchCompute(dispatchSizeX, dispatchSizeY, dispatchSizeZ);
         }
 
         void load() {
@@ -228,18 +252,45 @@ class ComputeShader : public Shader {
             glAttachShader(programID, csID);
             glLinkProgram(programID);
             checkErrors(programID);
+            checkShaderCompileErrors();
         }
 
         void use() {
             glUseProgram(programID);
         }
+
+        void checkShaderCompileErrors() {
+            int success = 0;
+            GLchar infoLog[1024];
+
+            glGetShaderiv(csID, GL_COMPILE_STATUS, &success);
+
+            if (!success) {
+                glGetShaderInfoLog(csID, 512, NULL, infoLog);
+                printError();
+                std::printf("OpenGL Output: \n");
+                std::printf(infoLog);
+                std::printf("\n");
+            }
+        }
+
+        std::vector<std::string> getBoundImages() {
+            return boundImages;
+        }
+
+        std::vector<std::string> getBoundSamplers() {
+            return boundSamplers;
+        }
     
     private:
         // OpenGL Objects
-        GLuint programID = glCreateProgram();
-        GLuint csID = glCreateShader(GL_COMPUTE_SHADER);
+        GLuint csID;
+        GLuint dispatchSizeX;
+        GLuint dispatchSizeY;
+        GLuint dispatchSizeZ;
+        std::vector<std::string> boundImages;
+        std::vector<std::string> boundSamplers;
 
         // Various strings used throughout the class
         std::string fileName = "";
-        std::string programName = "";
 };

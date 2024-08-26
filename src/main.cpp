@@ -5,6 +5,13 @@
 #include <vector>
 #include <cmath>
 #include <ctime>
+#include <array>
+#include <string>
+#include <unordered_map>
+
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -16,8 +23,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-#include <rapidjson/document.h>
 
 #define STBI_MAX_DIMENSIONS (1 << 26)
 #define STB_IMAGE_IMPLEMENTATION
@@ -34,7 +39,7 @@
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
-#include "include/openSans.h"
+#include "include/font.h"
 #include "include/formatting.h"
 #include "include/shaders.h"
 #include "include/textures.h"
@@ -47,7 +52,7 @@
 
 int main(void) {
     Application application;
-    application.run();
+    application.run(); 
 
     return 0;
 }

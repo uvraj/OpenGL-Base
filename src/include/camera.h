@@ -11,7 +11,7 @@ enum Camera_Movement {
 // Default camera values
 const float YAW         = -90.0f;
 const float PITCH       =  0.0f;
-const float SPEED       =  100.0f;
+const float SPEED       =  1.0f;
 const float SENSITIVITY =  0.1f;
 const float FOV        =  70.0f;
 
@@ -74,7 +74,7 @@ class Camera {
         }
 
         // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-        void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true) {
+        void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true) {
             xoffset *= MouseSensitivity;
             yoffset *= MouseSensitivity;
 
@@ -112,7 +112,7 @@ class Camera {
 
             // View Matrix
             viewMatrix = GetViewMatrix();
-            viewMatrixInverse = glm::inverse(viewMatrixInverse);
+            viewMatrixInverse = glm::inverse(viewMatrix);
         }
 
     private:

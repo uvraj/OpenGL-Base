@@ -1,0 +1,13 @@
+C:/Users/uvraj/Documents/OpenGL-Base/build_release/CMakeFiles/OpenGL-Base.dir
+C:/Users/uvraj/Documents/OpenGL-Base/build_release/CMakeFiles/glad.dir
+C:/Users/uvraj/Documents/OpenGL-Base/build_release/CMakeFiles/imgui.dir
+C:/Users/uvraj/Documents/OpenGL-Base/build_release/CMakeFiles/edit_cache.dir
+C:/Users/uvraj/Documents/OpenGL-Base/build_release/CMakeFiles/rebuild_cache.dir
+C:/Users/uvraj/Documents/OpenGL-Base/build_release/external/glfw/CMakeFiles/edit_cache.dir
+C:/Users/uvraj/Documents/OpenGL-Base/build_release/external/glfw/CMakeFiles/rebuild_cache.dir
+C:/Users/uvraj/Documents/OpenGL-Base/build_release/external/glfw/src/CMakeFiles/glfw.dir
+C:/Users/uvraj/Documents/OpenGL-Base/build_release/external/glfw/src/CMakeFiles/update_mappings.dir
+C:/Users/uvraj/Documents/OpenGL-Base/build_release/external/glfw/src/CMakeFiles/edit_cache.dir
+C:/Users/uvraj/Documents/OpenGL-Base/build_release/external/glfw/src/CMakeFiles/rebuild_cache.dir
+C:/Users/uvraj/Documents/OpenGL-Base/build_release/external/json/CMakeFiles/edit_cache.dir
+C:/Users/uvraj/Documents/OpenGL-Base/build_release/external/json/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\OpenGL-Base.dir/objects.a
+C:\TDM-GCC-64\bin\ar.exe qc CMakeFiles\OpenGL-Base.dir/objects.a @CMakeFiles\OpenGL-Base.dir\objects1.rsp
+C:\TDM-GCC-64\bin\c++.exe -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\OpenGL-Base.dir/objects.a -Wl,--no-whole-archive -o bin\OpenGL-Base.exe -Wl,--out-implib,bin\libOpenGL-Base.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\OpenGL-Base.dir\linkLibs.rsp

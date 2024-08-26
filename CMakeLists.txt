@@ -16,7 +16,7 @@ set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(RESOURCES_DIR "${SRC_DIR}/resources")
 set(EXT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
 set(GLFW_DIR "${EXT_DIR}/glfw")
-set(RAPIDJSON_DIR "${EXT_DIR}/rapidjson")
+set(JSON_DIR "${EXT_DIR}/json")
 set(GLAD_DIR "${EXT_DIR}/glad")
 set(GLM_DIR "${EXT_DIR}/glm-master")
 set(IMGUI_DIR "${EXT_DIR}/imgui")
@@ -55,7 +55,8 @@ add_subdirectory(external/glfw)
 target_include_directories(${PROJECT_NAME} PUBLIC "${GLFW_DIR}/include")
 
 # RAPIDJSON
-target_include_directories(${PROJECT_NAME} PUBLIC "${RAPIDJSON_DIR}/include")
+add_subdirectory(${JSON_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC "${JSON_DIR}/include")
 
 # GLAD
 add_library(glad "${GLAD_DIR}/src/glad.c")
@@ -86,7 +87,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${STB_DIR})
 target_precompile_headers(${PROJECT_NAME} PRIVATE ${stb_src})
 
 # Link everything
-target_link_libraries(${PROJECT_NAME} imgui glfw glad)
+target_link_libraries(${PROJECT_NAME} imgui glfw glad nlohmann_json::nlohmann_json)
 
 # Handle shaders and resources
 if(NOT MSVC)
@@ -98,7 +99,7 @@ if(NOT MSVC)
 
         add_compile_definitions(RESOURCE_PATH="resources/")
         add_compile_definitions(SHADER_PATH="resources/shaders/")
-
+        add_compile_options(-Ofast)
     else()
 
         add_compile_definitions(RESOURCE_PATH="../../src/resources/")

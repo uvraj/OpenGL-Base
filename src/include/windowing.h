@@ -186,7 +186,7 @@ class Window {
                 
                 // Handle user Output
                 printInfo();
-                std::cout << "Window scale changed -> rebuilt font atlas.\n";
+                std::cout << "Window scale changed.\n";
             }
         }
 };
@@ -195,7 +195,7 @@ class Window {
 void setImGuiStyle(GLFWwindow *glfwWindow) {
     // Create a style instance
     ImGuiStyle &style = ImGui::GetStyle();
-    style.WindowRounding = 7.5f; // Round our windows a bit
+    style.WindowRounding = 5.0f; // Round our windows a bit
     
     // Start the ImGUI GLFW / OpenGL impl.
     ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
