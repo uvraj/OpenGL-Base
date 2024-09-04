@@ -12,6 +12,7 @@ GLenum getInternalFormatFromString(const std::string& intFmt) {
         {"RGBA16", GL_RGBA16},
         {"R16F", GL_R16F},
         {"RG16F", GL_RG16F},
+        {"RGBA16F", GL_RGBA16F},
         {"R32F", GL_R32F},
         {"RG32F", GL_RG32F},
         {"RGB32F", GL_RGB32F},
@@ -139,6 +140,9 @@ public:
 
     void mainLoop(const Camera& camera, const Window& window) {
         for (auto& shader : computeShaders) {
+            std::string programName = shader.getProgramName();
+            glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, programName.size(), programName.data());
+
             shader.use();
 
             for (std::size_t i = 0; i < shader.getBoundImages().size(); i++) {
@@ -177,12 +181,22 @@ public:
             shader.pushMat4Uniform("cameraViewMatrixInverse", camera.viewMatrixInverse);
             shader.pushMat4Uniform("cameraProjectionMatrix", camera.projectionMatrix);
             shader.pushMat4Uniform("cameraProjectionMatrixInverse", camera.projectionMatrixInverse);
+            shader.pushMat4Uniform("previousCameraViewMatrix", camera.viewMatrix);
+            shader.pushMat4Uniform("previousCameraViewMatrixInverse", camera.viewMatrixInverse);
+            shader.pushMat4Uniform("previousCameraProjectionMatrix", camera.projectionMatrix);
+            shader.pushMat4Uniform("previousCameraProjectionMatrixInverse", camera.projectionMatrixInverse);
             shader.pushVec3Uniform("cameraPosition", camera.Position);
+            shader.pushVec3Uniform("previousCameraPosition", camera.previousPosition);
             shader.pushFloatUniform("currentFrame", (float) window.currentFrame);
+            shader.pushBoolUniform("shouldAccumulate", window.shouldAccumulate);
+            shader.pushUnsignedIntUniform("frameIndex", window.frameIndex);
+            shader.pushUnsignedIntUniform("accumulationIndex", window.accumulationIndex);
 
             glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
             shader.dispatch();
             glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+            glPopDebugGroup();
         }
     }
 
@@ -247,7 +261,15 @@ private:
             GLenum wrapParam = getWrapParamFromString(item.at("textureWrap").get<std::string>());
             GLenum filterParam = getFilterParamFromString(item.at("filter").get<std::string>());
 
-            textures2D.emplace_back(name, width, height, internalFormat, format, pixelType, wrapParam, filterParam);
+            std::string fileName{};
+
+            if (item.find("fileName") != item.end()) {
+                fileName = item.at("fileName");
+            }
+
+            std::cout << PIPELINE_HINT << "Registered texture \"" + name + "\"\n";
+
+            textures2D.emplace_back(name, fileName, width, height, internalFormat, format, pixelType, wrapParam, filterParam);
         }
     }
 
@@ -263,12 +285,20 @@ private:
             GLenum wrapParam = getWrapParamFromString(item.at("textureWrap").get<std::string>());
             GLenum filterParam = getFilterParamFromString(item.at("filter").get<std::string>());
 
-            textures3D.emplace_back(name, width, height, depth, internalFormat, format, pixelType, wrapParam, filterParam);
+            std::string fileName{};
+
+            if (item.find("fileName") != item.end()) {
+                fileName = item.at("fileName");
+            }
+
+            std::cout << PIPELINE_HINT << "Registered texture \"" + name + "\"\n";
+
+            textures3D.emplace_back(name, fileName, width, height, depth, internalFormat, format, pixelType, wrapParam, filterParam);
         }
     }
 
     void parseComputeShaders() {
-        for(const auto& item : pipeline["passes"]) {
+        for (const auto& item : pipeline["passes"]) {
             std::string name = item.at("name").get<std::string>();
             std::string source = item.at("source").get<std::string>();
             GLuint dispatchSizeX = item.at("dispatchSizeX").get<GLuint>();
@@ -285,6 +315,8 @@ private:
             for(const auto& sampler : item.at("boundSamplers")) {
                 boundSamplers.emplace_back(sampler.get<std::string>());
             }
+
+            std::cout << PIPELINE_HINT << "Registered compute render pass \"" + name + "\"\n";
 
             computeShaders.emplace_back(name, source, dispatchSizeX, dispatchSizeY, dispatchSizeZ, boundImages, boundSamplers);
         }

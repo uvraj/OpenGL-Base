@@ -1,6 +1,12 @@
 #ifndef WINDOWING_H
 #define WINDOWING_H
 
+void setImGuiStyle(GLFWwindow *glfwWindow, const float scale) {
+    // Create a style instance
+    ImGuiStyle &style = ImGui::GetStyle();
+    style.WindowRounding = 3.0f * scale; // Round our windows a bit
+}
+
 class Window {
     public:
         GLFWwindow *glfwWindow = nullptr;
@@ -13,9 +19,11 @@ class Window {
         float lastY = SCREEN_HEIGHT / 2.0f;
         float frameTime = 0.0f;
         float aspectRatio = 1.0f;
+        
 
-        std::time_t stdTime = std::time(0);
-        std::uint64_t frameIndex = 0;
+        bool shouldAccumulate = false;
+        unsigned int frameIndex = 0;
+        unsigned int accumulationIndex = 0;
 
         glm::vec2 viewDimensions = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
         glm::vec2 mousePos = glm::vec2(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f);
@@ -53,7 +61,7 @@ class Window {
             }
 
             printSuccess();
-            std::cout << "Window and OpenGL context created!\n";
+            std::cout << "Window and OpenGL context created.\n";
 
             glfwSetWindowUserPointer(glfwWindow, this);
 
@@ -113,6 +121,8 @@ class Window {
             Window *windowptr = (Window*) glfwGetWindowUserPointer(window);
             if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
                 windowptr->mouseCaught = !windowptr->mouseCaught;
+            if (key == GLFW_KEY_F1 && action == GLFW_PRESS) 
+                windowptr->shouldAccumulate = !windowptr->shouldAccumulate;
         }
 
         void renderLoop(ImGuiIO *io) {
@@ -141,7 +151,10 @@ class Window {
         }
 
         void swapBuffers() {
-            frameIndex += 1;
+            if (shouldAccumulate) accumulationIndex++;
+            else accumulationIndex = 0;
+
+            frameIndex++;
             glfwSwapBuffers(glfwWindow);
         }
 
@@ -157,7 +170,7 @@ class Window {
                 camera->ProcessKeyboard(RIGHT, frameTime);
         }
 
-        void handleDPI(ImGuiIO *io) {
+        void handleDPI(ImGuiIO* io) {
             static float prevScale = 1.0;
             /*
             * This function handles:
@@ -184,22 +197,13 @@ class Window {
                 ImGui_ImplOpenGL3_DestroyFontsTexture();
                 ImGui_ImplOpenGL3_CreateFontsTexture();
                 
+                setImGuiStyle(glfwWindow, prevScale);
+
                 // Handle user Output
                 printInfo();
                 std::cout << "Window scale changed.\n";
             }
         }
 };
-
-
-void setImGuiStyle(GLFWwindow *glfwWindow) {
-    // Create a style instance
-    ImGuiStyle &style = ImGui::GetStyle();
-    style.WindowRounding = 5.0f; // Round our windows a bit
-    
-    // Start the ImGUI GLFW / OpenGL impl.
-    ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
-    ImGui_ImplOpenGL3_Init("#version 420 core");
-}
 
 #endif

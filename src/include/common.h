@@ -61,7 +61,6 @@ class Quad {
             glDeleteBuffers(1, &vertexBufferObjects);
             glDeleteBuffers(1, &EBO);
             glDeleteVertexArrays(1, &vertexArrayObjects);
-            printInfo("Deleted quad objects \n");
         }
 
         void draw() {

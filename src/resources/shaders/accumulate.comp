@@ -1,0 +1,27 @@
+#version 460
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+layout (rgba16f) uniform image2D ptAccumulated;
+
+uniform sampler2D ptHistory;
+uniform sampler2D ptOutput;
+
+uniform uint accumulationIndex;
+uniform bool shouldAccumulate;
+
+void main() {
+    ivec2 iCoord = ivec2(gl_GlobalInvocationID.xy);
+    vec2 nCoord = (iCoord + 0.5) / (gl_NumWorkGroups.xy * gl_WorkGroupSize.xy);
+
+    vec4 current = texelFetch(ptOutput, iCoord, 0);
+    vec4 previous = texelFetch(ptHistory, iCoord, 0);
+
+    // float blendFactor = 0.9;
+    // vec4 blended = mix(current, previous, blendFactor);
+
+    vec4 blended = mix(previous, current, 1.0 / accumulationIndex);
+
+    if (!shouldAccumulate || accumulationIndex == 0) blended = current;
+
+    imageStore(ptAccumulated, iCoord, blended);
+}

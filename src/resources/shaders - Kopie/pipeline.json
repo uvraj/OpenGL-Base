@@ -1,0 +1,174 @@
+{
+    "finalImage": "imageOut", 
+    
+    "textures2D": [
+        {
+            "name": "imageOut",
+            "width": 1280,
+            "height": 720,
+            "internalFormat": "RGBA8",
+            "pixelFormat": "RGBA",
+            "pixelType": "UNSIGNED_BYTE",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "dctOut",
+            "width": 1280,
+            "height": 720,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "LINEAR"
+        }
+    ],
+
+    "textures3D" : [
+        {
+            "name": "voxelStructure",
+            "width": 32,
+            "height": 32,
+            "depth": 32,
+            "internalFormat": "RG16F",
+            "pixelFormat": "RG",
+            "pixelType": "HALF_FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "propagationVolume",
+            "width": 32,
+            "height": 32,
+            "depth": 32,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "propagationVolumeHistory",
+            "width": 32,
+            "height": 32,
+            "depth": 32,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "colorLookup",
+            "fileName": "FUJI_ETERNA_250D_FUJI_3510.DAT",
+            "width": 21,
+            "height": 21,
+            "depth": 21,
+            "internalFormat": "RGB32F",
+            "pixelFormat": "RGB",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "LINEAR"
+        }
+    ],
+
+    "passes": [
+        {
+            "name": "genVoxelStructure",
+            "source": "genVoxelStructure.comp",
+            "dispatchSizeX": 1,
+            "dispatchSizeY": 1,
+            "dispatchSizeZ": 1,
+
+            "boundImages": [
+                "voxelStructure"
+            ],
+
+            "boundSamplers": []
+        },
+
+        {
+            "name": "propagate",
+            "source": "propagate.comp",
+            "dispatchSizeX": 8,
+            "dispatchSizeY": 8,
+            "dispatchSizeZ": 8,
+
+            "boundImages": [
+                "propagationVolume"
+            ],
+
+            "boundSamplers": [
+                "propagationVolumeHistory",
+                "voxelStructure"
+            ]
+        },
+
+        {
+            "name": "writePropagationHistory",
+            "source": "writePropagationHistory.comp",
+            "dispatchSizeX": 8,
+            "dispatchSizeY": 8,
+            "dispatchSizeZ": 8,
+
+            "boundImages": [
+                "propagationVolumeHistory"
+            ],
+
+            "boundSamplers": [
+                "propagationVolume"
+            ]
+        },
+
+        {
+            "name": "raymarch",
+            "source": "raymarch.comp",
+            "dispatchSizeX": 80,
+            "dispatchSizeY": 45,
+            "dispatchSizeZ": 1,
+
+            "boundImages": [
+                "imageOut"
+            ],
+
+            "boundSamplers": [
+                "propagationVolume"
+            ]
+        },
+
+        {
+            "name": "encodeJPEG",
+            "source": "encodeJPEG.comp",
+            "dispatchSizeX": 40,
+            "dispatchSizeY": 23,
+            "dispatchSizeZ": 1,
+
+            "boundImages": [
+                "dctOut"
+            ],
+
+            "boundSamplers": [
+                "imageOut"
+            ]
+        },
+
+        {
+            "name": "decodeJPEG",
+            "source": "decodeJPEG.comp",
+            "dispatchSizeX": 40,
+            "dispatchSizeY": 23,
+            "dispatchSizeZ": 1,
+
+            "boundImages": [
+                "imageOut"
+            ],
+
+            "boundSamplers": [
+                "dctOut"
+            ]
+        }
+    ]
+}

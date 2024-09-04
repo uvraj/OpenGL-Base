@@ -1,4 +1,4 @@
-#version 460 core 
+#version 460
 
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout (rgba8) uniform image2D imageOut;
@@ -18,8 +18,12 @@ float rand(vec2 n) {
 	return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
 }
 
-vec3 colorMap(float magnitude) {
+vec3 colorMapReal(float magnitude) {
     return vec3(-1.0, 0.0, 0.0) * min(magnitude, 0.0) + vec3(0.0, 1.0, 0.0) * max(magnitude, 0.0);
+}
+
+vec3 colorMapImaginary(float magnitude) {
+    return vec3(-1.0, -1.0, 0.0) * min(magnitude, 0.0) + vec3(0.0, 0.0, 1.0) * max(magnitude, 0.0);
 }
 
 vec3 raymarchCube(const vec3 rayDir, const float dither) {
@@ -32,11 +36,19 @@ vec3 raymarchCube(const vec3 rayDir, const float dither) {
     vec3 colorSum = vec3(0.0);
 
     for (int i = 0; i < steps; i++, rayPosition += rayIncrement) {
-        if (clamp(rayPosition, vec3(0.0), vec3(1.0)) == rayPosition) {
-            colorSum += colorMap(texture(propagationVolume, rayPosition).r);
+        if (clamp(rayPosition, vec3(0.0), vec3(1.0)) != rayPosition) {
+            continue;
         }
 
+        float x1 = -distance(rayPosition, vec3(0.5, 0.25, 0.5));
+        float x2 = -distance(rayPosition, vec3(0.5, 0.75, 0.5));
+        const float k = 20.0;
+        const float omega = 10;
+        float waveReal = sin(omega * currentFrame + k * x1) + sin(omega * currentFrame + k * x2);
+        float waveImg = cos(omega * currentFrame + k * x1) + cos(omega * currentFrame + k * x2);
+        colorSum += colorMapReal(waveReal) + colorMapImaginary(waveImg) * 0.0;
     }   
+
     return colorSum * (marchDist / steps);
 }
 
@@ -54,19 +66,17 @@ void main() {
 
     vec3 color = raymarchCube(rayDir, rng);
 
-    color = colorMap(texture(propagationVolume, vec3(nCoord, 0.5)).r);
-// 
+    // color = colorMap(texture(propagationVolume, vec3(nCoord, 0.5)).r);
+
     // float x1 = -distance(nCoord, vec2(0.0, 0.55));
     // float x2 = -distance(nCoord, vec2(0.0, 0.45));
-// 
     // const float k = 200.0;
     // const float omega = 10;
     // float wave = sin(omega * currentFrame + k * x1) + sin(omega * currentFrame + k * x2);
-// 
     // color = colorMap(wave) * 0.5;
 
-    color = color / (color + 1.0);
-    color = pow(color, vec3(1.0 / 2.2));
+    // color = color / (color + 1.0);
+    // color = pow(color, vec3(1.0 / 2.2));
 
     imageStore(imageOut, iPos, vec4(color, 1.0));
 }

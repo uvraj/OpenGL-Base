@@ -22,7 +22,7 @@ class ShaderText {
                     std::ifstream includeFile(SHADER_PATH + buffer);
 
                     if(!includeFile.is_open()) {
-                        printError("Failed resolving #include directive ");
+                        printError("Failed resolving #include directive. File: ");
                         std::cout << buffer << '\n';
                     }
 
@@ -79,20 +79,6 @@ class Shader {
         }
 
         void load() {
-            /* 
-            * This functions handles:
-            * - loading shaders from a file
-            * - compiling them
-            * - linking them with a program
-            */ 
-            // Load the shaders from their respective file paths
-            // A path prefix is passed from CMAKE, so that the user can choose where to load the shaders from
-            // The path prefix is then concatenated with the shader name
-            // I.e.: RESOURCE_PATH + FOLDER + SHADER_NAME = COMPLETE_SHADER_LOCATION
-            // With these concatenation conventions, it is also possible to load our resources from the "src" path directly
-            // without copying over the files
-
- 
             glObjectLabel(GL_PROGRAM, programID, programName.length(), programName.c_str());
             glObjectLabel(GL_SHADER, vsID, vertexFileName.length(), vertexFileName.c_str());
             glObjectLabel(GL_SHADER, fsID, fragmentFileName.length(), fragmentFileName.c_str());
@@ -173,6 +159,10 @@ class Shader {
 
         void pushMat4Uniform(const GLchar *name, const glm::mat4 mat) {
             glUniformMatrix4fv(glGetUniformLocation(programID, name), 1, GL_FALSE, &mat[0][0]);
+        }
+
+        std::string getProgramName() const {
+            return programName;
         }
 
     protected:
@@ -274,11 +264,11 @@ class ComputeShader : public Shader {
             }
         }
 
-        std::vector<std::string> getBoundImages() {
+        std::vector<std::string> getBoundImages() const {
             return boundImages;
         }
 
-        std::vector<std::string> getBoundSamplers() {
+        std::vector<std::string> getBoundSamplers() const {
             return boundSamplers;
         }
     

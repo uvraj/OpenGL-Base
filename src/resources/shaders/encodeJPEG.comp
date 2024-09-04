@@ -1,0 +1,48 @@
+#version 460
+
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+layout (rgba32f) uniform image2D dctOut;
+
+uniform sampler2D imageOut;
+
+shared vec3[32][32] imgBuffer;
+
+#define PI 3.141592
+
+void preload() {
+    imgBuffer[gl_LocalInvocationID.x][gl_LocalInvocationID.y] = texelFetch(imageOut, ivec2(gl_GlobalInvocationID.xy), 0).rgb - vec3(0.5);
+}
+
+vec3 getDCTCoeffs(ivec2 blockCoord) {
+    float invSqrtSize = inversesqrt(gl_WorkGroupSize.x);
+    float alpha = (blockCoord.x == 0 ? invSqrtSize : sqrt(2.0) * invSqrtSize) * (blockCoord.y == 0 ? invSqrtSize : sqrt(2.0) * invSqrtSize);
+
+    vec3 dctSum = vec3(0.0);
+
+    for (int y = 0; y < gl_WorkGroupSize.y; y++) {
+        for (int x = 0; x < gl_WorkGroupSize.x; x++) {
+            vec3 imgSample = imgBuffer[x][y];
+            float cosX = cos((2.0 * x + 1.0) * blockCoord.x * PI / (2 * gl_WorkGroupSize.x));
+            float cosY = cos((2.0 * y + 1.0) * blockCoord.y * PI / (2 * gl_WorkGroupSize.y));
+            dctSum += imgSample * cosX * cosY;
+        }
+    }
+
+    return dctSum * alpha;
+}
+
+void main() {
+    ivec2 iCoord = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 blockCoord = ivec2(gl_LocalInvocationID.xy);
+
+    preload();
+    barrier();
+
+    vec3 dctCoeffs = getDCTCoeffs(blockCoord);
+
+    if(any(greaterThan(blockCoord, ivec2(5)))) {
+        dctCoeffs = vec3(0.0); 
+    }
+
+    imageStore(dctOut, iCoord, vec4(dctCoeffs, 0.0));
+}

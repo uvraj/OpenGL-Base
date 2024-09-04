@@ -42,7 +42,11 @@ class Application {
 
             // Create an ImGui IO instance
             io = &ImGui::GetIO();
-            setImGuiStyle(window.glfwWindow);
+            setImGuiStyle(window.glfwWindow, 1.0);
+
+            // Start the ImGUI GLFW / OpenGL impl.
+            ImGui_ImplGlfw_InitForOpenGL(window.glfwWindow, true);
+            ImGui_ImplOpenGL3_Init("#version 330");
 
             pipeline.load();
             
@@ -64,10 +68,13 @@ class Application {
 
                 ImGui::Begin("Main Window");
 
-                if(ImGui::Button("Reload Pipeline")) {
+                if (ImGui::Button("Reload Pipeline")) {
                     pipeline.reload();
-
                     final.load();
+                }
+
+                if (ImGui::Button("Write Image")) {
+                    pipeline.findTexture2DByName("ptAccumulated").writeImageToDisk();
                 }
 
                 ImGui::End();
@@ -79,10 +86,11 @@ class Application {
 
                 ImGui::Begin("Performance Metrics", nullptr, window_flags);
                 ImGui::Text("FPS: %.2f", io->Framerate);
+                ImGui::Text("Accumulated: %i", window.accumulationIndex);
                 ImGui::Text("Camera Position:");
-                ImGui::TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "X: %.2f", camera.Position.x);
-                ImGui::TextColored(ImVec4(0.0, 1.0, 0.0, 1.0), "Y: %.2f", camera.Position.y);
-                ImGui::TextColored(ImVec4(0.0, 0.0, 1.0, 1.0), "Z: %.2f", camera.Position.z); 
+                ImGui::TextColored(ImVec4(1.0, 0.2, 0.2, 1.0), "X: %.2f", camera.Position.x);
+                ImGui::TextColored(ImVec4(0.2, 1.0, 0.2, 1.0), "Y: %.2f", camera.Position.y);
+                ImGui::TextColored(ImVec4(0.2, 0.2, 1.0, 1.0), "Z: %.2f", camera.Position.z); 
                 ImGui::Text("Camera FoV:\t%.2f", camera.FoV);
                 ImGui::Text("Camera Pitch:\t%.2f", camera.Pitch);
                 ImGui::Text("Camera Yaw:\t%.2f", camera.Yaw);
@@ -118,6 +126,7 @@ class Application {
 
                 // Swap GLFW framebuffers
                 window.swapBuffers();
+                camera.writePreviousData();
             }
         }
 

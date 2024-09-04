@@ -3,92 +3,128 @@
     
     "textures2D": [
         {
+            "name": "ptOutput",
+            "width": 640,
+            "height": 368,
+            "internalFormat": "RGBA16F",
+            "pixelFormat": "RGBA",
+            "pixelType": "HALF_FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "ptHistory",
+            "width": 640,
+            "height": 368,
+            "internalFormat": "RGBA16F",
+            "pixelFormat": "RGBA",
+            "pixelType": "HALF_FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "ptAccumulated",
+            "width": 640,
+            "height": 368,
+            "internalFormat": "RGBA16F",
+            "pixelFormat": "RGBA",
+            "pixelType": "HALF_FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
             "name": "imageOut",
-            "width": 1280,
-            "height": 720,
+            "width": 640,
+            "height": 368,
             "internalFormat": "RGBA8",
             "pixelFormat": "RGBA",
             "pixelType": "UNSIGNED_BYTE",
             "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "LINEAR"
-        }
-    ],
+            "filter": "NEAREST"
+        },
 
-    "textures3D" : [
         {
-            "name": "voxelStructure",
-            "width": 128,
-            "height": 128,
-            "depth": 128,
+            "name": "cameraVelocityTex",
+            "width": 640,
+            "height": 368,
             "internalFormat": "RG16F",
             "pixelFormat": "RG",
             "pixelType": "HALF_FLOAT",
             "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "LINEAR"
+            "filter": "NEAREST"
         },
 
         {
-            "name": "propagationVolume",
-            "width": 128,
-            "height": 128,
-            "depth": 128,
-            "internalFormat": "R32F",
-            "pixelFormat": "RED",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "LINEAR"
-        },
-
-        {
-            "name": "propagationVolumeHistory",
-            "width": 128,
-            "height": 128,
-            "depth": 128,
-            "internalFormat": "R32F",
-            "pixelFormat": "RED",
+            "name": "dctOut",
+            "width": 640,
+            "height": 368,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
             "pixelType": "FLOAT",
             "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         }
     ],
 
+    "textures3D" : [],
+
     "passes": [
         {
-            "name": "genVoxelStructure",
-            "source": "genVoxelStructure.comp",
-            "dispatchSizeX": 32,
-            "dispatchSizeY": 32,
-            "dispatchSizeZ": 32,
+            "name": "pathTrace",
+            "source": "pathTrace.comp",
+            "dispatchSizeX": 40,
+            "dispatchSizeY": 23,
+            "dispatchSizeZ": 1,
 
             "boundImages": [
-                "voxelStructure"
+                "ptOutput",
+                "cameraVelocityTex"
             ],
 
             "boundSamplers": []
         },
 
         {
-            "name": "propagate",
-            "source": "propagate.comp",
-            "dispatchSizeX": 32,
-            "dispatchSizeY": 32,
-            "dispatchSizeZ": 32,
+            "name": "accumulate",
+            "source": "accumulate.comp",
+            "dispatchSizeX": 40,
+            "dispatchSizeY": 23,
+            "dispatchSizeZ": 1,
 
             "boundImages": [
-                "propagationVolume"
+                "ptAccumulated"
             ],
 
             "boundSamplers": [
-                "propagationVolumeHistory",
-                "voxelStructure"
+                "ptOutput",
+                "ptHistory"
             ]
         },
 
         {
-            "name": "raymarch",
-            "source": "raymarch.comp",
-            "dispatchSizeX": 80,
-            "dispatchSizeY": 45,
+            "name": "writeAccumulationHistory",
+            "source": "writeAccumulationHistory.comp",
+            "dispatchSizeX": 40,
+            "dispatchSizeY": 23,
+            "dispatchSizeZ": 1,
+
+            "boundImages": [
+                "ptHistory"
+            ],
+
+            "boundSamplers": [
+                "ptAccumulated"
+            ]
+        },
+
+        {
+            "name": "postProcess",
+            "source": "postProcess.comp",
+            "dispatchSizeX": 40,
+            "dispatchSizeY": 23,
             "dispatchSizeZ": 1,
 
             "boundImages": [
@@ -96,23 +132,40 @@
             ],
 
             "boundSamplers": [
-                "propagationVolume"
+                "ptAccumulated",
+                "cameraVelocityTex"
             ]
         },
 
         {
-            "name": "writePropagationHistory",
-            "source": "writePropagationHistory.comp",
-            "dispatchSizeX": 32,
-            "dispatchSizeY": 32,
-            "dispatchSizeZ": 32,
+            "name": "encodeJPEG",
+            "source": "encodeJPEG.comp",
+            "dispatchSizeX": 20,
+            "dispatchSizeY": 12,
+            "dispatchSizeZ": 1,
 
             "boundImages": [
-                "propagationVolumeHistory"
+                "dctOut"
             ],
 
             "boundSamplers": [
-                "propagationVolume"
+                "imageOut"
+            ]
+        },
+
+        {
+            "name": "decodeJPEG",
+            "source": "decodeJPEG.comp",
+            "dispatchSizeX": 20,
+            "dispatchSizeY": 12,
+            "dispatchSizeZ": 1,
+
+            "boundImages": [
+                "imageOut"
+            ],
+
+            "boundSamplers": [
+                "dctOut"
             ]
         }
     ]

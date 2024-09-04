@@ -22,8 +22,17 @@ class Camera {
         glm::mat4 projectionMatrixInverse = glm::mat4(1.0f);
         glm::mat4 viewMatrix = glm::mat4(1.0f);
         glm::mat4 viewMatrixInverse = glm::mat4(1.0f);
+
+        // Previous frame stuff
+        glm::mat4 previousProjectionMatrix = glm::mat4(1.0f);
+        glm::mat4 previousProjectionMatrixInverse = glm::mat4(1.0f);
+        glm::mat4 previousViewMatrix = glm::mat4(1.0f);
+        glm::mat4 previousViewMatrixInverse = glm::mat4(1.0f);
+
         // camera Attributes
         glm::vec3 Position;
+        glm::vec3 previousPosition = glm::vec3(0.0f);
+
         glm::vec3 Front;
         glm::vec3 Up;
         glm::vec3 Right;
@@ -45,6 +54,7 @@ class Camera {
             Pitch = pitch;
             updateCameraVectors();
         }
+
         // constructor with scalar values
         Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), FoV(FOV) {
             Position = glm::vec3(posX, posY, posZ);
@@ -113,6 +123,14 @@ class Camera {
             // View Matrix
             viewMatrix = GetViewMatrix();
             viewMatrixInverse = glm::inverse(viewMatrix);
+        }
+
+        void writePreviousData() {
+            previousProjectionMatrix = projectionMatrix;
+            previousProjectionMatrixInverse = projectionMatrixInverse;
+            previousViewMatrix = viewMatrix;
+            previousViewMatrixInverse = viewMatrixInverse;
+            previousPosition = Position;
         }
 
     private:

@@ -1,6 +1,9 @@
 #ifndef FORMATTING_H
 #define FORMATTING_H
 
+const std::string ERROR_HINT =  "[\e[0;31mERROR\033[0m]\t";
+const std::string PIPELINE_HINT =  "[\e[0;32mPIPELINE\033[0m]\t";
+
 void textRed() {
     std::cout << "\033[1;31m";
 }

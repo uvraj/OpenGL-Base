@@ -1,0 +1,45 @@
+#version 460
+
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+layout (rgba8) uniform image2D imageOut;
+
+uniform sampler3D colorLookup;
+uniform sampler2D dctOut;
+
+shared vec3[32][32] imgBuffer;
+
+#define PI 3.141592
+
+void preload() {
+    imgBuffer[gl_LocalInvocationID.x][gl_LocalInvocationID.y] = texelFetch(dctOut, ivec2(gl_GlobalInvocationID.xy), 0).rgb;
+}
+
+vec3 decodeFromDCT(ivec2 blockCoord) {
+    vec3 decodedSum = vec3(0.0);
+
+    for (int v = 0; v < gl_WorkGroupSize.y; v++) {
+        for (int u = 0; u < gl_WorkGroupSize.x; u++) {
+            float invSqrtSize = inversesqrt(gl_WorkGroupSize.x);
+            float alpha = (u == 0 ? invSqrtSize : sqrt(2.0) * invSqrtSize) * (v == 0 ? invSqrtSize : sqrt(2.0) * invSqrtSize);
+            vec3 dctCoeff = imgBuffer[u][v];
+            float cosX = cos((2.0 * blockCoord.x + 1.0) * u * PI / (2 * gl_WorkGroupSize.x));
+            float cosY = cos((2.0 * blockCoord.y + 1.0) * v * PI / (2 * gl_WorkGroupSize.y));
+            decodedSum += alpha * dctCoeff * cosX * cosY;
+        }
+    }
+
+    return decodedSum;
+}
+
+void main() {
+    ivec2 iCoord = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 blockCoord = ivec2(gl_LocalInvocationID.xy);
+
+    preload();
+    barrier();
+
+    vec3 decoded = decodeFromDCT(blockCoord);
+    decoded = clamp(decoded + 0.5, 0.0, 1.0);
+
+    imageStore(imageOut, iCoord, vec4(decoded, 1.0));
+}

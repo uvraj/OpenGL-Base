@@ -1,0 +1,20 @@
+#version 460
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+layout (rgba8) uniform image2D imageOut;
+
+uniform sampler2D ptOutput;
+uniform sampler2D cameraVelocityTex;
+
+#include "lib/utility.glsl"
+
+void main() {
+    ivec2 iCoord = ivec2(gl_GlobalInvocationID.xy);
+    vec2 nCoord = (iCoord + 0.5) / (gl_NumWorkGroups.xy * gl_WorkGroupSize.xy);
+
+    vec3 color = texture(ptOutput, nCoord).rgb;
+    color = ACESFilm(color);
+    color = LinearToSrgb(color);
+
+    imageStore(imageOut, iCoord, vec4(color, 1.0));
+}

@@ -1,6 +1,6 @@
 #pragma once
 
-class TextureInfo {
+class TextureBase {
 public:
     GLuint getID() {
         return id;
@@ -12,19 +12,36 @@ public:
 
 protected:
     std::string name;
+    std::string fileName;
     GLuint id;
     GLenum internalFormat;
     GLenum format;
     GLenum pixelType;
     GLenum wrapParam;
     GLenum filterParam;
+
+    std::vector<std::uint8_t> getDataFromFile() {
+        std::string filePath = RESOURCE_PATH + fileName;
+        std::ifstream binaryFile{filePath, std::ios::binary};
+
+        std::vector <std::uint8_t> binaryData;
+        binaryData.assign(std::istreambuf_iterator <char> (binaryFile), {});
+
+        // Check for errors and output accordingly
+        if(!binaryFile.is_open()) {
+            throw std::runtime_error(ERROR_HINT + "Loading binary texture " + filePath + " failed.\n");
+        }
+        
+        return binaryData;
+    }
 };
 
 
-class Texture3D : public TextureInfo {
+class Texture3D : public TextureBase {
 public:
     Texture3D(
         const std::string& inName,
+        const std::string& inFileName,
         const GLuint inWidth,
         const GLuint inHeight, 
         const GLuint inDepth,  
@@ -35,6 +52,7 @@ public:
         const GLenum inFilterParam
     ) {
         name = inName;
+        fileName = inFileName;
         width = inWidth;
         height = inHeight;
         depth = inDepth;
@@ -57,7 +75,11 @@ public:
         glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, filterParam);
 
         glTextureStorage3D(id, 1, internalFormat, width, height, depth);
-        glTextureSubImage3D(id, 0, 0, 0, 0, width, height, depth, internalFormat, pixelType, nullptr);
+
+        if (!fileName.empty()) {
+            std::vector<uint8_t> data = getDataFromFile();
+            glTextureSubImage3D(id, 0, 0, 0, 0, width, height, depth, format, pixelType, data.data());
+        }
     }
 
     void bind(const GLuint& unit) {
@@ -78,12 +100,13 @@ protected:
     GLuint depth;
 };
 
-class Texture2D : public TextureInfo {
+class Texture2D : public TextureBase {
 public:
     Texture2D(
         const std::string& inName,
+        const std::string& inFileName,
         const GLuint inWidth,
-        const GLuint inHeight,   
+        const GLuint inHeight,
         const GLuint inInternalFormat, 
         const GLenum inFormat, 
         const GLenum inPixelType,
@@ -91,6 +114,7 @@ public:
         const GLenum inFilterParam
     ) {
         name = inName;
+        fileName = inFileName;
         width = inWidth;
         height = inHeight;
         internalFormat = inInternalFormat;
@@ -111,7 +135,14 @@ public:
         glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, filterParam);
 
         glTextureStorage2D(id, 1, internalFormat, width, height);
-        glTextureSubImage2D(id, 0, 0, 0, width, height, internalFormat, pixelType, nullptr);
+
+        if (!fileName.empty()) {
+            std::vector<uint8_t> data = getDataFromFile();
+
+            // TODO: do size checking. If the JSON specifies a larger size than what the file actually is, OpenGL is going to access memory out of bounds.
+            glTextureSubImage2D(id, 0, 0, 0, width, height, format, pixelType, data.data());
+        }
+        
     }
 
     void bind(const GLuint& unit) {
@@ -124,6 +155,23 @@ public:
 
     void destroy() {
         glDeleteTextures(1, &id);
+    }
+
+    void writeImageToDisk() {
+        std::ofstream binaryFile{name + ".dat", std::ios::binary};
+
+        if (!binaryFile.is_open()) {
+            throw std::runtime_error(ERROR_HINT + "Writing texture " + name + " failed.");
+        }
+
+        std::size_t size = width * height * sizeof(float) * 4;
+        std::uint8_t* data = new std::uint8_t[size];
+
+        glGetTextureImage(id, 0, GL_RGBA, GL_FLOAT, size, data);
+
+        binaryFile.write(reinterpret_cast<const char*>(data), size);
+
+        delete[] data;
     }
 
 protected:
