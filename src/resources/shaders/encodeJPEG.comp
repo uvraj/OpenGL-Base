@@ -40,9 +40,9 @@ void main() {
 
     vec3 dctCoeffs = getDCTCoeffs(blockCoord);
 
-    if(any(greaterThan(blockCoord, ivec2(5)))) {
+    /*if(any(lessThan(blockCoord, ivec2(8)))) {
         dctCoeffs = vec3(0.0); 
-    }
+    }*/
 
     imageStore(dctOut, iCoord, vec4(dctCoeffs, 0.0));
 }

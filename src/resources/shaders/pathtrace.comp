@@ -24,8 +24,8 @@ uniform float currentFrame;
 
 vec2 Rand(vec2 n) { 
 	return vec2(
-        fract(sin(dot(n + fract(currentFrame), vec2(12.9898, 4.1414))) * 43758.5453),
-        fract(cos(dot(n - fract(currentFrame), vec2(12.9898, 4.1414))) * 43758.5453)
+        clamp(fract(sin(dot(n + fract(currentFrame), vec2(12.9898, 4.1414))) * 43758.5453), 0.0, 1.0),
+        clamp(fract(cos(dot(n - fract(currentFrame), vec2(12.9898, 4.1414))) * 43758.5453), 0.0, 1.0)
     );
 }
 
@@ -138,11 +138,20 @@ void main() {
     vec3 rayDir = CalculateCameraRayDir(nCoord, cameraProjectionMatrixInverse, cameraViewMatrixInverse);
     vec3 previousRayDir = CalculateCameraRayDir(nCoord, previousCameraProjectionMatrixInverse, previousCameraViewMatrixInverse);
 
+    // vec3 sensorPos = vec3(Rand(nCoord + vec2(2.21321, 4.1231)) * 2.0 - 1.0, 0.0) * 0.1;
+    // vec3 rayPos = mat3(cameraViewMatrixInverse) * sensorPos;
+    // 
+    // vec3 focalPoint = rayDir * 4.0;
+    // rayDir = normalize(focalPoint - sensorPos);
+    // rayPos += cameraPosition;
+
+    vec3 rayPos = cameraPosition;
+
     HitData hitData = emptyHitData;
     HitData previousHitData = emptyHitData;
     
     // Camera Ray 
-    RayTraceScene(hitData, cameraPosition, rayDir);
+    RayTraceScene(hitData, rayPos, rayDir);
     RayTraceScene(previousHitData, previousCameraPosition, previousRayDir);
 
     WriteCameraVelocity(iPos, hitData, previousHitData);

@@ -137,38 +137,6 @@
             "boundSamplers": [
                 "propagationVolume"
             ]
-        },
-
-        {
-            "name": "encodeJPEG",
-            "source": "encodeJPEG.comp",
-            "dispatchSizeX": 40,
-            "dispatchSizeY": 23,
-            "dispatchSizeZ": 1,
-
-            "boundImages": [
-                "dctOut"
-            ],
-
-            "boundSamplers": [
-                "imageOut"
-            ]
-        },
-
-        {
-            "name": "decodeJPEG",
-            "source": "decodeJPEG.comp",
-            "dispatchSizeX": 40,
-            "dispatchSizeY": 23,
-            "dispatchSizeZ": 1,
-
-            "boundImages": [
-                "imageOut"
-            ],
-
-            "boundSamplers": [
-                "dctOut"
-            ]
         }
     ]
 }
