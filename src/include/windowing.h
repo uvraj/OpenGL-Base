@@ -83,6 +83,7 @@ class Window {
             // Zhis function handles the user changing the resolution of the window.
             // Personal note: ALL glTexImage2D() calls related to framebuffer attachments MUST be placed inside here,
             // otherwise they won't resize!
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
             glViewport(0, 0, width, height);
             glActiveTexture(GL_TEXTURE0);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, nullptr);

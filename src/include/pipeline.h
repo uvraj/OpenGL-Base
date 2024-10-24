@@ -17,7 +17,9 @@ GLenum getInternalFormatFromString(const std::string& intFmt) {
         {"RG32F", GL_RG32F},
         {"RGB32F", GL_RGB32F},
         {"RGBA32F", GL_RGBA32F},
-        {"R11F_G11F_B10F", GL_R11F_G11F_B10F}
+        {"R11F_G11F_B10F", GL_R11F_G11F_B10F},
+        {"DEPTH24_STENCIL8", GL_DEPTH24_STENCIL8},
+        {"DEPTH_COMPONENT32F", GL_DEPTH_COMPONENT32F}
     };
     
     auto it = internalFormatMap.find(intFmt);
@@ -36,7 +38,9 @@ GLenum getPixelFormatFromString(const std::string& pixFmt) {
         {"RGB", GL_RGB},
         {"BGR", GL_BGR},
         {"RGBA", GL_RGBA},
-        {"BGRA", GL_BGRA}
+        {"BGRA", GL_BGRA},
+        {"DEPTH_STENCIL", GL_DEPTH_STENCIL},
+        {"DEPTH_COMPONENT", GL_DEPTH_COMPONENT}
     };
     
     auto it = pixelFormatMap.find(pixFmt);
@@ -56,7 +60,8 @@ GLenum getPixelTypeFromString(const std::string& pixType) {
         {"INT", GL_INT},
         {"HALF_FLOAT", GL_HALF_FLOAT},
         {"FLOAT", GL_FLOAT},
-        {"UNSIGNED_BYTE", GL_UNSIGNED_BYTE}
+        {"UNSIGNED_BYTE", GL_UNSIGNED_BYTE},
+        {"UNSIGNED_INT_24_8", GL_UNSIGNED_INT_24_8}
     };
     
     auto it = pixelTypeMap.find(pixType);
@@ -136,6 +141,16 @@ public:
         textures3D.clear();
         computeShaders.clear();
         load();
+    }
+
+    void preRenderSetup() {
+        for (auto& texture : textures2D) {
+            texture.clearTexImage();
+        }
+
+        for (auto& texture : textures3D) {
+            texture.clearTexImage();
+        }
     }
 
     void mainLoop(const Camera& camera, const Window& window) {

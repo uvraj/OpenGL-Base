@@ -3,36 +3,27 @@
     
     "textures2D": [
         {
-            "name": "ptOutput",
+            "name": "depthTex", 
             "width": 1920,
             "height": 1080,
-            "internalFormat": "RGBA16F",
-            "pixelFormat": "RGBA",
-            "pixelType": "HALF_FLOAT",
+            "internalFormat": "DEPTH_COMPONENT32F",
+            "pixelFormat": "DEPTH_COMPONENT",
+            "pixelType": "FLOAT",
             "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
+            "filter": "NEAREST",
+            "clear": true
         },
 
         {
-            "name": "ptHistory",
+            "name": "gBuffer",
             "width": 1920,
             "height": 1080,
-            "internalFormat": "RGBA16F",
+            "internalFormat": "RGBA8",
             "pixelFormat": "RGBA",
-            "pixelType": "HALF_FLOAT",
+            "pixelType": "UNSIGNED_BYTE",
             "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "ptAccumulated",
-            "width": 1920,
-            "height": 1080,
-            "internalFormat": "RGBA16F",
-            "pixelFormat": "RGBA",
-            "pixelType": "HALF_FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
+            "filter": "NEAREST", 
+            "clear": true
         },
 
         {
@@ -43,18 +34,8 @@
             "pixelFormat": "RGBA",
             "pixelType": "UNSIGNED_BYTE",
             "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "cameraVelocityTex",
-            "width": 1920,
-            "height": 1080,
-            "internalFormat": "RG16F",
-            "pixelFormat": "RG",
-            "pixelType": "HALF_FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
+            "filter": "NEAREST", 
+            "clear": true
         }
     ],
 
@@ -62,56 +43,8 @@
 
     "passes": [
         {
-            "name": "pathTrace",
-            "source": "pathTrace.comp",
-            "dispatchSizeX": 120,
-            "dispatchSizeY": 68,
-            "dispatchSizeZ": 1,
-
-            "boundImages": [
-                "ptOutput",
-                "cameraVelocityTex"
-            ],
-
-            "boundSamplers": []
-        },
-
-        {
-            "name": "accumulate",
-            "source": "accumulate.comp",
-            "dispatchSizeX": 120,
-            "dispatchSizeY": 68,
-            "dispatchSizeZ": 1,
-
-            "boundImages": [
-                "ptAccumulated"
-            ],
-
-            "boundSamplers": [
-                "ptOutput",
-                "ptHistory"
-            ]
-        },
-
-        {
-            "name": "writeAccumulationHistory",
-            "source": "writeAccumulationHistory.comp",
-            "dispatchSizeX": 120,
-            "dispatchSizeY": 68,
-            "dispatchSizeZ": 1,
-
-            "boundImages": [
-                "ptHistory"
-            ],
-
-            "boundSamplers": [
-                "ptAccumulated"
-            ]
-        },
-
-        {
-            "name": "postProcess",
-            "source": "postProcess.comp",
+            "name": "test",
+            "source": "test.comp",
             "dispatchSizeX": 120,
             "dispatchSizeY": 68,
             "dispatchSizeZ": 1,
@@ -121,8 +54,8 @@
             ],
 
             "boundSamplers": [
-                "ptAccumulated",
-                "cameraVelocityTex"
+                "gBuffer",
+                "depthTex"
             ]
         }
     ]

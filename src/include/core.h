@@ -17,10 +17,11 @@ class Application {
         Quad quadVAO;
 
         Shader final{"final", "final.vert", "final.frag"};
-
-        glm::mat4 model{1.0f};
+        Shader drawScene{"drawScene", "drawScene.vert", "drawScene.frag"};
 
         PipelineManager pipeline{"pipeline.json"};
+
+        STLModel testModel{"test.stl"};
 
         GLuint mainFBO;
 
@@ -52,6 +53,20 @@ class Application {
             
             // Shaders
             final.create();
+            drawScene.create();
+
+            testModel.setup();
+
+            glCreateFramebuffers(1, &mainFBO);
+
+            glViewport(0, 0, 1920, 1080);
+
+            glNamedFramebufferTexture(mainFBO, GL_COLOR_ATTACHMENT0, pipeline.findTexture2DByName("gBuffer").getID(), 0);
+            glNamedFramebufferTexture(mainFBO, GL_DEPTH_ATTACHMENT, pipeline.findTexture2DByName("depthTex").getID(), 0);
+
+            if (glCheckNamedFramebufferStatus(mainFBO, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+                throw std::runtime_error("Framebuffer incomplete.");
+            }    
         }
 
         void appLoop() {
@@ -69,7 +84,8 @@ class Application {
                 ImGui::Begin("Main Window");
 
                 if (ImGui::Button("Reload Pipeline")) {
-                    pipeline.reload();
+                    // pipeline.reload();
+                    drawScene.load();
                     final.load();
                 }
 
@@ -101,11 +117,36 @@ class Application {
 
                 ImGui::Render();
 
+                pipeline.preRenderSetup();
+
+                glBindFramebuffer(GL_FRAMEBUFFER, mainFBO);
+                glEnable(GL_DEPTH_TEST);
+
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                drawScene.useProgram();
+
+                drawScene.pushMat4Uniform("cameraViewMatrix", camera.viewMatrix);
+                drawScene.pushMat4Uniform("cameraViewMatrixInverse", camera.viewMatrixInverse);
+                drawScene.pushMat4Uniform("cameraProjectionMatrix", camera.projectionMatrix);
+                drawScene.pushMat4Uniform("cameraProjectionMatrixInverse", camera.projectionMatrixInverse);
+                drawScene.pushMat4Uniform("previousCameraViewMatrix", camera.viewMatrix);
+                drawScene.pushMat4Uniform("previousCameraViewMatrixInverse", camera.viewMatrixInverse);
+                drawScene.pushMat4Uniform("previousCameraProjectionMatrix", camera.projectionMatrix);
+                drawScene.pushMat4Uniform("previousCameraProjectionMatrixInverse", camera.projectionMatrixInverse);
+                drawScene.pushVec3Uniform("cameraPosition", camera.Position);
+                drawScene.pushVec3Uniform("previousCameraPosition", camera.previousPosition);
+                drawScene.pushFloatUniform("currentFrame", (float) window.currentFrame);
+                drawScene.pushBoolUniform("shouldAccumulate", window.shouldAccumulate);
+                drawScene.pushUnsignedIntUniform("frameIndex", window.frameIndex);
+                drawScene.pushUnsignedIntUniform("accumulationIndex", window.accumulationIndex);
+
+                testModel.draw();
+
                 pipeline.mainLoop(camera, window);
 
                 // Post-processing pass
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, 13, "Post Process");
                 glDisable(GL_DEPTH_TEST);
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -114,8 +155,6 @@ class Application {
                 final.useProgram();
                 final.pushIntUniform("finalImage", 0);
                 quadVAO.draw();
-
-                glPopDebugGroup();
 
                 glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, 13, "ImGui Render");
 

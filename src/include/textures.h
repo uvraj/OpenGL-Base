@@ -10,6 +10,10 @@ public:
         return name;
     }
 
+    void clearTexImage() const {
+        glClearTexImage(id, 0, format, pixelType, nullptr);
+    }
+
 protected:
     std::string name;
     std::string fileName;

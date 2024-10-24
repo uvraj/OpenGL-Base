@@ -36,8 +36,8 @@ using json = nlohmann::json;
 #define APPLICATION_GL_VERSION_MAJOR 4 
 #define APPLICATION_GL_VERSION_MINOR 6
 
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
+#define SCREEN_WIDTH 1920
+#define SCREEN_HEIGHT 1080
 
 #include "include/font.h"
 #include "include/formatting.h"
@@ -47,8 +47,9 @@ using json = nlohmann::json;
 #include "include/windowing.h"
 #include "include/common.h"
 #include "include/pipeline.h"
+#include "include/stlParser.h"
 
-#include "include/appCore.h"
+#include "include/core.h"
 
 int main(void) {
     Application application;
