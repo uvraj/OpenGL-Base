@@ -174,6 +174,20 @@ public:
         delete[] data;
     }
 
+    void writeImageToDiskPNG() {
+        static uint64_t index = 0;
+        std::size_t size = width * height * sizeof(std::uint8_t) * 4;
+        std::uint8_t* data = new std::uint8_t[size];
+
+        glGetTextureImage(id, 0, GL_RGBA, GL_UNSIGNED_BYTE, size, data);
+
+        std::string fileName = name + "_" + std::to_string(index) + ".png";
+
+        stbi_write_png(fileName.c_str(), width, height, 4, data, width * 4);
+
+        index++;
+    }
+
 protected:
     GLuint width;
     GLuint height;

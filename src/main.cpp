@@ -26,7 +26,9 @@ using json = nlohmann::json;
 
 #define STBI_MAX_DIMENSIONS (1 << 26)
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image.h>
+#include <stb_image_write.h>
 
 #define STB_INCLUDE_IMPLEMENTATION
 #include <stb_include.h>

@@ -74,7 +74,7 @@ class Application {
                 }
 
                 if (ImGui::Button("Write Image")) {
-                    pipeline.findTexture2DByName("ptAccumulated").writeImageToDisk();
+                    pipeline.findTexture2DByName("imageOut").writeImageToDiskPNG();
                 }
 
                 ImGui::End();
