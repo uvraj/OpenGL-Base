@@ -168,7 +168,7 @@ void main() {
 
     vec3 sceneColor = vec3(0.0); 
 
-    for (int i = 0; i < 4096; i++) {
+    for (int i = 0; i < 8; i++) {
         sceneColor += hitData.material.emissivity * hitData.material.albedo;
 
         vec3 randomDir = UniformSampleHemisphere(hitData.hitNormal, RandNext2F());
@@ -196,7 +196,7 @@ void main() {
         }
     }
 
-    sceneColor /= .0;
+    sceneColor /= 8.0;
     
 
     imageStore(ptOutput, iPos, vec4(sceneColor, 1.0));

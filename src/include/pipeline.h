@@ -145,7 +145,9 @@ public:
 
             shader.use();
 
-            for (std::size_t i = 0; i < shader.getBoundImages().size(); i++) {
+            std::size_t i;
+
+            for (i = 0; i < shader.getBoundImages().size(); i++) {
                 try {
                     findTexture2DByName(shader.getBoundImages().at(i)).bindImageTexture(i);
                 } catch (const std::exception& e) {
@@ -161,7 +163,13 @@ public:
                 shader.pushIntUniform(shader.getBoundImages().at(i).c_str(), i);
             }
 
-            for (std::size_t i = 0; i < shader.getBoundSamplers().size(); i++) {
+            // Auxilliary images
+            if (shader.getOutputTex() != "") {
+                findTexture3DByName(shader.getOutputTex()).bindImageTexture(++i);
+                shader.pushIntUniform("outputTex", i);
+            }
+
+            for (i = 0; i < shader.getBoundSamplers().size(); i++) {
                 try {
                     findTexture2DByName(shader.getBoundSamplers().at(i)).bind(i);
                 } catch (const std::exception& e) {
@@ -175,6 +183,17 @@ public:
                 
 
                 shader.pushIntUniform(shader.getBoundSamplers().at(i).c_str(), i);
+            }
+
+            // Auxilliary textures
+            if (shader.getInputTex() != "") {
+                findTexture3DByName(shader.getInputTex()).bind(++i);
+                shader.pushIntUniform("inputTex", i);
+            }
+
+            if (shader.getKernelTex() != "") {
+                findTexture3DByName(shader.getKernelTex()).bind(++i);
+                shader.pushIntUniform("kernelTex", i);
             }
 
             shader.pushMat4Uniform("cameraViewMatrix", camera.viewMatrix);
@@ -316,9 +335,23 @@ private:
                 boundSamplers.emplace_back(sampler.get<std::string>());
             }
 
+            std::string inputTex, outputTex, kernelTex;
+
+            if (item.find("inputTex") != item.end()) {
+                inputTex = item.at("inputTex").get<std::string>();
+            }
+
+            if (item.find("outputTex") != item.end()) {
+                outputTex = item.at("outputTex").get<std::string>();
+            }
+
+            if (item.find("kernelTex") != item.end()) {
+                kernelTex = item.at("kernelTex").get<std::string>();
+            }
+
             std::cout << PIPELINE_HINT << "Registered compute render pass \"" + name + "\"\n";
 
-            computeShaders.emplace_back(name, source, dispatchSizeX, dispatchSizeY, dispatchSizeZ, boundImages, boundSamplers);
+            computeShaders.emplace_back(name, source, dispatchSizeX, dispatchSizeY, dispatchSizeZ, inputTex, outputTex, kernelTex, boundImages, boundSamplers);
         }
     }
 };

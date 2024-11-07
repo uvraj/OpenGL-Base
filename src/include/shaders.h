@@ -212,6 +212,19 @@ class ComputeShader : public Shader {
             boundSamplers = inBoundSamplers;
         } 
 
+        ComputeShader(const std::string currentProgramName, const std::string currentFileName, const GLuint inDispatchSizeX, const GLuint inDispatchSizeY, const GLuint inDispatchSizeZ, std::string inInputTex, std::string inOutputTex, std::string inKernelTex, std::vector<std::string> inBoundImages, std::vector<std::string> inBoundSamplers) {
+            programName = currentProgramName;
+            fileName = currentFileName;
+            dispatchSizeX = inDispatchSizeX;
+            dispatchSizeY = inDispatchSizeY;
+            dispatchSizeZ = inDispatchSizeZ;
+            boundImages = inBoundImages;
+            boundSamplers = inBoundSamplers;
+            inputTex = inInputTex;
+            outputTex = inOutputTex;
+            kernelTex = inKernelTex;
+        } 
+
         void destroy() {
             glDeleteShader(csID);
             glDeleteProgram(programID);
@@ -271,6 +284,18 @@ class ComputeShader : public Shader {
         std::vector<std::string> getBoundSamplers() const {
             return boundSamplers;
         }
+
+        std::string getInputTex() const {
+            return inputTex;
+        }
+
+        std::string getOutputTex() const {
+            return outputTex;
+        }
+
+        std::string getKernelTex() const {
+            return kernelTex;
+        }
     
     private:
         // OpenGL Objects
@@ -280,7 +305,10 @@ class ComputeShader : public Shader {
         GLuint dispatchSizeZ;
         std::vector<std::string> boundImages;
         std::vector<std::string> boundSamplers;
-
+        std::string inputTex;
+        std::string outputTex;
+        std::string kernelTex;
+        
         // Various strings used throughout the class
         std::string fileName = "";
 };
