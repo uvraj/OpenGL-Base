@@ -22,12 +22,26 @@ uniform float currentFrame;
 #include "lib/utility.glsl"
 #include "lib/intersections.glsl"
 
-vec2 Rand(vec2 n) { 
-	return vec2(
-        fract(sin(dot(n + fract(currentFrame), vec2(12.9898, 4.1414))) * 43758.5453),
-        fract(cos(dot(n - fract(currentFrame), vec2(12.9898, 4.1414))) * 43758.5453)
-    );
+uint lowbias32(uint x) {
+	// https://nullprogram.com/blog/2018/07/31/
+	x ^= x >> 16;
+	x *= 0x7feb352du;
+	x ^= x >> 15;
+	x *= 0x846ca68bu;
+	x ^= x >> 16;
+	return x;
 }
+
+uint randState;
+void InitRand(uint seed) { randState = lowbias32(seed); }
+uint RandNext() { return randState = lowbias32(randState); }
+#define RandNext2() uvec2(RandNext(), RandNext())
+#define RandNext3() uvec3(RandNext2(), RandNext())
+#define RandNext4() uvec4(RandNext3(), RandNext())
+#define RandNextF() (float(RandNext()) / float(0xffffffffu))
+#define RandNext2F() (vec2(RandNext2()) / float(0xffffffffu))
+#define RandNext3F() (vec3(RandNext3()) / float(0xffffffffu))
+#define RandNext4F() (vec4(RandNext4()) / float(0xffffffffu))
 
 void CompareHitData(inout HitData hitData, HitData newHitData) {
     if (abs(newHitData.t) < abs(hitData.t) && newHitData.rayHit) hitData = newHitData;
@@ -83,14 +97,14 @@ void RayTrace(out HitData hitData, const vec3 rayOrigin, const vec3 rayDirection
     IntersectSphere(hitDataTemp, planeMaterial, vec3(0.5f, -0.66f, 0.5f), 0.33f, rayOrigin, rayDirection);
     CompareHitData(hitData, hitDataTemp);
 
-    hitDataTemp = emptyHitData;
-    planeMaterial.albedo = vec3(1.0f);
-    planeMaterial.isMetal = true;
-    IntersectDisk(hitDataTemp, planeMaterial, vec3(0.0, -0.8, 2.0f), 0.2f, vec3(0.0f, 0.0f, -1.0f), rayOrigin, rayDirection);
-    hitDataTemp.hitNormal.x += 0.2 * sin(distance(hitDataTemp.hitPos.xy, vec2(0.0, -0.8)) * 100);
-    hitDataTemp.hitNormal = normalize(hitDataTemp.hitNormal); 
+    // hitDataTemp = emptyHitData;
+    // planeMaterial.albedo = vec3(1.0f);
+    // planeMaterial.isMetal = true;
+    // IntersectDisk(hitDataTemp, planeMaterial, vec3(0.0, -0.8, 2.0f), 0.2f, vec3(0.0f, 0.0f, -1.0f), rayOrigin, rayDirection);
+    // hitDataTemp.hitNormal.x += 0.2 * sin(distance(hitDataTemp.hitPos.xy, vec2(0.0, -0.8)) * 100);
+    // hitDataTemp.hitNormal = normalize(hitDataTemp.hitNormal); 
 
-    CompareHitData(hitData, hitDataTemp);
+    // CompareHitData(hitData, hitDataTemp);
 
     IntersectDisk(hitDataTemp, emitterMaterial, vec3(0.0f, 0.99f, 0.0f), 0.5f, vec3(0.0f, -1.0f, 0.0f), rayOrigin, rayDirection);
     CompareHitData(hitData, hitDataTemp);
@@ -99,9 +113,9 @@ void RayTrace(out HitData hitData, const vec3 rayOrigin, const vec3 rayDirection
 void RayTraceScene(out HitData hitData, const vec3 rayOrigin, const vec3 rayDirection) {
     RayTrace(hitData, rayOrigin, rayDirection);
 
-    if (hitData.material.isMetal) {
+    /*if (hitData.material.isMetal) {
         RayTrace(hitData, hitData.hitPos + vec3(0.0001) * hitData.hitNormal, reflect(rayDirection, hitData.hitNormal));
-    }
+    }*/
 
     /*if (hitData.material.isMetal) {
         RayTrace(hitData, hitData.hitPos - vec3(0.01) * hitData.hitNormal, refract(rayDirection, hitData.hitNormal, 1.0 / 1.450));
@@ -135,6 +149,11 @@ void main() {
     ivec2 iPos = ivec2(gl_GlobalInvocationID.xy);
     vec2 nCoord = (iPos + 0.5) / (gl_NumWorkGroups.xy * gl_WorkGroupSize.xy);
 
+    vec2 viewResolution = imageSize(ptOutput);
+    InitRand(uint(iPos.x + viewResolution.x * iPos.y) + (uint(viewResolution.x) * uint(viewResolution.y) * floatBitsToUint(currentFrame)));
+
+    // nCoord += (RandNext2F()) / 256.0;
+
     vec3 rayDir = CalculateCameraRayDir(nCoord, cameraProjectionMatrixInverse, cameraViewMatrixInverse);
     vec3 previousRayDir = CalculateCameraRayDir(nCoord, previousCameraProjectionMatrixInverse, previousCameraViewMatrixInverse);
 
@@ -147,31 +166,38 @@ void main() {
 
     WriteCameraVelocity(iPos, hitData, previousHitData);
 
-    vec3 sceneColor = hitData.material.emissivity * hitData.material.albedo;
+    vec3 sceneColor = vec3(0.0); 
 
-    vec3 randomDir = UniformSampleHemisphere(hitData.hitNormal, Rand(nCoord));
+    for (int i = 0; i < 4096; i++) {
+        sceneColor += hitData.material.emissivity * hitData.material.albedo;
 
-    // TODO: Path trace recursively, manually adding bounces isn't the cleanest approach
-    HitData randomHit = emptyHitData;
-    RayTraceScene(randomHit, hitData.hitPos + hitData.hitNormal * 0.001f, randomDir);
+        vec3 randomDir = UniformSampleHemisphere(hitData.hitNormal, RandNext2F());
 
-    if (hitData.rayHit && !hitData.material.isEmissive) {
-        if (randomHit.rayHit && randomHit.material.isEmissive) {
-            sceneColor += hitData.material.albedo * randomHit.material.emissivity * randomHit.material.albedo * dot(hitData.hitNormal, randomDir) * 2.0f; 
-            imageStore(ptOutput, iPos, vec4(sceneColor, 1.0));
-            return;
-        }
+        // TODO: Path trace recursively, manually adding bounces isn't the cleanest approach
+        HitData randomHit = emptyHitData;
+        RayTraceScene(randomHit, hitData.hitPos + hitData.hitNormal * 0.001f, randomDir);
 
-        vec3 randomDir2 = UniformSampleHemisphere(randomHit.hitNormal, Rand(nCoord * 2));
+        if (hitData.rayHit && !hitData.material.isEmissive) {
+            if (randomHit.rayHit && randomHit.material.isEmissive) {
+                sceneColor += hitData.material.albedo * randomHit.material.emissivity * randomHit.material.albedo * dot(hitData.hitNormal, randomDir) * 2.0f; 
+                // imageStore(ptOutput, iPos, vec4(sceneColor, 1.0));
+                // break;
+            }
 
-        HitData randomHit2 = emptyHitData;
-        RayTraceScene(randomHit2, randomHit.hitPos + randomHit.hitNormal * 0.001f, randomDir2);
+            vec3 randomDir2 = UniformSampleHemisphere(randomHit.hitNormal, RandNext2F());
 
-        if (randomHit.rayHit && !randomHit.material.isEmissive) {
-            vec3 contrib = randomHit.material.albedo * randomHit2.material.emissivity * randomHit2.material.albedo * dot(randomHit.hitNormal, randomDir2) * 2.0f; 
-            sceneColor += hitData.material.albedo * 2.0f * contrib * dot(hitData.hitNormal, randomDir); 
+            HitData randomHit2 = emptyHitData;
+            RayTraceScene(randomHit2, randomHit.hitPos + randomHit.hitNormal * 0.001f, randomDir2);
+
+            if (randomHit.rayHit && !randomHit.material.isEmissive) {
+                vec3 contrib = randomHit.material.albedo * randomHit2.material.emissivity * randomHit2.material.albedo * dot(randomHit.hitNormal, randomDir2) * 2.0f; 
+                sceneColor += hitData.material.albedo * 2.0f * contrib * dot(hitData.hitNormal, randomDir); 
+            }
         }
     }
+
+    sceneColor /= .0;
+    
 
     imageStore(ptOutput, iPos, vec4(sceneColor, 1.0));
 }

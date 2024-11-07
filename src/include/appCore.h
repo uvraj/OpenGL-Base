@@ -25,6 +25,8 @@ class Application {
         GLuint mainFBO;
 
         void appInit() {
+            stbi_flip_vertically_on_write(1);
+            
             glViewport(
                 0, 0, // The location
                 SCREEN_WIDTH, SCREEN_HEIGHT // The resolution
