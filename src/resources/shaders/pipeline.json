@@ -39,25 +39,14 @@
             "filter": "LINEAR"
         },
         {
-            "name": "inputTex1",
-            "width": 128,
-            "height": 128,
-            "depth": 1,
-            "internalFormat": "R32F",
-            "pixelFormat": "RED",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
-            "filter": "LINEAR"
-        },
-        {
             "name": "outputTex1",
             "width": 128,
             "height": 128,
-            "depth": 128,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -65,11 +54,11 @@
             "fileName": "conv_kernels\\layer_1_kernels.bin",
             "width": 3,
             "height": 3,
-            "depth": 128,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -77,44 +66,44 @@
             "fileName": "conv_kernels\\layer_1_biases.bin",
             "width": 1,
             "height": 1,
-            "depth": 128,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
             "name": "outputTex2",
             "width": 128,
             "height": 128,
-            "depth": 128,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
             "name": "outputTex3",
             "width": 64,
             "height": 64,
-            "depth": 128,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
             "name": "outputTex4",
             "width": 64,
             "height": 64,
-            "depth": 64,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -122,11 +111,11 @@
             "fileName": "conv_kernels\\layer_4_kernels.bin",
             "width": 3,
             "height": 3,
-            "depth": 8192,
+            "depth": 1024,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -134,33 +123,33 @@
             "fileName": "conv_kernels\\layer_4_biases.bin",
             "width": 1,
             "height": 1,
-            "depth": 64,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
             "name": "outputTex5",
             "width": 64,
             "height": 64,
-            "depth": 64,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
             "name": "outputTex6",
             "width": 32,
             "height": 32,
-            "depth": 64,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -171,7 +160,7 @@
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -179,11 +168,11 @@
             "fileName": "conv_kernels\\layer_7_kernels.bin",
             "width": 3,
             "height": 3,
-            "depth": 4096,
+            "depth": 2048,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -195,7 +184,7 @@
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -206,7 +195,7 @@
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -217,18 +206,18 @@
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
             "name": "outputTex10",
             "width": 64,
             "height": 64,
-            "depth": 64,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -236,11 +225,11 @@
             "fileName": "conv_kernels\\layer_10_kernels.bin",
             "width": 3,
             "height": 3,
-            "depth": 4096,
+            "depth": 2048,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -248,44 +237,44 @@
             "fileName": "conv_kernels\\layer_10_biases.bin",
             "width": 1,
             "height": 1,
-            "depth": 64,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
             "name": "outputTex11",
             "width": 64,
             "height": 64,
-            "depth": 64,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
             "name": "outputTex12",
             "width": 128,
             "height": 128,
-            "depth": 64,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
             "name": "outputTex13",
             "width": 128,
             "height": 128,
-            "depth": 128,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -293,11 +282,11 @@
             "fileName": "conv_kernels\\layer_13_kernels.bin",
             "width": 3,
             "height": 3,
-            "depth": 8192,
+            "depth": 1024,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -305,22 +294,22 @@
             "fileName": "conv_kernels\\layer_13_biases.bin",
             "width": 1,
             "height": 1,
-            "depth": 128,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
             "name": "outputTex14",
             "width": 128,
             "height": 128,
-            "depth": 128,
+            "depth": 32,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -331,7 +320,7 @@
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -339,11 +328,11 @@
             "fileName": "conv_kernels\\layer_15_kernels.bin",
             "width": 3,
             "height": 3,
-            "depth": 384,
+            "depth": 96,
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -355,7 +344,7 @@
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         },
         {
@@ -366,7 +355,7 @@
             "internalFormat": "R32F",
             "pixelFormat": "RED",
             "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
+            "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
         }
     ],
@@ -385,7 +374,7 @@
             "source": "conv2d.comp",
             "dispatchSizeX": 43,
             "dispatchSizeY": 43,
-            "dispatchSizeZ": 43,
+            "dispatchSizeZ": 11,
             "outputTex": "outputTex1",
             "inputTex": "inputTex1",
             "kernelTex": "kernelTex1",
@@ -396,7 +385,7 @@
             "source": "leakyrelu.comp",
             "dispatchSizeX": 43,
             "dispatchSizeY": 43,
-            "dispatchSizeZ": 43,
+            "dispatchSizeZ": 11,
             "outputTex": "outputTex2",
             "inputTex": "outputTex1"
         },
@@ -405,7 +394,7 @@
             "source": "maxpooling2d.comp",
             "dispatchSizeX": 22,
             "dispatchSizeY": 22,
-            "dispatchSizeZ": 43,
+            "dispatchSizeZ": 11,
             "outputTex": "outputTex3",
             "inputTex": "outputTex2"
         },
@@ -414,7 +403,7 @@
             "source": "conv2d.comp",
             "dispatchSizeX": 22,
             "dispatchSizeY": 22,
-            "dispatchSizeZ": 22,
+            "dispatchSizeZ": 11,
             "outputTex": "outputTex4",
             "inputTex": "outputTex3",
             "kernelTex": "kernelTex4",
@@ -425,7 +414,7 @@
             "source": "leakyrelu.comp",
             "dispatchSizeX": 22,
             "dispatchSizeY": 22,
-            "dispatchSizeZ": 22,
+            "dispatchSizeZ": 11,
             "outputTex": "outputTex5",
             "inputTex": "outputTex4"
         },
@@ -434,7 +423,7 @@
             "source": "maxpooling2d.comp",
             "dispatchSizeX": 11,
             "dispatchSizeY": 11,
-            "dispatchSizeZ": 22,
+            "dispatchSizeZ": 11,
             "outputTex": "outputTex6",
             "inputTex": "outputTex5"
         },
@@ -472,7 +461,7 @@
             "source": "conv2d.comp",
             "dispatchSizeX": 22,
             "dispatchSizeY": 22,
-            "dispatchSizeZ": 22,
+            "dispatchSizeZ": 11,
             "outputTex": "outputTex10",
             "inputTex": "outputTex9",
             "kernelTex": "kernelTex10",
@@ -483,7 +472,7 @@
             "source": "leakyrelu.comp",
             "dispatchSizeX": 22,
             "dispatchSizeY": 22,
-            "dispatchSizeZ": 22,
+            "dispatchSizeZ": 11,
             "outputTex": "outputTex11",
             "inputTex": "outputTex10"
         },
@@ -492,7 +481,7 @@
             "source": "upsampling2d.comp",
             "dispatchSizeX": 43,
             "dispatchSizeY": 43,
-            "dispatchSizeZ": 22,
+            "dispatchSizeZ": 11,
             "outputTex": "outputTex12",
             "inputTex": "outputTex11"
         },
@@ -501,7 +490,7 @@
             "source": "conv2d.comp",
             "dispatchSizeX": 43,
             "dispatchSizeY": 43,
-            "dispatchSizeZ": 43,
+            "dispatchSizeZ": 11,
             "outputTex": "outputTex13",
             "inputTex": "outputTex12",
             "kernelTex": "kernelTex13",
@@ -512,7 +501,7 @@
             "source": "leakyrelu.comp",
             "dispatchSizeX": 43,
             "dispatchSizeY": 43,
-            "dispatchSizeZ": 43,
+            "dispatchSizeZ": 11,
             "outputTex": "outputTex14",
             "inputTex": "outputTex13"
         },
