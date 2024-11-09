@@ -15,10 +15,10 @@ void main() {
     
     float value = 0.0;
     
-    if (iPos.z < outImageSize.z)
-        value = texelFetch()
-    else 
-        value = 
+    // if (iPos.z < outImageSize.z)
+    //     value = texelFetch()
+    // else 
+    //     value = 
 
     imageStore(outputTex, iPos, vec4(value));
 }

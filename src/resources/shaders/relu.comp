@@ -8,6 +8,7 @@ uniform sampler3D inputTex;
 void main() {
     ivec3 iPos = ivec3(gl_GlobalInvocationID);
 
+    // ReLU
     float value = texelFetch(inputTex, iPos, 0).r;
     value = value > 0.0 ? value : 0.0;
 

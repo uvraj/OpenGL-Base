@@ -11,6 +11,7 @@ void main() {
 
     if (any(greaterThanEqual(iPos, imageSize(outputTex)))) return;
 
+    // Nearest/bilinear based on what is specified in the JSON
     float value = texture(inputTex, nCoord).r;
 
     imageStore(outputTex, iPos, vec4(value));

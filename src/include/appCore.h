@@ -88,14 +88,6 @@ class Application {
 
                 ImGui::Begin("Performance Metrics", nullptr, window_flags);
                 ImGui::Text("FPS: %.2f", io->Framerate);
-                ImGui::Text("Accumulated: %i", window.accumulationIndex);
-                ImGui::Text("Camera Position:");
-                ImGui::TextColored(ImVec4(1.0, 0.2, 0.2, 1.0), "X: %.2f", camera.Position.x);
-                ImGui::TextColored(ImVec4(0.2, 1.0, 0.2, 1.0), "Y: %.2f", camera.Position.y);
-                ImGui::TextColored(ImVec4(0.2, 0.2, 1.0, 1.0), "Z: %.2f", camera.Position.z); 
-                ImGui::Text("Camera FoV:\t%.2f", camera.FoV);
-                ImGui::Text("Camera Pitch:\t%.2f", camera.Pitch);
-                ImGui::Text("Camera Yaw:\t%.2f", camera.Yaw);
 
                 ImGui::End();
 
