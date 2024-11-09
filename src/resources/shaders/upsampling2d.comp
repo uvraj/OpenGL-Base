@@ -1,0 +1,17 @@
+#version 460 
+
+layout (local_size_x = 3, local_size_y = 3, local_size_z = 3) in;
+layout (r32f) uniform image3D outputTex;
+
+uniform sampler3D inputTex;
+
+void main() {
+    ivec3 iPos = ivec3(gl_GlobalInvocationID);
+    vec3 nCoord = (iPos + 0.5) / imageSize(outputTex);
+
+    if (any(greaterThanEqual(iPos, imageSize(outputTex)))) return;
+
+    float value = texture(inputTex, nCoord).r;
+
+    imageStore(outputTex, iPos, vec4(value));
+}

@@ -1,0 +1,22 @@
+#version 460 
+
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+layout (rgba8) uniform image2D imageOut;
+
+uniform sampler3D inputTex;
+uniform sampler3D inputTex1;
+
+void main() {
+    ivec2 iPos = ivec2(gl_GlobalInvocationID);
+
+    float r = texelFetch(inputTex, ivec3(iPos, 0), 0).r;
+    float g = texelFetch(inputTex, ivec3(iPos, 1), 0).r;
+    float b = texelFetch(inputTex, ivec3(iPos, 2), 0).r;
+
+    float ref = texelFetch(inputTex1, ivec3(iPos, 0) - ivec3(0, 128, 0), 0).r;
+
+    if (iPos.y > 128)
+        imageStore(imageOut, ivec2(iPos.x, 256 - iPos.y + 128), vec4(ref));
+    else 
+        imageStore(imageOut, ivec2(iPos.x, 128 - iPos.y), vec4(r, g, b, 1.0));
+}

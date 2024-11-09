@@ -212,7 +212,7 @@ class ComputeShader : public Shader {
             boundSamplers = inBoundSamplers;
         } 
 
-        ComputeShader(const std::string currentProgramName, const std::string currentFileName, const GLuint inDispatchSizeX, const GLuint inDispatchSizeY, const GLuint inDispatchSizeZ, std::string inInputTex, std::string inOutputTex, std::string inKernelTex, std::vector<std::string> inBoundImages, std::vector<std::string> inBoundSamplers) {
+        ComputeShader(const std::string currentProgramName, const std::string currentFileName, const GLuint inDispatchSizeX, const GLuint inDispatchSizeY, const GLuint inDispatchSizeZ, std::string inInputTex, std::string inOutputTex, std::string inKernelTex, std::string inBiasTex, std::string inAuxTex, std::vector<std::string> inBoundImages, std::vector<std::string> inBoundSamplers) {
             programName = currentProgramName;
             fileName = currentFileName;
             dispatchSizeX = inDispatchSizeX;
@@ -223,6 +223,8 @@ class ComputeShader : public Shader {
             inputTex = inInputTex;
             outputTex = inOutputTex;
             kernelTex = inKernelTex;
+            biasTex = inBiasTex;
+            auxTex = inAuxTex;
         } 
 
         void destroy() {
@@ -296,6 +298,14 @@ class ComputeShader : public Shader {
         std::string getKernelTex() const {
             return kernelTex;
         }
+
+        std::string getBiasTex() const {
+            return biasTex;
+        }
+
+        std::string getAuxTex() const {
+            return auxTex;
+        }
     
     private:
         // OpenGL Objects
@@ -308,6 +318,8 @@ class ComputeShader : public Shader {
         std::string inputTex;
         std::string outputTex;
         std::string kernelTex;
+        std::string biasTex;
+        std::string auxTex;
         
         // Various strings used throughout the class
         std::string fileName = "";

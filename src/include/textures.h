@@ -74,6 +74,12 @@ public:
         glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, filterParam);
         glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, filterParam);
 
+        // Hardcode the border color for the time being.
+        if (wrapParam == GL_CLAMP_TO_BORDER) {
+            float borderColor[] = {0.0f, 0.0f, 0.0f, 1.0f};
+            glTextureParameterfv(id, GL_TEXTURE_BORDER_COLOR, borderColor);
+        }
+
         glTextureStorage3D(id, 1, internalFormat, width, height, depth);
 
         if (!fileName.empty()) {

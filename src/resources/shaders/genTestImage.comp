@@ -1,0 +1,16 @@
+#version 460 
+
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+layout (r32f) uniform image3D outputTex;
+
+uniform sampler3D inputTex;
+
+uniform uint accumulationIndex;
+
+void main() {
+    ivec2 iPos = ivec2(gl_GlobalInvocationID);
+
+    float r = texelFetch(inputTex, ivec3(iPos, (accumulationIndex) % 1024), 0).r;
+
+    imageStore(outputTex, ivec3(iPos.x, iPos.y, 0), vec4(r));
+}

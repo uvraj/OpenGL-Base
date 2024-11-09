@@ -71,7 +71,8 @@ GLenum getPixelTypeFromString(const std::string& pixType) {
 GLenum getWrapParamFromString(const std::string& param) {
     static const std::unordered_map<std::string, GLenum> wrapParamMap = {
         {"CLAMP_TO_EDGE", GL_CLAMP_TO_EDGE},
-        {"REPEAT", GL_REPEAT}
+        {"REPEAT", GL_REPEAT},
+        {"CLAMP_TO_BORDER", GL_CLAMP_TO_BORDER}
     };
     
     auto it = wrapParamMap.find(param);
@@ -145,7 +146,7 @@ public:
 
             shader.use();
 
-            std::size_t i;
+            std::size_t i = 0;
 
             for (i = 0; i < shader.getBoundImages().size(); i++) {
                 try {
@@ -168,6 +169,8 @@ public:
                 findTexture3DByName(shader.getOutputTex()).bindImageTexture(++i);
                 shader.pushIntUniform("outputTex", i);
             }
+
+            i = 0;
 
             for (i = 0; i < shader.getBoundSamplers().size(); i++) {
                 try {
@@ -194,6 +197,16 @@ public:
             if (shader.getKernelTex() != "") {
                 findTexture3DByName(shader.getKernelTex()).bind(++i);
                 shader.pushIntUniform("kernelTex", i);
+            }
+
+            if (shader.getBiasTex() != "") {
+                findTexture3DByName(shader.getBiasTex()).bind(++i);
+                shader.pushIntUniform("biasTex", i);
+            }
+
+            if (shader.getAuxTex() != "") {
+                findTexture3DByName(shader.getAuxTex()).bind(++i);
+                shader.pushIntUniform("auxTex", i);
             }
 
             shader.pushMat4Uniform("cameraViewMatrix", camera.viewMatrix);
@@ -327,15 +340,20 @@ private:
             std::vector<std::string> boundImages;
             std::vector<std::string> boundSamplers;
 
-            for(const auto& image : item.at("boundImages")) {
-                boundImages.emplace_back(image.get<std::string>());
+            if (item.find("boundImages") != item.end()) {
+                for (const auto& image : item.at("boundImages")) {
+                    
+                    boundImages.emplace_back(image.get<std::string>());
+                }
             }
 
-            for(const auto& sampler : item.at("boundSamplers")) {
-                boundSamplers.emplace_back(sampler.get<std::string>());
+            if (item.find("boundSamplers") != item.end()) {
+                for (const auto& sampler : item.at("boundSamplers")) {
+                    boundSamplers.emplace_back(sampler.get<std::string>());
+                }
             }
 
-            std::string inputTex, outputTex, kernelTex;
+            std::string inputTex, outputTex, kernelTex, biasTex, auxTex;
 
             if (item.find("inputTex") != item.end()) {
                 inputTex = item.at("inputTex").get<std::string>();
@@ -349,9 +367,17 @@ private:
                 kernelTex = item.at("kernelTex").get<std::string>();
             }
 
+            if (item.find("biasTex") != item.end()) {
+                biasTex = item.at("biasTex").get<std::string>();
+            }
+
+            if (item.find("auxTex") != item.end()) {
+                auxTex = item.at("auxTex").get<std::string>();
+            }
+
             std::cout << PIPELINE_HINT << "Registered compute render pass \"" + name + "\"\n";
 
-            computeShaders.emplace_back(name, source, dispatchSizeX, dispatchSizeY, dispatchSizeZ, inputTex, outputTex, kernelTex, boundImages, boundSamplers);
+            computeShaders.emplace_back(name, source, dispatchSizeX, dispatchSizeY, dispatchSizeZ, inputTex, outputTex, kernelTex, biasTex, auxTex, boundImages, boundSamplers);
         }
     }
 };

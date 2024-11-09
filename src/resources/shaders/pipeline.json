@@ -3,127 +3,548 @@
     
     "textures2D": [
         {
-            "name": "ptOutput",
-            "width": 128,
-            "height": 128,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "ptHistory",
-            "width": 128,
-            "height": 128,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "ptAccumulated",
-            "width": 128,
-            "height": 128,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
             "name": "imageOut",
             "width": 128,
-            "height": 128,
+            "height": 256,
             "internalFormat": "RGBA8",
             "pixelFormat": "RGBA",
             "pixelType": "UNSIGNED_BYTE",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "cameraVelocityTex",
-            "width": 128,
-            "height": 128,
-            "internalFormat": "RG16F",
-            "pixelFormat": "RG",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
+            "textureWrap": "CLAMP_TO_BORDER",
             "filter": "NEAREST"
         }
     ],
 
-    "textures3D" : [],
-
+    "textures3D": [
+        {
+            "name": "videoTex",
+            "fileName": "video.raw",
+            "width": 128,
+            "height": 128,
+            "depth": 1024,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "inputTex1",
+            "width": 128,
+            "height": 128,
+            "depth": 1,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "inputTex1",
+            "width": 128,
+            "height": 128,
+            "depth": 1,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex1",
+            "width": 128,
+            "height": 128,
+            "depth": 128,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "kernelTex1",
+            "fileName": "conv_kernels\\layer_1_kernels.bin",
+            "width": 3,
+            "height": 3,
+            "depth": 128,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "biasTex1",
+            "fileName": "conv_kernels\\layer_1_biases.bin",
+            "width": 1,
+            "height": 1,
+            "depth": 128,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex2",
+            "width": 128,
+            "height": 128,
+            "depth": 128,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex3",
+            "width": 64,
+            "height": 64,
+            "depth": 128,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex4",
+            "width": 64,
+            "height": 64,
+            "depth": 64,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "kernelTex4",
+            "fileName": "conv_kernels\\layer_4_kernels.bin",
+            "width": 3,
+            "height": 3,
+            "depth": 8192,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "biasTex4",
+            "fileName": "conv_kernels\\layer_4_biases.bin",
+            "width": 1,
+            "height": 1,
+            "depth": 64,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex5",
+            "width": 64,
+            "height": 64,
+            "depth": 64,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex6",
+            "width": 32,
+            "height": 32,
+            "depth": 64,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex7",
+            "width": 32,
+            "height": 32,
+            "depth": 64,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "kernelTex7",
+            "fileName": "conv_kernels\\layer_7_kernels.bin",
+            "width": 3,
+            "height": 3,
+            "depth": 4096,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "biasTex7",
+            "fileName": "conv_kernels\\layer_7_biases.bin",
+            "width": 1,
+            "height": 1,
+            "depth": 64,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex8",
+            "width": 32,
+            "height": 32,
+            "depth": 64,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex9",
+            "width": 64,
+            "height": 64,
+            "depth": 64,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex10",
+            "width": 64,
+            "height": 64,
+            "depth": 64,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "kernelTex10",
+            "fileName": "conv_kernels\\layer_10_kernels.bin",
+            "width": 3,
+            "height": 3,
+            "depth": 4096,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "biasTex10",
+            "fileName": "conv_kernels\\layer_10_biases.bin",
+            "width": 1,
+            "height": 1,
+            "depth": 64,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex11",
+            "width": 64,
+            "height": 64,
+            "depth": 64,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex12",
+            "width": 128,
+            "height": 128,
+            "depth": 64,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex13",
+            "width": 128,
+            "height": 128,
+            "depth": 128,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "kernelTex13",
+            "fileName": "conv_kernels\\layer_13_kernels.bin",
+            "width": 3,
+            "height": 3,
+            "depth": 8192,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "biasTex13",
+            "fileName": "conv_kernels\\layer_13_biases.bin",
+            "width": 1,
+            "height": 1,
+            "depth": 128,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex14",
+            "width": 128,
+            "height": 128,
+            "depth": 128,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex15",
+            "width": 128,
+            "height": 128,
+            "depth": 3,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "kernelTex15",
+            "fileName": "conv_kernels\\layer_15_kernels.bin",
+            "width": 3,
+            "height": 3,
+            "depth": 384,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "biasTex15",
+            "fileName": "conv_kernels\\layer_15_biases.bin",
+            "width": 1,
+            "height": 1,
+            "depth": 3,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
+            "name": "outputTex16",
+            "width": 128,
+            "height": 128,
+            "depth": 3,
+            "internalFormat": "R32F",
+            "pixelFormat": "RED",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        }
+    ],
     "passes": [
         {
-            "name": "pathTrace",
-            "source": "pathTrace.comp",
-            "dispatchSizeX": 8,
-            "dispatchSizeY": 8,
+            "name": "genTestImage",
+            "source": "genTestImage.comp",
+            "dispatchSizeX": 16,
+            "dispatchSizeY": 16,
             "dispatchSizeZ": 1,
-
-            "boundImages": [
-                "ptOutput",
-                "cameraVelocityTex"
-            ],
-
-            "boundSamplers": []
+            "outputTex": "inputTex1",
+            "inputTex": "videoTex"
         },
-
         {
-            "name": "accumulate",
-            "source": "accumulate.comp",
-            "dispatchSizeX": 8,
-            "dispatchSizeY": 8,
-            "dispatchSizeZ": 1,
-
-            "boundImages": [
-                "ptAccumulated"
-            ],
-
-            "boundSamplers": [
-                "ptOutput",
-                "ptHistory"
-            ]
+            "name": "conv2DLayer1",
+            "source": "conv2d.comp",
+            "dispatchSizeX": 43,
+            "dispatchSizeY": 43,
+            "dispatchSizeZ": 43,
+            "outputTex": "outputTex1",
+            "inputTex": "inputTex1",
+            "kernelTex": "kernelTex1",
+            "biasTex": "biasTex1"
         },
-
         {
-            "name": "writeAccumulationHistory",
-            "source": "writeAccumulationHistory.comp",
-            "dispatchSizeX": 8,
-            "dispatchSizeY": 8,
-            "dispatchSizeZ": 1,
-
-            "boundImages": [
-                "ptHistory"
-            ],
-
-            "boundSamplers": [
-                "ptAccumulated"
-            ]
+            "name": "leakyrelu2",
+            "source": "leakyrelu.comp",
+            "dispatchSizeX": 43,
+            "dispatchSizeY": 43,
+            "dispatchSizeZ": 43,
+            "outputTex": "outputTex2",
+            "inputTex": "outputTex1"
         },
-
         {
-            "name": "postProcess",
-            "source": "postProcess.comp",
-            "dispatchSizeX": 8,
-            "dispatchSizeY": 8,
+            "name": "maxpooling2d3",
+            "source": "maxpooling2d.comp",
+            "dispatchSizeX": 22,
+            "dispatchSizeY": 22,
+            "dispatchSizeZ": 43,
+            "outputTex": "outputTex3",
+            "inputTex": "outputTex2"
+        },
+        {
+            "name": "conv2DLayer4",
+            "source": "conv2d.comp",
+            "dispatchSizeX": 22,
+            "dispatchSizeY": 22,
+            "dispatchSizeZ": 22,
+            "outputTex": "outputTex4",
+            "inputTex": "outputTex3",
+            "kernelTex": "kernelTex4",
+            "biasTex": "biasTex4"
+        },
+        {
+            "name": "leakyrelu5",
+            "source": "leakyrelu.comp",
+            "dispatchSizeX": 22,
+            "dispatchSizeY": 22,
+            "dispatchSizeZ": 22,
+            "outputTex": "outputTex5",
+            "inputTex": "outputTex4"
+        },
+        {
+            "name": "maxpooling2d6",
+            "source": "maxpooling2d.comp",
+            "dispatchSizeX": 11,
+            "dispatchSizeY": 11,
+            "dispatchSizeZ": 22,
+            "outputTex": "outputTex6",
+            "inputTex": "outputTex5"
+        },
+        {
+            "name": "conv2DLayer7",
+            "source": "conv2d.comp",
+            "dispatchSizeX": 11,
+            "dispatchSizeY": 11,
+            "dispatchSizeZ": 22,
+            "outputTex": "outputTex7",
+            "inputTex": "outputTex6",
+            "kernelTex": "kernelTex7",
+            "biasTex": "biasTex7"
+        },
+        {
+            "name": "leakyrelu8",
+            "source": "leakyrelu.comp",
+            "dispatchSizeX": 11,
+            "dispatchSizeY": 11,
+            "dispatchSizeZ": 22,
+            "outputTex": "outputTex8",
+            "inputTex": "outputTex7"
+        },
+        {
+            "name": "upsampling2d9",
+            "source": "upsampling2d.comp",
+            "dispatchSizeX": 22,
+            "dispatchSizeY": 22,
+            "dispatchSizeZ": 22,
+            "outputTex": "outputTex9",
+            "inputTex": "outputTex8"
+        },
+        {
+            "name": "conv2DLayer10",
+            "source": "conv2d.comp",
+            "dispatchSizeX": 22,
+            "dispatchSizeY": 22,
+            "dispatchSizeZ": 22,
+            "outputTex": "outputTex10",
+            "inputTex": "outputTex9",
+            "kernelTex": "kernelTex10",
+            "biasTex": "biasTex10"
+        },
+        {
+            "name": "leakyrelu11",
+            "source": "leakyrelu.comp",
+            "dispatchSizeX": 22,
+            "dispatchSizeY": 22,
+            "dispatchSizeZ": 22,
+            "outputTex": "outputTex11",
+            "inputTex": "outputTex10"
+        },
+        {
+            "name": "upsampling2d12",
+            "source": "upsampling2d.comp",
+            "dispatchSizeX": 43,
+            "dispatchSizeY": 43,
+            "dispatchSizeZ": 22,
+            "outputTex": "outputTex12",
+            "inputTex": "outputTex11"
+        },
+        {
+            "name": "conv2DLayer13",
+            "source": "conv2d.comp",
+            "dispatchSizeX": 43,
+            "dispatchSizeY": 43,
+            "dispatchSizeZ": 43,
+            "outputTex": "outputTex13",
+            "inputTex": "outputTex12",
+            "kernelTex": "kernelTex13",
+            "biasTex": "biasTex13"
+        },
+        {
+            "name": "leakyrelu14",
+            "source": "leakyrelu.comp",
+            "dispatchSizeX": 43,
+            "dispatchSizeY": 43,
+            "dispatchSizeZ": 43,
+            "outputTex": "outputTex14",
+            "inputTex": "outputTex13"
+        },
+        {
+            "name": "conv2DLayer15",
+            "source": "conv2d.comp",
+            "dispatchSizeX": 43,
+            "dispatchSizeY": 43,
             "dispatchSizeZ": 1,
-
-            "boundImages": [
-                "imageOut"
-            ],
-
-            "boundSamplers": [
-                "ptAccumulated",
-                "cameraVelocityTex"
-            ]
+            "outputTex": "outputTex15",
+            "inputTex": "outputTex14",
+            "kernelTex": "kernelTex15",
+            "biasTex": "biasTex15"
+        },
+        {
+            "name": "relu16",
+            "source": "relu.comp",
+            "dispatchSizeX": 43,
+            "dispatchSizeY": 43,
+            "dispatchSizeZ": 1,
+            "outputTex": "outputTex16",
+            "inputTex": "outputTex15"
+        },
+        {
+            "name": "copy",
+            "source": "copy.comp",
+            "dispatchSizeX": 16,
+            "dispatchSizeY": 32,
+            "dispatchSizeZ": 1,
+            "inputTex": "outputTex16",
+            "boundImages": ["imageOut"],
+            "boundSamplers": ["inputTex1"]
         }
     ]
 }
