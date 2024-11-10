@@ -1,8 +1,10 @@
 #ifndef FORMATTING_H
 #define FORMATTING_H
 
-const std::string ERROR_HINT =  "[\e[0;31mERROR\033[0m]\t";
-const std::string PIPELINE_HINT =  "[\e[0;32mPIPELINE\033[0m]\t";
+const std::string ERROR_HINT =  "[\e[0;31m FAIL \033[0m]\t";
+const std::string SUCCESS_HINT = "[\e[0;32m  OK  \033[0m]\t";
+const std::string INFO_HINT = "[\e[0;36m INFO \033[0m]\t";
+const std::string PIPELINE_HINT = INFO_HINT;
 
 void textRed() {
     std::cout << "\033[1;31m";
@@ -25,37 +27,19 @@ void textReset() {
 }
 
 void printSuccess() {
-    std::cout << "[";
-    textGreen();
-    std::cout << "SUCCESS";
-    textReset();
-    std::cout << "]\t";
+    std::cout << SUCCESS_HINT;
 }
 
 void printSuccess(const std::string text) {
-    std::cout << "[";
-    textGreen();
-    std::cout << "SUCCESS";
-    textReset();
-    std::cout << "]\t";
-    std::cout << text;
+    std::cout << SUCCESS_HINT << text;
 }
 
 void printError() {
-    std::cout << "[";
-    textRed();
-    std::cout << "ERROR";
-    textReset();
-    std::cout << "]\t\t";
+    std::cout << ERROR_HINT;
 }
 
 void printError(const std::string text) {
-    std::cout << "[";
-    textRed();
-    std::cout << "ERROR";
-    textReset();
-    std::cout << "]\t\t";
-    std::cout << text;
+    std::cout << ERROR_HINT << text;
 }
 
 void printGLError(const std::string text) {
@@ -68,20 +52,11 @@ void printGLError(const std::string text) {
 }
 
 void printInfo() {
-    std::cout << "[";
-    textCyan();
-    std::cout << "INFO";
-    textReset();
-    std::cout << "]\t\t";
+    std::cout << INFO_HINT;
 }
 
 void printInfo(const std::string text) {
-    std::cout << "[";
-    textCyan();
-    std::cout << "INFO";
-    textReset();
-    std::cout << "]\t\t";
-    std::cout << text;
+    std::cout << INFO_HINT << text;
 }
 
 #endif

@@ -45,7 +45,7 @@ class Window {
 
             if (!glfwWindow) {
                 printError();
-                std::cout << "GLFW window creation failed.\n";
+                std::cout << "GLFW window creation failed\n";
                 glfwTerminate();
                 assert(glfwWindow);
             }
@@ -56,12 +56,12 @@ class Window {
             // Pass GLAD the function to load the address of OS-specific OPENGL function pointers.
             if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
                 printError();
-                std::cout << "GLAD initialization failed.\n";
+                std::cout << "GLAD initialization failed\n";
                 assert(false);
             }
 
             printSuccess();
-            std::cout << "Window and OpenGL context created.\n";
+            std::cout << "Window and OpenGL context created\n";
 
             glfwSetWindowUserPointer(glfwWindow, this);
 
@@ -201,7 +201,7 @@ class Window {
 
                 // Handle user Output
                 printInfo();
-                std::cout << "Window scale changed.\n";
+                std::cout << "Window scale changed\n";
             }
         }
 };

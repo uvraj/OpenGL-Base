@@ -136,6 +136,11 @@ public:
         for (auto& shader : computeShaders) {
             shader.create();
         }
+
+        std::cout << INFO_HINT << "Using " << computeShaders.size() << " compute shaders\n"; 
+        std::cout << INFO_HINT << "Using " << textures3D.size() << " 3D textures\n"; 
+        std::cout << INFO_HINT << "Using " << textures2D.size() << " 2D textures\n"; 
+        std::cout << INFO_HINT << "Using " << textures1D.size() << " 1D textures\n"; 
     }
 
     void reload() {
@@ -297,12 +302,10 @@ private:
             throw std::runtime_error("Could not open the file: " + path);
         }
 
-
         try {
             file >> pipeline;
         } catch (json::parse_error& e) {
-            printError();
-            std::cout << "JSON parse error: " << e.what() << std::endl;
+            std::cout << ERROR_HINT << "JSON parse error: " << e.what() << std::endl;
         }
 
         file.close();

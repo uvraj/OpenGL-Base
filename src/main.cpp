@@ -33,10 +33,10 @@ using json = nlohmann::json;
 #define STB_INCLUDE_IMPLEMENTATION
 #include <stb_include.h>
 
-#define TITLE "OpenGL Base"
+#define TITLE "CNN Demo"
 
 #define APPLICATION_GL_VERSION_MAJOR 4 
-#define APPLICATION_GL_VERSION_MINOR 6
+#define APPLICATION_GL_VERSION_MINOR 5
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
