@@ -156,13 +156,13 @@ public:
 
             for (i = 0; i < shader.getBoundImages().size(); i++) {
                 try {
-                    findTexture1DByName(shader.getBoundImages().at(i)).bindImageTexture(i);
+                    findTexture2DByName(shader.getBoundImages().at(i)).bindImageTexture(i);
                 } catch (const std::exception& e) {
                     try {
-                        findTexture2DByName(shader.getBoundImages().at(i)).bindImageTexture(i);
+                        findTexture3DByName(shader.getBoundImages().at(i)).bindImageTexture(i);
                     } catch (const std::exception& e) {
                         try {
-                            findTexture3DByName(shader.getBoundImages().at(i)).bindImageTexture(i); 
+                            findTexture1DByName(shader.getBoundImages().at(i)).bindImageTexture(i); 
                         } catch (const std::exception& e) {
                             printError();
                             std::cout << "Could not find texture " << shader.getBoundImages().at(i) << '\n'; 
@@ -185,13 +185,13 @@ public:
 
             for (i = 0; i < shader.getBoundSamplers().size(); i++) {
                 try {
-                    findTexture1DByName(shader.getBoundSamplers().at(i)).bind(i);
+                    findTexture2DByName(shader.getBoundSamplers().at(i)).bind(i);
                 } catch (const std::exception& e) {
                     try {
-                        findTexture2DByName(shader.getBoundSamplers().at(i)).bind(i);
+                        findTexture3DByName(shader.getBoundSamplers().at(i)).bind(i);
                     } catch (const std::exception& e) {
                         try {
-                            findTexture3DByName(shader.getBoundSamplers().at(i)).bind(i); 
+                            findTexture1DByName(shader.getBoundSamplers().at(i)).bind(i); 
                         } catch (const std::exception& e) {
                             printError();
                             std::cout << "Could not find texture " << shader.getBoundSamplers().at(i) << '\n'; 
@@ -209,12 +209,12 @@ public:
             }
 
             if (shader.getKernelTex() != "") {
-                findTexture3DByName(shader.getKernelTex()).bind(++i);
+                findTexture2DByName(shader.getKernelTex()).bind(++i);
                 shader.pushIntUniform("kernelTex", i);
             }
 
             if (shader.getBiasTex() != "") {
-                findTexture3DByName(shader.getBiasTex()).bind(++i);
+                findTexture1DByName(shader.getBiasTex()).bind(++i);
                 shader.pushIntUniform("biasTex", i);
             }
 

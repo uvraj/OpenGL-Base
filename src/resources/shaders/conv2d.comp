@@ -4,12 +4,13 @@ layout (local_size_x = 3, local_size_y = 3, local_size_z = 3) in;
 layout (r32f) uniform image3D outputTex;
 
 uniform sampler3D inputTex;
-uniform sampler3D kernelTex;
-uniform sampler3D biasTex;
+uniform sampler2D kernelTex;
+uniform sampler1D biasTex;
 
 float sampleKernel(ivec4 coord, int inLayers, int outLayers) {
-    int flatIndex = coord.z * outLayers + coord.w;  
-    return texelFetch(kernelTex, ivec3(coord.xy, flatIndex), 0).r;
+    int flatIndexXY = coord.x + coord.y * 3;
+    int flatIndexZW = coord.z * outLayers + coord.w;  
+    return texelFetch(kernelTex, ivec2(flatIndexXY, flatIndexZW), 0).r;
 }
 
 void main() {
@@ -36,7 +37,7 @@ void main() {
         }
     }
 
-    sum += texelFetch(biasTex, ivec3(0, 0, iPos.z), 0).r;
+    sum += texelFetch(biasTex, iPos.z, 0).r;
 
     imageStore(outputTex, iPos, vec4(sum, 0.0, 0.0, 1.0));
 }
