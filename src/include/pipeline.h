@@ -103,6 +103,7 @@ GLenum getFilterParamFromString(const std::string& param) {
 
 class PipelineManager {
 public:
+    std::vector<Texture1D> textures1D;
     std::vector<Texture2D> textures2D;
     std::vector<Texture3D> textures3D;
     std::vector<ComputeShader> computeShaders;
@@ -115,9 +116,14 @@ public:
 
     void load() {
         loadPipelineFile();
+        parseTextures1D();
         parseTextures2D();
         parseTextures3D();
         parseComputeShaders();
+
+        for (auto& texture : textures1D) {
+            texture.create();
+        }
 
         for (auto& texture : textures2D) {
             texture.create();
@@ -150,15 +156,20 @@ public:
 
             for (i = 0; i < shader.getBoundImages().size(); i++) {
                 try {
-                    findTexture2DByName(shader.getBoundImages().at(i)).bindImageTexture(i);
+                    findTexture1DByName(shader.getBoundImages().at(i)).bindImageTexture(i);
                 } catch (const std::exception& e) {
                     try {
-                        findTexture3DByName(shader.getBoundImages().at(i)).bindImageTexture(i); 
+                        findTexture2DByName(shader.getBoundImages().at(i)).bindImageTexture(i);
                     } catch (const std::exception& e) {
-                        printError();
-                        std::cout << "Could not find texture " << shader.getBoundImages().at(i) << '\n'; 
+                        try {
+                            findTexture3DByName(shader.getBoundImages().at(i)).bindImageTexture(i); 
+                        } catch (const std::exception& e) {
+                            printError();
+                            std::cout << "Could not find texture " << shader.getBoundImages().at(i) << '\n'; 
+                        }
                     }
                 }
+
                 
 
                 shader.pushIntUniform(shader.getBoundImages().at(i).c_str(), i);
@@ -174,16 +185,19 @@ public:
 
             for (i = 0; i < shader.getBoundSamplers().size(); i++) {
                 try {
-                    findTexture2DByName(shader.getBoundSamplers().at(i)).bind(i);
+                    findTexture1DByName(shader.getBoundSamplers().at(i)).bind(i);
                 } catch (const std::exception& e) {
                     try {
-                        findTexture3DByName(shader.getBoundSamplers().at(i)).bind(i); 
+                        findTexture2DByName(shader.getBoundSamplers().at(i)).bind(i);
                     } catch (const std::exception& e) {
-                        printError();
-                        std::cout << "Could not find texture " << shader.getBoundSamplers().at(i) << '\n'; 
+                        try {
+                            findTexture3DByName(shader.getBoundSamplers().at(i)).bind(i); 
+                        } catch (const std::exception& e) {
+                            printError();
+                            std::cout << "Could not find texture " << shader.getBoundSamplers().at(i) << '\n'; 
+                        }
                     }
                 }
-                
 
                 shader.pushIntUniform(shader.getBoundSamplers().at(i).c_str(), i);
             }
@@ -229,6 +243,18 @@ public:
             glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
             glPopDebugGroup();
+        }
+    }
+
+    Texture1D& findTexture1DByName(const std::string& name) {
+        auto it = std::find_if(textures1D.begin(), textures1D.end(), [&name](const Texture1D& texture) {
+            return texture.getName() == name;
+        });
+
+        if (it != textures1D.end()) {
+            return *it;
+        } else {
+            throw std::runtime_error("Texture not found: " + name);
         }
     }
 
@@ -280,6 +306,28 @@ private:
         }
 
         file.close();
+    }
+
+    void parseTextures1D() {
+        for (const auto& item : pipeline["textures1D"]) {
+            std::string name = item.at("name").get<std::string>();
+            GLuint width = item.at("width").get<GLuint>();
+            GLuint internalFormat = getInternalFormatFromString(item.at("internalFormat").get<std::string>());
+            GLenum format = getPixelFormatFromString(item.at("pixelFormat").get<std::string>());
+            GLenum pixelType = getPixelTypeFromString(item.at("pixelType").get<std::string>());
+            GLenum wrapParam = getWrapParamFromString(item.at("textureWrap").get<std::string>());
+            GLenum filterParam = getFilterParamFromString(item.at("filter").get<std::string>());
+
+            std::string fileName{};
+
+            if (item.find("fileName") != item.end()) {
+                fileName = item.at("fileName");
+            }
+
+            std::cout << PIPELINE_HINT << "Registered texture \"" + name + "\"\n";
+
+            textures1D.emplace_back(name, fileName, width, internalFormat, format, pixelType, wrapParam, filterParam);
+        }
     }
 
     void parseTextures2D() {
