@@ -36,7 +36,7 @@ using json = nlohmann::json;
 #define TITLE "CNN Demo"
 
 #define APPLICATION_GL_VERSION_MAJOR 4 
-#define APPLICATION_GL_VERSION_MINOR 5
+#define APPLICATION_GL_VERSION_MINOR 6
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
