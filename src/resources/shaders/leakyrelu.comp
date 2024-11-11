@@ -8,7 +8,7 @@ uniform sampler3D inputTex;
 void main() {
     ivec3 iPos = ivec3(gl_GlobalInvocationID);
 
-    // TODO: Move the leakyrelu alpha to a uniform, so it can be controlled through JSON
+    // TODO: Move the LeakyReLU alpha to a uniform, so it can be controlled through JSON
     float value = texelFetch(inputTex, iPos, 0).r;
     value = value > 0.0 ? value : value * 0.1;
 
