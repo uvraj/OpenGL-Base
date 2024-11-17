@@ -144,6 +144,19 @@ public:
     }
 
     void reload() {
+        for (auto& texture : textures1D) {
+            texture.destroy();
+        }
+
+        for (auto& texture : textures2D) {
+            texture.destroy();
+        }
+
+        for (auto& texture : textures3D) {
+            texture.destroy();
+        }
+
+        textures1D.clear();
         textures2D.clear();
         textures3D.clear();
         computeShaders.clear();
