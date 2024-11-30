@@ -151,6 +151,11 @@ public:
         
     }
 
+    void update() {
+        std::vector<uint8_t> data = getDataFromFile();
+        glTextureSubImage2D(id, 0, 0, 0, width, height, format, pixelType, data.data());
+    }
+
     void bind(const GLuint& unit) {
         glBindTextureUnit(unit, id);
     }

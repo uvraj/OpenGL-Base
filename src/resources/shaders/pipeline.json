@@ -64,6 +64,17 @@
     ],
     "textures2D": [
         {
+            "name": "videoTex",
+            "fileName": "video.raw",
+            "width": 128,
+            "height": 128,
+            "internalFormat": "R16F",
+            "pixelFormat": "RED",
+            "pixelType": "HALF_FLOAT",
+            "textureWrap": "CLAMP_TO_BORDER",
+            "filter": "LINEAR"
+        },
+        {
             "name": "kernelTex1",
             "fileName": "conv_kernels\\layer_1_kernels.bin",
             "width": 9,
@@ -327,18 +338,6 @@
             "pixelType": "FLOAT",
             "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
-        },
-        {
-            "name": "videoTex",
-            "fileName": "video.raw",
-            "width": 128,
-            "height": 128,
-            "depth": 1024,
-            "internalFormat": "R32F",
-            "pixelFormat": "RED",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_BORDER",
-            "filter": "LINEAR"
         }
     ],
     "passes": [
@@ -349,7 +348,9 @@
             "dispatchSizeY": 16,
             "dispatchSizeZ": 1,
             "outputTex": "inputTex1",
-            "inputTex": "videoTex"
+            "boundSamplers": [
+                "videoTex"
+            ]
         },
         {
             "name": "conv2DLayer1",

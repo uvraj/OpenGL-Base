@@ -11,7 +11,7 @@ message("Build type of project is: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_CXX_STANDARD 17)
 
 # Verbose makefile for debugging
-set(CMAKE_VERBOSE_MAKEFILE ON)
+# set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Ensure -Ofast is applied to both Debug and Release builds
 if (NOT CMAKE_BUILD_TYPE)
@@ -20,11 +20,9 @@ endif()
 
 # Compiler flags for both Debug and Release
 if (MSVC)
-    # MSVC specific flags
-    add_compile_options(/W4 /Ox)  # /W4 for warning level 4, /Ox for full optimization
 else()
     # GCC/Clang specific flags
-    add_compile_options(-Wall -Wextra -Ofast)  # -Ofast for both Debug and Release
+    add_compile_options(-Wall -Wextra)  # -Ofast for both Debug and Release
 endif()
 
 # Define directories for sources, external libraries, and resources
@@ -38,6 +36,7 @@ set(GLAD_DIR "${EXT_DIR}/glad")
 set(GLM_DIR "${EXT_DIR}/glm-master")
 set(IMGUI_DIR "${EXT_DIR}/imgui")
 set(STB_DIR "${EXT_DIR}/stb")
+set(CV_DIR "${EXT_DIR}/opencv")
 
 # Output directories
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
