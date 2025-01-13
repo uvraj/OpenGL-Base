@@ -65,12 +65,11 @@
     "textures2D": [
         {
             "name": "videoTex",
-            "fileName": "video.raw",
             "width": 128,
             "height": 128,
-            "internalFormat": "R16F",
-            "pixelFormat": "RED",
-            "pixelType": "HALF_FLOAT",
+            "internalFormat": "RGBA8",
+            "pixelFormat": "RGBA",
+            "pixelType": "UNSIGNED_BYTE",
             "textureWrap": "CLAMP_TO_BORDER",
             "filter": "LINEAR"
         },

@@ -163,7 +163,8 @@ public:
         load();
     }
 
-    void mainLoop(const Camera& camera, const Window& window) {
+    void mainLoop(const Camera& camera, const Window& window, float contrast) {
+        findTexture2DByName("videoTex").updateWithCameraData();
         for (auto& shader : computeShaders) {
             std::string programName = shader.getProgramName();
             glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, programName.size(), programName.data());
@@ -252,6 +253,7 @@ public:
             shader.pushVec3Uniform("cameraPosition", camera.Position);
             shader.pushVec3Uniform("previousCameraPosition", camera.previousPosition);
             shader.pushFloatUniform("currentFrame", (float) window.currentFrame);
+            shader.pushFloatUniform("contrast", contrast);
             shader.pushBoolUniform("shouldAccumulate", window.shouldAccumulate);
             shader.pushUnsignedIntUniform("frameIndex", window.frameIndex);
             shader.pushUnsignedIntUniform("accumulationIndex", window.accumulationIndex);

@@ -13,6 +13,8 @@ class Application {
         Window window{&camera};
         ImGuiIO *io;
 
+        float contrast = 1.0;
+
         // Initilize our OpenGL objects.
         Quad quadVAO;
 
@@ -26,6 +28,7 @@ class Application {
 
         void appInit() {
             stbi_flip_vertically_on_write(1);
+
             
             glViewport(
                 0, 0, // The location
@@ -74,12 +77,12 @@ class Application {
                     pipeline.reload();
                     final.load();
                 }
-
-                if (ImGui::Button("Write Image")) {
-                    pipeline.findTexture2DByName("imageOut").writeImageToDiskPNG();
-                }
+                
+                ImGui::SliderFloat("Contrast", &contrast, 0.0, 2.0);
 
                 ImGui::End();
+
+                ImGui::ShowDemoWindow();
 
                 ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 
@@ -95,7 +98,7 @@ class Application {
 
                 ImGui::Render();
 
-                pipeline.mainLoop(camera, window);
+                pipeline.mainLoop(camera, window, contrast);
 
                 // Post-processing pass
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

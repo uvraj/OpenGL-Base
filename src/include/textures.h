@@ -151,6 +151,24 @@ public:
         
     }
 
+    void updateWithCameraData() {
+        static cv::VideoCapture cap(0);
+
+        cv::Mat frame;
+        cap >> frame;
+
+        cv::Mat rgbaFrame;
+        cv::cvtColor(frame, rgbaFrame, cv::COLOR_BGR2RGBA);
+
+        cv::Mat resizedImage;
+        cv::resize(rgbaFrame, resizedImage, cv::Size(128, 128));
+
+        // Convert the frame to a byte array
+        std::vector<uint8_t> data;
+        data.assign(resizedImage.data, resizedImage.data + resizedImage.total() * resizedImage.elemSize());
+        glTextureSubImage2D(id, 0, 0, 0, width, height, format, pixelType, data.data());
+    }
+
     void update() {
         std::vector<uint8_t> data = getDataFromFile();
         glTextureSubImage2D(id, 0, 0, 0, width, height, format, pixelType, data.data());

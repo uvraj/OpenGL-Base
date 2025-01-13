@@ -8,11 +8,15 @@ uniform sampler2D videoTex;
 uniform uint accumulationIndex;
 
 uniform float currentFrame;
+uniform float contrast;
 
 void main() {
     ivec2 iPos = ivec2(gl_GlobalInvocationID);
 
-    float r = texelFetch(videoTex, iPos.xy, 0).r;
+    vec3 rgb = texelFetch(videoTex, iPos.xy, 0).rgb;
 
-    imageStore(outputTex, ivec3(iPos.x, iPos.y, 0), vec4(r));
+    float luminance = 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
+    luminance = (luminance - 0.5) * contrast + 0.5;
+    luminance = clamp(luminance, 0.0, 1.0);
+    imageStore(outputTex, ivec3(iPos.x, iPos.y, 0), vec4(pow(luminance, 2.2)));
 }

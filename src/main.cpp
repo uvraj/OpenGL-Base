@@ -41,6 +41,7 @@ using json = nlohmann::json;
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
+#include <opencv2/opencv.hpp>
 #include "include/font.h"
 #include "include/formatting.h"
 #include "include/shaders.h"

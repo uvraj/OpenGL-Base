@@ -86,6 +86,21 @@
         "charconv": "cpp",
         "format": "cpp",
         "numbers": "cpp",
-        "semaphore": "cpp"
+        "semaphore": "cpp",
+        "cfenv": "cpp",
+        "complex": "cpp",
+        "coroutine": "cpp",
+        "filesystem": "cpp",
+        "future": "cpp",
+        "locale": "cpp",
+        "queue": "cpp",
+        "stack": "cpp",
+        "typeindex": "cpp",
+        "xhash": "cpp",
+        "xlocbuf": "cpp",
+        "xlocmes": "cpp",
+        "xlocmon": "cpp",
+        "xloctime": "cpp",
+        "xtree": "cpp"
     }
 }

@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Project settings
-project(OpenGL-Base)
+project(cnn-tdot)
 
 # Message for build type
 message("Build type of project is: ${CMAKE_BUILD_TYPE}")
@@ -44,6 +44,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 
+SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG   "${EXECUTABLE_OUTPUT_PATH}")
+SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${EXECUTABLE_OUTPUT_PATH}")
+SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG   "${EXECUTABLE_OUTPUT_PATH}")
+SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${EXECUTABLE_OUTPUT_PATH}")
+SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG   "${EXECUTABLE_OUTPUT_PATH}")
+SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${EXECUTABLE_OUTPUT_PATH}")
+
 # Sources
 aux_source_directory(${SRC_DIR} SOURCES)
 
@@ -81,6 +88,14 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE ${glm_src})
 
 # OPENGL
 find_package(OpenGL REQUIRED)
+
+# OpenCV
+
+target_include_directories(${PROJECT_NAME} PUBLIC "${EXT_DIR}/opencv/build/include")
+link_directories("${EXT_DIR}/opencv/build/x64/vc16/lib")
+
+target_link_libraries(${PROJECT_NAME} "${EXT_DIR}/opencv/build/x64/vc16/lib/opencv_world4110.lib")
+
 
 # ImGui
 file(GLOB imgui_src "${IMGUI_DIR}/*.cpp")
