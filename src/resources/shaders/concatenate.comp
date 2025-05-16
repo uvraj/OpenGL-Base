@@ -4,21 +4,21 @@ layout (local_size_x = 3, local_size_y = 3, local_size_z = 3) in;
 layout (r32f) uniform image3D outputTex;
 
 uniform sampler3D inputTex;
+uniform sampler3D auxTex;
 
 void main() {
     ivec3 iPos = ivec3(gl_GlobalInvocationID);
 
-    vec3 outImageSize = imageSize(outputTex);
+    vec3 mainImageSize = textureSize(inputTex, 0);
 
-    if (any(greaterThanEqual(iPos, outImageSize))) return;
-
+    if (any(greaterThanEqual(iPos, imageSize(outputTex)))) return;
     
     float value = 0.0;
     
-    // if (iPos.z < outImageSize.z)
-    //     value = texelFetch()
-    // else 
-    //     value = 
+    if (iPos.z < mainImageSize.z)
+        value = texelFetch(inputTex, iPos, 0).r;
+    else 
+        value = texelFetch(auxTex, ivec3(iPos.x, iPos.y, iPos.z - mainImageSize.z), 0).r;
 
     imageStore(outputTex, iPos, vec4(value));
 }

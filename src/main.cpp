@@ -53,8 +53,12 @@ using json = nlohmann::json;
 
 #include "include/appCore.h"
 
-int main(void) {
-    Application application;
+int main(int argc, char* argv[]) {
+    size_t cameraIndex;
+    if (argc < 2) cameraIndex = 0;
+    else cameraIndex = atoi(argv[1]);
+
+    Application application{ cameraIndex };
     application.run(); 
 
     return 0;

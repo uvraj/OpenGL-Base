@@ -112,21 +112,15 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE ${stb_src})
 # Resource paths and custom commands
 
 # Handle resource and shader paths based on build type
-if (NOT MSVC)
-    if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
-        add_compile_definitions(RESOURCE_PATH="resources/")
-        add_compile_definitions(SHADER_PATH="resources/shaders/")
+if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    add_compile_definitions(RESOURCE_PATH="resources/")
+    add_compile_definitions(SHADER_PATH="resources/shaders/")
 
-        # Copy resources on Release build
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND  ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIR} ${EXECUTABLE_OUTPUT_PATH}/resources
-        )
-    else()
-        add_compile_definitions(RESOURCE_PATH="../../src/resources/")
-        add_compile_definitions(SHADER_PATH="../../src/resources/shaders/")
-    endif()
+    # Copy resources on Release build
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND  ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIR} ${EXECUTABLE_OUTPUT_PATH}/resources
+    )
 else()
     add_compile_definitions(RESOURCE_PATH="../../src/resources/")
     add_compile_definitions(SHADER_PATH="../../src/resources/shaders/")
 endif()
-

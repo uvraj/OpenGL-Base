@@ -7,11 +7,17 @@ class Application {
             appLoop();
             appExit();
         }
+
+        Application(size_t inCameraIndex) {
+            cameraIndex = inCameraIndex;
+        }
     
     private:
         Camera camera;
         Window window{&camera};
         ImGuiIO *io;
+
+        size_t cameraIndex;
 
         float contrast = 1.0;
 
@@ -71,18 +77,16 @@ class Application {
 
                 ImGui::SetNextWindowPos(ImVec2(1000.0f, 10.0f), ImGuiCond_Once);
 
-                ImGui::Begin("Main Window");
+                // ImGui::Begin("Main Window");
 
-                if (ImGui::Button("Reload Pipeline")) {
-                    pipeline.reload();
-                    final.load();
-                }
+                // if (ImGui::Button("Reload Pipeline")) {
+                //     pipeline.reload();
+                //     final.load();
+                //}
                 
-                ImGui::SliderFloat("Contrast", &contrast, 0.0, 2.0);
+                // ImGui::SliderFloat("Contrast", &contrast, 0.0, 2.0);
 
-                ImGui::End();
-
-                ImGui::ShowDemoWindow();
+                // ImGui::End();
 
                 ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 
@@ -90,15 +94,29 @@ class Application {
                 ImGui::SetNextWindowBgAlpha(0.35f);
 
                 ImGui::Begin("Performance Metrics", nullptr, window_flags);
-                ImGui::Text("FPS: %.2f", io->Framerate);
-
+                    ImGui::Text("FPS: %.2f", io->Framerate);
                 ImGui::End();
+
+                ImGui::SetNextWindowPos(ImVec2(io->DisplaySize.x * 0.5, io->DisplaySize.y * 0.46), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+                ImGui::SetNextWindowBgAlpha(0.35f);
+
+                ImGui::Begin("sus", nullptr, window_flags);
+                ImGui::Text("Schwarz-Weisse Bildeingabe");
+                ImGui::End();
+
+                ImGui::SetNextWindowPos(ImVec2(io->DisplaySize.x * 0.5, io->DisplaySize.y * 0.46 + io->DisplaySize.y * 0.5), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+                ImGui::SetNextWindowBgAlpha(0.35f);
+
+                ImGui::Begin("su2s", nullptr, window_flags);
+                ImGui::Text("KI-Gefarbte Bildausgabe");
+                ImGui::End();
+
 
                 // ImGui::ShowDemoWindow();
 
                 ImGui::Render();
 
-                pipeline.mainLoop(camera, window, contrast);
+                pipeline.mainLoop(camera, window, contrast, cameraIndex);
 
                 // Post-processing pass
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

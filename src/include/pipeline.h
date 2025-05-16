@@ -163,8 +163,8 @@ public:
         load();
     }
 
-    void mainLoop(const Camera& camera, const Window& window, float contrast) {
-        findTexture2DByName("videoTex").updateWithCameraData();
+    void mainLoop(const Camera& camera, const Window& window, float contrast, size_t cameraIndex) {
+        findTexture2DByName("videoTex").updateWithCameraData(cameraIndex);
         for (auto& shader : computeShaders) {
             std::string programName = shader.getProgramName();
             glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, programName.size(), programName.data());

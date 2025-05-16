@@ -151,8 +151,8 @@ public:
         
     }
 
-    void updateWithCameraData() {
-        static cv::VideoCapture cap(0);
+    void updateWithCameraData(size_t cameraIndex) {
+        static cv::VideoCapture cap(cameraIndex);
 
         cv::Mat frame;
         cap >> frame;
