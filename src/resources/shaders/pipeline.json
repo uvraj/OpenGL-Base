@@ -3,34 +3,144 @@
     
     "textures2D": [
         {
-            "name": "ptOutput",
+            "name": "tracedRadiance",
             "width": 1920,
             "height": 1080,
-            "internalFormat": "RGBA16F",
+            "internalFormat": "RGBA32F",
             "pixelFormat": "RGBA",
-            "pixelType": "HALF_FLOAT",
+            "pixelType": "FLOAT",
             "textureWrap": "CLAMP_TO_EDGE",
             "filter": "NEAREST"
         },
 
         {
-            "name": "ptHistory",
+            "name": "reservoirVisPos",
             "width": 1920,
             "height": 1080,
-            "internalFormat": "RGBA16F",
+            "internalFormat": "RGBA32F",
             "pixelFormat": "RGBA",
-            "pixelType": "HALF_FLOAT",
+            "pixelType": "FLOAT",
             "textureWrap": "CLAMP_TO_EDGE",
             "filter": "NEAREST"
         },
 
         {
-            "name": "ptAccumulated",
+            "name": "reservoirVisPosPrev",
             "width": 1920,
             "height": 1080,
-            "internalFormat": "RGBA16F",
+            "internalFormat": "RGBA32F",
             "pixelFormat": "RGBA",
-            "pixelType": "HALF_FLOAT",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "reservoirVisNormal",
+            "width": 1920,
+            "height": 1080,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "reservoirVisNormalPrev",
+            "width": 1920,
+            "height": 1080,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "reservoirHitPos",
+            "width": 1920,
+            "height": 1080,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "reservoirHitPosPrev",
+            "width": 1920,
+            "height": 1080,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "reservoirHitNormal",
+            "width": 1920,
+            "height": 1080,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "reservoirHitNormalPrev",
+            "width": 1920,
+            "height": 1080,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "reservoirRadiance",
+            "width": 1920,
+            "height": 1080,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "reservoirRadiancePrev",
+            "width": 1920,
+            "height": 1080,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "reservoirMisc",
+            "width": 1920,
+            "height": 1080,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "reservoirMiscPrev",
+            "width": 1920,
+            "height": 1080,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
             "textureWrap": "CLAMP_TO_EDGE",
             "filter": "NEAREST"
         },
@@ -42,17 +152,6 @@
             "internalFormat": "RGBA8",
             "pixelFormat": "RGBA",
             "pixelType": "UNSIGNED_BYTE",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "cameraVelocityTex",
-            "width": 1920,
-            "height": 1080,
-            "internalFormat": "RG16F",
-            "pixelFormat": "RG",
-            "pixelType": "HALF_FLOAT",
             "textureWrap": "CLAMP_TO_EDGE",
             "filter": "NEAREST"
         }
@@ -68,44 +167,49 @@
             "dispatchSizeY": 68,
             "dispatchSizeZ": 1,
 
-            "boundImages": [
-                "ptOutput",
-                "cameraVelocityTex"
-            ],
-
-            "boundSamplers": []
-        },
-
-        {
-            "name": "accumulate",
-            "source": "accumulate.comp",
-            "dispatchSizeX": 120,
-            "dispatchSizeY": 68,
-            "dispatchSizeZ": 1,
-
-            "boundImages": [
-                "ptAccumulated"
+            "boundImages": [       
+                "tracedRadiance",         
+                "reservoirVisPos",
+                "reservoirVisNormal",
+                "reservoirHitPos",
+                "reservoirHitNormal",
+                "reservoirRadiance",
+                "reservoirMisc"
             ],
 
             "boundSamplers": [
-                "ptOutput",
-                "ptHistory"
+                "reservoirVisPosPrev",
+                "reservoirVisNormalPrev",
+                "reservoirHitPosPrev",
+                "reservoirHitNormalPrev",
+                "reservoirRadiancePrev",
+                "reservoirMiscPrev"
             ]
         },
 
         {
-            "name": "writeAccumulationHistory",
-            "source": "writeAccumulationHistory.comp",
+            "name": "writeHistories",
+            "source": "writeHistories.comp",
             "dispatchSizeX": 120,
             "dispatchSizeY": 68,
             "dispatchSizeZ": 1,
 
             "boundImages": [
-                "ptHistory"
+                "reservoirVisPosPrev",
+                "reservoirVisNormalPrev",
+                "reservoirHitPosPrev",
+                "reservoirHitNormalPrev",
+                "reservoirRadiancePrev",
+                "reservoirMiscPrev"
             ],
 
             "boundSamplers": [
-                "ptAccumulated"
+                "reservoirVisPos",
+                "reservoirVisNormal",
+                "reservoirHitPos",
+                "reservoirHitNormal",
+                "reservoirRadiance",
+                "reservoirMisc"
             ]
         },
 
@@ -121,8 +225,7 @@
             ],
 
             "boundSamplers": [
-                "ptAccumulated",
-                "cameraVelocityTex"
+                "tracedRadiance"
             ]
         }
     ]

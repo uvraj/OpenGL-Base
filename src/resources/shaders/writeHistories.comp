@@ -1,0 +1,37 @@
+#version 460
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+layout (rgba32f) uniform image2D reservoirVisPosPrev;
+layout (rgba32f) uniform image2D reservoirVisNormalPrev;
+layout (rgba32f) uniform image2D reservoirHitPosPrev;
+layout (rgba32f) uniform image2D reservoirHitNormalPrev;
+layout (rgba32f) uniform image2D reservoirRadiancePrev;
+layout (rgba32f) uniform image2D reservoirMiscPrev;
+
+uniform sampler2D reservoirVisPos;
+uniform sampler2D reservoirVisNormal;
+uniform sampler2D reservoirHitPos;
+uniform sampler2D reservoirHitNormal;
+uniform sampler2D reservoirRadiance;
+uniform sampler2D reservoirMisc;
+
+// TODO: Replace this with glCopySubImageTex or whatever
+
+void main() {
+    ivec2 iCoord = ivec2(gl_GlobalInvocationID.xy);
+
+    vec4 visPos = texelFetch(reservoirVisPos, iCoord, 0);
+    vec4 visNormal = texelFetch(reservoirVisNormal, iCoord, 0);
+    vec4 hitPos = texelFetch(reservoirHitPos, iCoord, 0);
+    vec4 hitNormal = texelFetch(reservoirHitNormal, iCoord, 0);
+    vec4 radiance = texelFetch(reservoirRadiance, iCoord, 0);
+    vec4 misc = texelFetch(reservoirMisc, iCoord, 0);
+
+    imageStore(reservoirVisPosPrev, iCoord, visPos);
+    imageStore(reservoirVisNormalPrev, iCoord, visNormal);
+    imageStore(reservoirHitPosPrev, iCoord, hitPos);
+    imageStore(reservoirHitNormalPrev, iCoord, hitNormal);
+    imageStore(reservoirRadiancePrev, iCoord, radiance);
+    imageStore(reservoirMiscPrev, iCoord, misc);
+}

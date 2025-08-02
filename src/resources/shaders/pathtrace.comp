@@ -1,10 +1,22 @@
 #version 460
 
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
-layout (rgba16f) uniform image2D ptOutput;
-layout (rg16f) uniform image2D cameraVelocityTex;
 
-uniform sampler3D cloudNoiseTex;
+layout (rgba32f) uniform image2D reservoirVisPos;
+layout (rgba32f) uniform image2D reservoirVisNormal;
+layout (rgba32f) uniform image2D reservoirHitPos;
+layout (rgba32f) uniform image2D reservoirHitNormal;
+layout (rgba32f) uniform image2D reservoirRadiance;
+layout (rgba32f) uniform image2D reservoirMisc;
+
+layout (rgba32f) uniform image2D tracedRadiance;
+
+uniform sampler2D reservoirVisPosPrev;
+uniform sampler2D reservoirVisNormalPrev;
+uniform sampler2D reservoirHitPosPrev;
+uniform sampler2D reservoirHitNormalPrev;
+uniform sampler2D reservoirRadiancePrev;
+uniform sampler2D reservoirMiscPrev;
 
 uniform mat4 cameraProjectionMatrix;
 uniform mat4 cameraViewMatrix;
@@ -18,6 +30,8 @@ uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 
 uniform float currentFrame;
+
+uniform bool shouldAccumulate;
 
 #include "lib/utility.glsl"
 #include "lib/intersections.glsl"
@@ -122,65 +136,134 @@ vec3 CalculateCameraRayDir(const vec2 nCoord, const mat4 projectionMatrixInverse
     return rayDir;
 }
 
-void WriteCameraVelocity(const ivec2 iPos, const HitData current, const HitData previous) {
-    vec4 delta = vec4(current.hitPos - previous.hitPos - cameraPosition, 1.0);
-         delta = cameraProjectionMatrix * cameraViewMatrix * delta;
-         delta.xyz /= delta.w;
-         delta.xyz = delta.xyz * 0.5 + 0.5;
+struct Sample {
+    vec3 visPos;
+    vec3 visNormal;
+    vec3 hitPos;
+    vec3 hitNormal;
+    vec3 radiance;
+};
+
+struct Reservoir {
+    Sample z;
+    float w;
+    float M;
+    float W;
+};
+
+void ReadReservoir(inout Reservoir R, ivec2 iPos) {
+    R.z.visPos      = texelFetch(reservoirVisPosPrev, iPos, 0).rgb;
+    R.z.visNormal   = texelFetch(reservoirVisNormalPrev, iPos, 0).rgb;
+    R.z.hitPos      = texelFetch(reservoirHitPosPrev, iPos, 0).rgb;
+    R.z.hitNormal   = texelFetch(reservoirHitNormalPrev, iPos, 0).rgb;
+    R.z.radiance    = texelFetch(reservoirRadiancePrev, iPos, 0).rgb;
+
+    R.w             = texelFetch(reservoirMiscPrev, iPos, 0).r;
+    R.M             = texelFetch(reservoirMiscPrev, iPos, 0).g;
+    R.W             = texelFetch(reservoirMiscPrev, iPos, 0).b;
+}
+
+void UpdateReservoir(inout Reservoir R, Sample newSample, float wNew, float rand) {
+    R.w += wNew;
+    R.M += 1;
+
+    if (rand < wNew / R.w) {
+        R.z = newSample;
+    }
+}
+
+void WriteReservoir(Reservoir R, ivec2 iPos) {
+    imageStore(reservoirVisPos,      iPos, vec4(R.z.visPos,     0.0));
+    imageStore(reservoirVisNormal,   iPos, vec4(R.z.visNormal,  0.0));
+    imageStore(reservoirHitPos,      iPos, vec4(R.z.hitPos,     0.0));
+    imageStore(reservoirHitNormal,   iPos, vec4(R.z.hitNormal,  0.0));
+    imageStore(reservoirRadiance,    iPos, vec4(R.z.radiance,   0.0));
     
-    imageStore(cameraVelocityTex, iPos, vec4(abs(delta.xy), 0.0, 0.0));
+    // Pack w, M, W into .rgb of one texture
+    imageStore(reservoirMisc, iPos, vec4(R.w, R.M, R.W, 0.0));
 }
 
 void main() {
+    /*
+    WHOEVER YOU ARE: 
+    please do *not* scrutinize this code. it is likely incorrect in many places, and I can't be bothered taking this any further atm.
+    */
+
     ivec2 iPos = ivec2(gl_GlobalInvocationID.xy);
     vec2 nCoord = (iPos + 0.5) / (gl_NumWorkGroups.xy * gl_WorkGroupSize.xy);
 
+    // Camera ray
     vec3 rayDir = CalculateCameraRayDir(nCoord, cameraProjectionMatrixInverse, cameraViewMatrixInverse);
-    vec3 previousRayDir = CalculateCameraRayDir(nCoord, previousCameraProjectionMatrixInverse, previousCameraViewMatrixInverse);
-
-    // vec3 sensorPos = vec3(Rand(nCoord + vec2(2.21321, 4.1231)) * 2.0 - 1.0, 0.0) * 0.1;
-    // vec3 rayPos = mat3(cameraViewMatrixInverse) * sensorPos;
-    // 
-    // vec3 focalPoint = rayDir * 4.0;
-    // rayDir = normalize(focalPoint - sensorPos);
-    // rayPos += cameraPosition;
-
     vec3 rayPos = cameraPosition;
 
     HitData hitData = emptyHitData;
-    HitData previousHitData = emptyHitData;
-    
-    // Camera Ray 
     RayTraceScene(hitData, rayPos, rayDir);
-    RayTraceScene(previousHitData, previousCameraPosition, previousRayDir);
 
-    WriteCameraVelocity(iPos, hitData, previousHitData);
+    if (!hitData.rayHit || hitData.material.isEmissive) {
+        imageStore(tracedRadiance, iPos, vec4(hitData.material.emissivity * hitData.material.albedo, 0.0));
+        return;
+    }
 
-    vec3 sceneColor = hitData.material.emissivity * hitData.material.albedo;
+    // ReSTIR GI - sample one indirect bounce
+    vec3 normal = hitData.hitNormal;
+    vec3 albedo = hitData.material.albedo;
 
-    vec3 randomDir = UniformSampleHemisphere(hitData.hitNormal, Rand(nCoord));
+    vec2 rand = Rand(nCoord);
+    vec3 sampleDir = UniformSampleHemisphere(normal, rand);
+    float cosTheta = max(dot(sampleDir, normal), 0.0);
+    float pdf = 1.0 / PI;
 
-    // TODO: Path trace recursively, manually adding bounces isn't the cleanest approach
-    HitData randomHit = emptyHitData;
-    RayTraceScene(randomHit, hitData.hitPos + hitData.hitNormal * 0.001f, randomDir);
+    // Trace indirect bounce
+    HitData indirectHit = emptyHitData;
+    RayTraceScene(indirectHit, hitData.hitPos + normal * 0.001, sampleDir);
 
-    if (hitData.rayHit && !hitData.material.isEmissive) {
-        if (randomHit.rayHit && randomHit.material.isEmissive) {
-            sceneColor += hitData.material.albedo * randomHit.material.emissivity * randomHit.material.albedo * dot(hitData.hitNormal, randomDir) * 2.0f; 
-            imageStore(ptOutput, iPos, vec4(sceneColor, 1.0));
-            return;
-        }
+    vec3 radiance = vec3(0.0);
+    if (indirectHit.rayHit && indirectHit.material.isEmissive) {
+        radiance = indirectHit.material.emissivity * indirectHit.material.albedo;
+    }
 
-        vec3 randomDir2 = UniformSampleHemisphere(randomHit.hitNormal, Rand(nCoord * 2));
+    vec3 secondaryRadiance = vec3(0.0);
 
-        HitData randomHit2 = emptyHitData;
-        RayTraceScene(randomHit2, randomHit.hitPos + randomHit.hitNormal * 0.001f, randomDir2);
+    if (indirectHit.rayHit && !indirectHit.material.isEmissive) {
+        HitData secondaryHit = emptyHitData;
+        sampleDir = UniformSampleHemisphere(indirectHit.hitNormal, Rand(nCoord + vec2(PI, 1.0 / PI)));
+        RayTraceScene(secondaryHit, indirectHit.hitPos + indirectHit.hitNormal * 0.001, sampleDir);
 
-        if (randomHit.rayHit && !randomHit.material.isEmissive) {
-            vec3 contrib = randomHit.material.albedo * randomHit2.material.emissivity * randomHit2.material.albedo * dot(randomHit.hitNormal, randomDir2) * 2.0f; 
-            sceneColor += hitData.material.albedo * 2.0f * contrib * dot(hitData.hitNormal, randomDir); 
+        if (secondaryHit.rayHit && secondaryHit.material.isEmissive) {
+            secondaryRadiance = indirectHit.material.albedo * secondaryHit.material.emissivity * secondaryHit.material.albedo * dot(sampleDir, indirectHit.hitNormal);
         }
     }
 
-    imageStore(ptOutput, iPos, vec4(sceneColor, 1.0));
+    radiance += secondaryRadiance;
+    radiance *= albedo * dot(hitData.hitNormal, sampleDir);
+    vec3 f = radiance;
+    float weight = length(f);
+
+    Sample newSample;
+    newSample.visPos    = hitData.hitPos;
+    newSample.visNormal = hitData.hitNormal;
+    newSample.hitPos    = indirectHit.hitPos;
+    newSample.hitNormal = indirectHit.hitNormal;
+    newSample.radiance  = f;
+
+    Reservoir reservoir;
+    ReadReservoir(reservoir, iPos);
+
+    UpdateReservoir(reservoir, newSample, weight, Rand(nCoord + vec2(PI, 1.0 / PI)).x);
+
+    float norm = length(reservoir.z.radiance);
+    reservoir.W = (norm > 0.0) ? reservoir.w / (reservoir.M * norm) : 0.0;
+
+    if (!shouldAccumulate) {
+        reservoir.M = 0;
+        reservoir.w = 0;
+        reservoir.W = 0;
+        reservoir.z.radiance = vec3(0.0);
+    }
+
+    WriteReservoir(reservoir, iPos);
+
+    vec3 finalRadiance = reservoir.z.radiance * reservoir.W;
+    imageStore(tracedRadiance, iPos, vec4(finalRadiance, 0.0));
 }
+
