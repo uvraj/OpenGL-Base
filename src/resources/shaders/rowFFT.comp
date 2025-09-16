@@ -1,0 +1,28 @@
+
+#version 460
+
+layout (local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
+layout (rgba32f) uniform image2D fftTexRe_a;
+layout (rgba32f) uniform image2D fftTexIm_a;
+
+uniform sampler2D imageLinear;
+
+#include "lib/utility.glsl"
+#include "lib/fft.glsl"
+
+void main() {
+    ivec2 iPos = ivec2(gl_GlobalInvocationID.xy);
+
+    RowPreload(iPos, imageLinear);
+    barrier();
+
+    for (int i = 1; i <= 10; i++) {
+        barrier();
+        ComplexVec3 result = FFT(iPos.x, 1024, i, false);
+        barrier();
+        sharedBuffer[iPos.x] = result;
+    }
+
+    imageStore(fftTexRe_a, iPos, vec4(sharedBuffer[iPos.x].re, 0.0));
+    imageStore(fftTexIm_a, iPos, vec4(sharedBuffer[iPos.x].im, 0.0));
+}

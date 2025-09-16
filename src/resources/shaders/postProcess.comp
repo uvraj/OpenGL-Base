@@ -3,8 +3,13 @@
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout (rgba8) uniform image2D imageOut;
 
-uniform sampler2D tracedRadiance;
-uniform sampler2D cameraVelocityTex;
+uniform sampler2D fftTexRe_b;
+
+uniform sampler2D imageLinear;
+uniform sampler3D colorLookup;
+uniform sampler3D colorLookupPost;
+
+uniform sampler2D kernelTexRe;
 
 #include "lib/utility.glsl"
 
@@ -12,9 +17,17 @@ void main() {
     ivec2 iCoord = ivec2(gl_GlobalInvocationID.xy);
     vec2 nCoord = (iCoord + 0.5) / (gl_NumWorkGroups.xy * gl_WorkGroupSize.xy);
 
-    vec3 color = texture(tracedRadiance, nCoord).rgb;
-    color = color / (color + 1);
-    color = LinearToSrgb(color);
+    vec3 stimulus = texture(fftTexRe_b, nCoord).rgb * 3000 / pow(1024, 2.0);
+         stimulus += texture(imageLinear, nCoord).rgb * 3000;
+    vec3 encoded = stimulus / (stimulus + 1.0);
+
+    vec3 coord = encoded * (47.0 / 48.0) + 0.5 / 48.0;
+
+    vec3 color = texture(colorLookup, coord).rgb;
+         color = LinearToSrgb(color);
+         // color = texture(colorLookupPost, color).rgb;
+         // color = texture(kernelTexRe, nCoord).rgb * 10;
+         // color = stimulus;
 
     imageStore(imageOut, iCoord, vec4(color, 1.0));
 }

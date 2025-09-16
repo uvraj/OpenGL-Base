@@ -1,7 +1,12 @@
 #if !defined UTILITY_GLSL
 #define UTILITY_GLSL
 
-const float PI = 3.141592;
+const float PI = radians(180.0);
+const float TAU = radians(360.0);
+
+vec2 sincos(float x) {
+    return vec2(sin(x), cos(x));
+}
 
 vec3 ACESFilm(const vec3 x) {
     const float a = 2.51f;

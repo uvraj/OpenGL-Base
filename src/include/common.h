@@ -17,7 +17,6 @@ class Quad {
         };
 
         // The order in which we want the vertex data to be drawn in.
-        // !I'll have one quad, with extra mayonnaise, please!
         GLuint quadOrder[6] = {
             0, 1, 2, 2, 3, 0
         };
@@ -74,40 +73,26 @@ class Quad {
 
 };
 
-size_t twoDtoOneD(size_t x, size_t y, size_t width) {
+size_t Flatten2DIndex(size_t x, size_t y, size_t width) {
     return x + y * width;
 }
 
-class Scene {
+class PlanarMesh {
     public:
         GLuint EBO, VBO, VAO;
 
-        size_t numStrips = 0;
-        size_t numVertsPerStrip = 0;
-        size_t numVerts = 0;
-        size_t numIndices = 0;
-        size_t numTriangles = 0;
-
-        int width = 0;
-        int height = 0;
-        int channels = 0;
+        std::size_t numStrips = 0;
+        std::size_t numVertsPerStrip = 0;
+        std::size_t numVerts = 0;
+        std::size_t numIndices = 0;
+        std::size_t numTriangles = 0;
 
         std::vector <glm::vec3> data_VAO;
         std::vector <glm::vec3> vertexData;
         std::vector <glm::vec3> normalData;
         std::vector <GLuint> indices;
 
-        Scene() {
-            // Load heightmap
-            int width, height, channels;
-
-            uint8_t *heightData = stbi_load("../../src/resources/height.png", &width, &height, &channels, 1);
-
-            if (!heightData) {
-                printError("Loading Heightmap failed!");
-                assert(heightData);
-            }
-
+        PlanarMesh(std::size_t width, std::size_t height) {
             numStrips = height - 1;
             numTriangles = (width - 1) * (height - 1) * 2;
             numVertsPerStrip = 2 * width;
@@ -115,11 +100,11 @@ class Scene {
             // Generate vertices
             for (size_t z = 0; z < height; z++) {
                 for (size_t x = 0; x < width; x++) {
-                    size_t y = twoDtoOneD(x, z, width);
+                    size_t y = Flatten2DIndex(x, z, width);
                     vertexData.push_back(
                         glm::vec3(
                             x,
-                            heightData[y],
+                            0.0,
                             z
                         )
                     );
@@ -130,7 +115,7 @@ class Scene {
             // Generate indices
             for (size_t z = 0; z < height - 1; z++) {
                 for (size_t x = 0; x < width - 1; x++) {
-                    size_t y = twoDtoOneD(x, z, width);
+                    size_t y = Flatten2DIndex(x, z, width);
                     size_t index0 = y;
                     size_t index1 = y + 1;
                     size_t index2 = y + width;
@@ -167,7 +152,6 @@ class Scene {
                 normalData[index2] += normal;
             }
 
-
             // Normalize
             for (size_t i = 0; i < normalData.size(); i++) {
                 normalData[i] = glm::normalize(normalData[i]);
@@ -177,7 +161,16 @@ class Scene {
                 data_VAO.push_back(vertexData[i]);
                 data_VAO.push_back(normalData[i]);
             }
+        }
 
+        ~PlanarMesh() {
+            glDeleteBuffers(1, &VBO);
+            glDeleteBuffers(1, &EBO);
+            glDeleteVertexArrays(1, &VAO);
+            printInfo("Deleted scene objects \n");
+        }
+
+        void init() {
             // Generate the required objects.
             glGenBuffers(1, &EBO);
             glGenBuffers(1, &VBO);
@@ -206,35 +199,14 @@ class Scene {
             glBindVertexArray(0);
         }
 
-        ~Scene() {
-            glDeleteBuffers(1, &VBO);
-            glDeleteBuffers(1, &EBO);
-            glDeleteVertexArrays(1, &VAO);
-            printInfo("Deleted scene objects \n");
-        }
-
         void draw() {
             glBindVertexArray(VAO);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void *) 0);
             
-            
             glBindVertexArray(0);
         }
 
 };
-
-/*
-This seemed like a good idea at first.
-class FrameData {
-    public:
-        glm::ivec2 viewDimensions = glm::ivec2(SCREEN_WIDTH, SCREEN_HEIGHT);
-        float aspectRatio = static_cast <float> (viewDimensions.x) / static_cast <float> (viewDimensions.y);
-        float frameTime = 0.0f;
-        float currentFrame = 0.0f;
-        int frameIndex = 0;
-        
-};
-*/
 
 #endif

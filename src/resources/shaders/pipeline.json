@@ -3,9 +3,20 @@
     
     "textures2D": [
         {
-            "name": "tracedRadiance",
-            "width": 1920,
-            "height": 1080,
+            "name": "imageLinear",
+            "width": 1024,
+            "height": 1024,
+            "internalFormat": "RGBA16F",
+            "pixelFormat": "RGBA",
+            "pixelType": "HALF_FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST"
+        },
+
+        {
+            "name": "fftTexRe_a",
+            "width": 1024,
+            "height": 1024,
             "internalFormat": "RGBA32F",
             "pixelFormat": "RGBA",
             "pixelType": "FLOAT",
@@ -14,9 +25,9 @@
         },
 
         {
-            "name": "reservoirVisPos",
-            "width": 1920,
-            "height": 1080,
+            "name": "fftTexRe_b",
+            "width": 1024,
+            "height": 1024,
             "internalFormat": "RGBA32F",
             "pixelFormat": "RGBA",
             "pixelType": "FLOAT",
@@ -25,9 +36,9 @@
         },
 
         {
-            "name": "reservoirVisPosPrev",
-            "width": 1920,
-            "height": 1080,
+            "name": "fftTexIm_a",
+            "width": 1024,
+            "height": 1024,
             "internalFormat": "RGBA32F",
             "pixelFormat": "RGBA",
             "pixelType": "FLOAT",
@@ -36,108 +47,9 @@
         },
 
         {
-            "name": "reservoirVisNormal",
-            "width": 1920,
-            "height": 1080,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "reservoirVisNormalPrev",
-            "width": 1920,
-            "height": 1080,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "reservoirHitPos",
-            "width": 1920,
-            "height": 1080,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "reservoirHitPosPrev",
-            "width": 1920,
-            "height": 1080,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "reservoirHitNormal",
-            "width": 1920,
-            "height": 1080,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "reservoirHitNormalPrev",
-            "width": 1920,
-            "height": 1080,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "reservoirRadiance",
-            "width": 1920,
-            "height": 1080,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "reservoirRadiancePrev",
-            "width": 1920,
-            "height": 1080,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "reservoirMisc",
-            "width": 1920,
-            "height": 1080,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "reservoirMiscPrev",
-            "width": 1920,
-            "height": 1080,
+            "name": "fftTexIm_b",
+            "width": 1024,
+            "height": 1024,
             "internalFormat": "RGBA32F",
             "pixelFormat": "RGBA",
             "pixelType": "FLOAT",
@@ -147,77 +59,176 @@
 
         {
             "name": "imageOut",
-            "width": 1920,
-            "height": 1080,
+            "width": 1024,
+            "height": 1024,
             "internalFormat": "RGBA8",
             "pixelFormat": "RGBA",
             "pixelType": "UNSIGNED_BYTE",
             "textureWrap": "CLAMP_TO_EDGE",
             "filter": "NEAREST"
+        },
+
+        {
+            "name": "kernelTexRe",
+            "fileName": "kernel_fft_re.dat",
+            "width": 1024,
+            "height": 1024,
+            "internalFormat": "RGB32F",
+            "pixelFormat": "RGB",
+            "pixelType": "FLOAT",
+            "textureWrap": "REPEAT",
+            "filter": "LINEAR"
+        },
+
+        {
+            "name": "kernelTexIm",
+            "fileName": "kernel_fft_im.dat",
+            "width": 1024,
+            "height": 1024,
+            "internalFormat": "RGB32F",
+            "pixelFormat": "RGB",
+            "pixelType": "FLOAT",
+            "textureWrap": "REPEAT",
+            "filter": "LINEAR"
         }
     ],
 
-    "textures3D" : [],
+    "textures3D" : [
+        {
+            "name": "voxelTex",
+            "fileName": "sus.dat",
+            "width": 100,
+            "height": 55,
+            "depth": 79,
+            "internalFormat": "R8",
+            "pixelFormat": "RED",
+            "pixelType": "UNSIGNED_BYTE",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "LINEAR"
+        },
+
+        {
+            "name": "colorLookup",
+            "fileName": "tony_mc_mapface.dat",
+            "width": 48,
+            "height": 48,
+            "depth": 48,
+            "internalFormat": "RGB32F",
+            "pixelFormat": "RGB",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "LINEAR"
+        },
+
+        {
+            "name": "colorLookupPost",
+            "fileName": "FUJI_ETERNA_250D_FUJI_3510.DAT",
+            "width": 21,
+            "height": 21,
+            "depth": 21,
+            "internalFormat": "RGB32F",
+            "pixelFormat": "RGB",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "LINEAR"
+        }
+    ],
 
     "passes": [
         {
-            "name": "pathTrace",
-            "source": "pathTrace.comp",
-            "dispatchSizeX": 120,
-            "dispatchSizeY": 68,
+            "name": "renderDiffuse",
+            "source": "renderDiffuse.comp",
+            "dispatchSizeX": 64,
+            "dispatchSizeY": 64,
             "dispatchSizeZ": 1,
 
-            "boundImages": [       
-                "tracedRadiance",         
-                "reservoirVisPos",
-                "reservoirVisNormal",
-                "reservoirHitPos",
-                "reservoirHitNormal",
-                "reservoirRadiance",
-                "reservoirMisc"
+            "boundImages": [
+                "imageLinear"
             ],
 
             "boundSamplers": [
-                "reservoirVisPosPrev",
-                "reservoirVisNormalPrev",
-                "reservoirHitPosPrev",
-                "reservoirHitNormalPrev",
-                "reservoirRadiancePrev",
-                "reservoirMiscPrev"
+                "voxelTex"
             ]
         },
 
         {
-            "name": "writeHistories",
-            "source": "writeHistories.comp",
-            "dispatchSizeX": 120,
-            "dispatchSizeY": 68,
+            "name": "rowFFT",
+            "source": "rowFFT.comp",
+            "dispatchSizeX": 1,
+            "dispatchSizeY": 1024,
             "dispatchSizeZ": 1,
 
             "boundImages": [
-                "reservoirVisPosPrev",
-                "reservoirVisNormalPrev",
-                "reservoirHitPosPrev",
-                "reservoirHitNormalPrev",
-                "reservoirRadiancePrev",
-                "reservoirMiscPrev"
+                "fftTexRe_a",
+                "fftTexIm_a"
             ],
 
             "boundSamplers": [
-                "reservoirVisPos",
-                "reservoirVisNormal",
-                "reservoirHitPos",
-                "reservoirHitNormal",
-                "reservoirRadiance",
-                "reservoirMisc"
+                "imageLinear"
+            ]
+        },
+
+        {
+            "name": "columnFFT",
+            "source": "columnFFT.comp",
+            "dispatchSizeX": 1024,
+            "dispatchSizeY": 1,
+            "dispatchSizeZ": 1,
+
+            "boundImages": [
+                "fftTexRe_b",
+                "fftTexIm_b"
+            ],
+
+            "boundSamplers": [
+                "fftTexRe_a",
+                "fftTexIm_a",
+                "kernelTexRe",
+                "kernelTexIm"
+            ]
+        },
+
+        {
+            "name": "rowIFFT",
+            "source": "rowIFFT.comp",
+            "dispatchSizeX": 1,
+            "dispatchSizeY": 1024,
+            "dispatchSizeZ": 1,
+
+            "boundImages": [
+                "fftTexRe_a",
+                "fftTexIm_a"
+            ],
+
+            "boundSamplers": [
+                "fftTexRe_b",
+                "fftTexIm_b"
+            ]
+        },
+
+        {
+            "name": "columnIFFT",
+            "source": "columnIFFT.comp",
+            "dispatchSizeX": 1024,
+            "dispatchSizeY": 1,
+            "dispatchSizeZ": 1,
+
+            "boundImages": [
+                "fftTexRe_b",
+                "fftTexIm_b"
+            ],
+
+            "boundSamplers": [
+                "fftTexRe_a",
+                "fftTexIm_a"
             ]
         },
 
         {
             "name": "postProcess",
             "source": "postProcess.comp",
-            "dispatchSizeX": 120,
-            "dispatchSizeY": 68,
+            "dispatchSizeX": 64,
+            "dispatchSizeY": 64,
             "dispatchSizeZ": 1,
 
             "boundImages": [
@@ -225,7 +236,11 @@
             ],
 
             "boundSamplers": [
-                "tracedRadiance"
+                "imageLinear",
+                "colorLookup",
+                "colorLookupPost",
+                "fftTexRe_b",
+                "kernelTexRe"
             ]
         }
     ]
