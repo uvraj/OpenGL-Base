@@ -87,7 +87,7 @@ void IntersectPlane(inout HitData hitData, const Material material, const vec3 p
 void IntersectVoxel(inout HitData hitData, const Material material, const vec3 rayOrigin, const vec3 rayDirection) {
     hitData.rayHit = false;
 
-    const int steps = 256;
+    const int steps = 1024;
 
     vec3 stepSizes = 1.0 / abs(rayDirection);
     vec3 stepDir = sign(rayDirection);

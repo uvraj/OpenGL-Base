@@ -1,7 +1,12 @@
-# OpenGL-Base
-Renders an amogus along with three point lights disguised as spheres.
+# Voxel Tracer
 
-![screenshot](https://raw.githubusercontent.com/uvraj/OpenGL-Base/b514fd0fd26bc6316fc407f57662b657f41e6000/doc/img1.png)
+This project features a rudimentary voxel tracer. Out of the box, a 
+figure resembling the characters from the game "Among Us" is rendered. 
+
+Additionally, bloom done using FFT convolutions is implemented, along with
+the [tony-mc-mapface](https://github.com/h3r2tic/tony-mc-mapface) display transform.
+
+![screenshot](https://raw.githubusercontent.com/uvraj/OpenGL-Base/resources/mugshot.png)
 
 ## But why? 
 
