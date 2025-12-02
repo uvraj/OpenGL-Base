@@ -2,19 +2,20 @@
 #version 460
 
 layout (local_size_x = 1, local_size_y = 1024, local_size_z = 1) in;
-layout (rgba32f) uniform image2D fftImgRe;
-layout (rgba32f) uniform image2D fftImgIm;
+layout (rgba32f) uniform image2D waveImgRe;
+layout (rgba32f) uniform image2D waveImgIm;
 
-uniform sampler2D fftTexRe;
-uniform sampler2D fftTexIm;
+uniform sampler2D waveTexRe;
+uniform sampler2D waveTexIm;
 
 #include "lib/utility.glsl"
 #include "lib/fft.glsl"
+#include "lib/rand.glsl"
 
 void main() {
     ivec2 iPos = ivec2(gl_GlobalInvocationID.xy);
 
-    ColumnPreload(iPos, fftTexRe, fftTexIm);
+    ColumnPreload(iPos, waveTexRe, waveTexIm);
 
     for (int i = 1; i <= 10; i++) {
         barrier();
@@ -23,6 +24,6 @@ void main() {
         sharedBuffer[iPos.y] = result;
     }
 
-    imageStore(fftImgRe, iPos, vec4(sharedBuffer[iPos.y].re, 0.0));
-    imageStore(fftImgIm, iPos, vec4(sharedBuffer[iPos.y].im, 0.0));
+    imageStore(waveImgRe, iPos, vec4(sharedBuffer[iPos.y].re, 0.0));
+    imageStore(waveImgIm, iPos, vec4(sharedBuffer[iPos.y].im, 0.0));
 }

@@ -2,11 +2,11 @@
 #version 460
 
 layout (local_size_x = 1, local_size_y = 1024, local_size_z = 1) in;
-layout (rgba32f) uniform image2D fftTexRe_b;
-layout (rgba32f) uniform image2D fftTexIm_b;
+layout (rgba32f) uniform image2D fftImgRe;
+layout (rgba32f) uniform image2D fftImgIm;
 
-uniform sampler2D fftTexRe_a;
-uniform sampler2D fftTexIm_a;
+uniform sampler2D fftTexRe;
+uniform sampler2D fftTexIm;
 
 uniform sampler2D kernelTexRe;
 uniform sampler2D kernelTexIm;
@@ -17,7 +17,7 @@ uniform sampler2D kernelTexIm;
 void main() {
     ivec2 iPos = ivec2(gl_GlobalInvocationID.xy);
 
-    ColumnPreload(iPos, fftTexRe_a, fftTexIm_a);
+    ColumnPreload(iPos, fftTexRe, fftTexIm);
 
     for (int i = 1; i <= 10; i++) {
         barrier();
@@ -26,8 +26,8 @@ void main() {
         sharedBuffer[iPos.y] = result;
     }
 
-    vec3 kernelRe = 0.5 * texelFetch(kernelTexRe, iPos, 0).rgb;
-    vec3 kernelIm = 0.5 * texelFetch(kernelTexIm, iPos, 0).rgb;
+    vec3 kernelRe = texelFetch(kernelTexRe, iPos, 0).rgb;
+    vec3 kernelIm = texelFetch(kernelTexIm, iPos, 0).rgb;
 
     vec3 a = sharedBuffer[iPos.y].re;
     vec3 b = sharedBuffer[iPos.y].im;
@@ -41,6 +41,6 @@ void main() {
     sharedBuffer[iPos.y].re = re;
     sharedBuffer[iPos.y].im = im;
 
-    imageStore(fftTexRe_b, iPos, vec4(sharedBuffer[iPos.y].re, 0.0));
-    imageStore(fftTexIm_b, iPos, vec4(sharedBuffer[iPos.y].im, 0.0));
+    imageStore(fftImgRe, iPos, vec4(sharedBuffer[iPos.y].re, 0.0));
+    imageStore(fftImgIm, iPos, vec4(sharedBuffer[iPos.y].im, 0.0));
 }

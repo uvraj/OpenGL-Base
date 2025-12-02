@@ -10,9 +10,14 @@ public:
         return name;
     }
 
+    std::string getSamplerName() const {
+        return samplerName;
+    }
+
 protected:
     std::string name;
     std::string fileName;
+    std::string samplerName;
     GLuint id;
     GLenum internalFormat;
     GLenum format;
@@ -42,6 +47,7 @@ public:
     Texture3D(
         const std::string& inName,
         const std::string& inFileName,
+        const std::string& inSamplerName,
         const GLuint inWidth,
         const GLuint inHeight, 
         const GLuint inDepth,  
@@ -53,6 +59,7 @@ public:
     ) {
         name = inName;
         fileName = inFileName;
+        samplerName = inSamplerName;
         width = inWidth;
         height = inHeight;
         depth = inDepth;
@@ -94,6 +101,18 @@ public:
         glDeleteTextures(1, &id);
     }
 
+    GLuint getWidth() const {
+        return width;
+    }
+
+    GLuint getHeight() const {
+        return height;
+    }
+
+    GLuint getDepth() const {
+        return depth;
+    }
+
 protected:
     GLuint width;
     GLuint height;
@@ -105,6 +124,7 @@ public:
     Texture2D(
         const std::string& inName,
         const std::string& inFileName,
+        const std::string& inSamplerName,
         const GLuint inWidth,
         const GLuint inHeight,
         const GLuint inInternalFormat, 
@@ -115,6 +135,7 @@ public:
     ) {
         name = inName;
         fileName = inFileName;
+        samplerName = inSamplerName;
         width = inWidth;
         height = inHeight;
         internalFormat = inInternalFormat;
@@ -172,6 +193,14 @@ public:
         binaryFile.write(reinterpret_cast<const char*>(data), size);
 
         delete[] data;
+    }
+
+    GLuint getWidth() const {
+        return width;
+    }
+
+    GLuint getHeight() const {
+        return height;
     }
 
 protected:

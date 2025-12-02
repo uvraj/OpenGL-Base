@@ -14,13 +14,12 @@ float ComputePhilipsSpectrum(vec2 k) {
     float amplitude = length(k);
     if (amplitude < 1e-6) return 0.0;
 
-    const vec2 wind = vec2(1.0, 0.0);
-    const float A = 1e-6;
-    const float V = 30.0;
+    const vec2 wind = vec2(1.0, 1.0);
+    const float A = 5e-3;
     const float g = 9.80665;
-    const float L = pow2(V) / g;
+    float L = pow2(windSpeed) / g;
 
-    return A / pow4(amplitude) * exp(-1.0 / pow2(amplitude * L)) * pow2(dot(normalize(k), normalize(wind)));
+    return waveHeightMult * A / pow4(amplitude) * exp(-1.0 / pow2(amplitude * L)) * pow2(dot(normalize(k), normalize(wind)));
 }
 
 Complex ComputeInitialWaveAmplitudes(vec2 k, vec2 rand) {
@@ -45,7 +44,7 @@ Complex ComputeWaveAmplitudes(vec2 k, float t) {
 }
 
 vec2 GetWaveFieldCoord(ivec2 iPos) {
-    const vec2 L = vec2(125.0, 125.0);
+    vec2 L = vec2(fieldSize);
     iPos -= ivec2(512);
 
     return vec2(iPos) * L / vec2(1024.0);

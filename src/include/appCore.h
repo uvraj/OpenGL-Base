@@ -15,10 +15,11 @@ class Application {
 
         // Initilize our OpenGL objects.
         Quad quadVAO;
+        PlanarMesh planarMesh{1024, 1024};
+        AuxData auxData;
 
         Shader final{"final", "final.vert", "final.frag"};
-
-        glm::mat4 model{1.0f};
+        Shader planarMeshShader{"genMesh", "genMesh.vert", "genMesh.frag"};
 
         PipelineManager pipeline{"pipeline.json"};
 
@@ -28,12 +29,11 @@ class Application {
             glViewport(
                 0, 0, // The location
                 SCREEN_WIDTH, SCREEN_HEIGHT // The resolution
-            );      
+            );
 
             // Initialize ImGUI
             if(!ImGui::CreateContext()) {
-                printError("ImGui context creation failed.\n");
-                throw std::runtime_error("ImGui context creation failed.");
+                throw std::runtime_error(ERROR_HINT + "ImGui context creation failed.");
             }
 
             else {
@@ -52,6 +52,25 @@ class Application {
             
             // Shaders
             final.create();
+            planarMeshShader.create();
+            planarMesh.init();
+
+            // Handle FBs
+            glCreateFramebuffers(1, &mainFBO);
+                
+            glNamedFramebufferTexture(mainFBO, GL_COLOR_ATTACHMENT0, pipeline.findTexture2DByName("albedoTex").getID(), 0);
+            glNamedFramebufferTexture(mainFBO, GL_COLOR_ATTACHMENT1, pipeline.findTexture2DByName("normalTex").getID(), 0);
+            glNamedFramebufferTexture(mainFBO, GL_DEPTH_ATTACHMENT, pipeline.findTexture2DByName("depthTex").getID(), 0);
+
+            GLuint attachments[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+
+            glNamedFramebufferDrawBuffers(mainFBO, 2, attachments);
+
+            if (glCheckNamedFramebufferStatus(mainFBO, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
+                printSuccess("Created main FBO.}\n");
+            } else {
+                throw std::runtime_error(ERROR_HINT + "Framebuffer incomplete.");
+            }
         }
 
         void appLoop() {
@@ -68,13 +87,22 @@ class Application {
 
                 ImGui::Begin("Main Window");
 
-                if (ImGui::Button("Reload Pipeline")) {
-                    pipeline.reload();
-                    final.load();
+                if (ImGui::CollapsingHeader("Pipeline")) {
+                    if (ImGui::Button("Reload Pipeline")) {
+                        pipeline.reload();
+                        final.load();
+                        planarMeshShader.load();
+
+                        glNamedFramebufferTexture(mainFBO, GL_COLOR_ATTACHMENT0, pipeline.findTexture2DByName("albedoTex").getID(), 0);
+                        glNamedFramebufferTexture(mainFBO, GL_COLOR_ATTACHMENT1, pipeline.findTexture2DByName("normalTex").getID(), 0);
+                        glNamedFramebufferTexture(mainFBO, GL_DEPTH_ATTACHMENT, pipeline.findTexture2DByName("depthTex").getID(), 0);
+                    }
                 }
 
-                if (ImGui::Button("Write Image")) {
-                    pipeline.findTexture2DByName("ptAccumulated").writeImageToDisk();
+                if (ImGui::CollapsingHeader("Settings")) {
+                    ImGui::SliderFloat("Height Multiplier", &auxData.waveHeightMult, 0.0, 2.0);
+                    ImGui::SliderFloat("Wind Speed", &auxData.windSpeed, 0.0, 30.0, "%f m/s");
+                    ImGui::SliderFloat("Wave Field Size", &auxData.fieldSize, 0.0, 2048.0);
                 }
 
                 ImGui::End();
@@ -100,14 +128,44 @@ class Application {
                 // ImGui::ShowDemoWindow();
 
                 ImGui::Render();
+                
+                glBindFramebuffer(GL_FRAMEBUFFER, mainFBO);
+                glClearColor(0, 0, 0, 0);
+                glClearDepth(1.0);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                glEnable(GL_DEPTH_TEST);
+                Texture2D& depthTex = pipeline.findTexture2DByName("depthTex");
+                glViewport(0, 0, depthTex.getWidth(), depthTex.getHeight());
+                planarMeshShader.useProgram();
+                planarMeshShader.pushMat4Uniform("cameraViewMatrix", camera.viewMatrix);
+                planarMeshShader.pushMat4Uniform("cameraViewMatrixInverse", camera.viewMatrixInverse);
+                planarMeshShader.pushMat4Uniform("cameraProjectionMatrix", camera.projectionMatrix);
+                planarMeshShader.pushMat4Uniform("cameraProjectionMatrixInverse", camera.projectionMatrixInverse);
+                planarMeshShader.pushMat4Uniform("previousCameraViewMatrix", camera.viewMatrix);
+                planarMeshShader.pushMat4Uniform("previousCameraViewMatrixInverse", camera.viewMatrixInverse);
+                planarMeshShader.pushMat4Uniform("previousCameraProjectionMatrix", camera.projectionMatrix);
+                planarMeshShader.pushMat4Uniform("previousCameraProjectionMatrixInverse", camera.projectionMatrixInverse);
+                planarMeshShader.pushVec3Uniform("cameraPosition", camera.Position);
+                planarMeshShader.pushVec3Uniform("previousCameraPosition", camera.previousPosition);
+                planarMeshShader.pushFloatUniform("currentFrame", (float) window.currentFrame);
+                planarMeshShader.pushBoolUniform("shouldAccumulate", window.shouldAccumulate);
+                planarMeshShader.pushUnsignedIntUniform("frameIndex", window.frameIndex);
+                planarMeshShader.pushUnsignedIntUniform("accumulationIndex", window.accumulationIndex);
+                pipeline.findTexture2DByName("waveImgRe").bind(0);
+                planarMeshShader.pushIntUniform("waveTexRe", 0);
+                planarMesh.draw();
 
-                pipeline.mainLoop(camera, window);
+                pipeline.mainLoop(camera, window, auxData);
 
                 // Post-processing pass
+                glClearColor(0, 0, 0, 0);
+                glClearDepth(1.0);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, 13, "Post Process");
                 glDisable(GL_DEPTH_TEST);
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                glViewport(0, 0, window.viewWidth, window.viewHeight);
 
                 pipeline.getFinalImageTexture().bind(0);
 

@@ -1,0 +1,69 @@
+#version 460
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+layout (rgba16f) uniform image2D imageLinear;
+
+uniform mat4 cameraProjectionMatrix;
+uniform mat4 cameraProjectionMatrixInverse;
+uniform mat4 cameraViewMatrix;
+uniform mat4 cameraViewMatrixInverse;
+
+uniform vec3 cameraPosition;
+
+uniform float currentFrame;
+
+uniform sampler2D environmentTex;
+uniform sampler2D albedoTex;
+uniform sampler2D normalTex;
+uniform sampler2D depthTex;
+
+#include "lib/utility.glsl"
+
+vec3 GetCameraViewDir(vec2 nCoord) {
+    vec4 pos = vec4(nCoord, 1.0, 1.0);
+         pos = pos * 2.0 - 1.0;
+    
+    pos = cameraProjectionMatrixInverse * pos;
+    pos.xyz /= pos.w;
+    pos.w = 1.0;
+
+    pos.xyz = mat3(cameraViewMatrixInverse) * pos.xyz;
+    
+    return normalize(pos.xyz);
+}
+
+vec3 GetCameraViewDirView(vec2 nCoord) {
+    vec4 pos = vec4(nCoord, 1.0, 1.0);
+         pos = pos * 2.0 - 1.0;
+    
+    pos = cameraProjectionMatrixInverse * pos;
+    pos.xyz /= pos.w;
+    pos.w = 1.0;
+    
+    return normalize(pos.xyz); 
+}
+
+void main() {
+    ivec2 iPos = ivec2(gl_GlobalInvocationID.xy);
+    vec2 nCoord = (iPos + 0.5) / (gl_NumWorkGroups.xy * gl_WorkGroupSize.xy);
+
+    float depth = texture(depthTex, nCoord).r;
+    vec3 normal = texture(normalTex, nCoord).rgb * 2.0 - 1.0;
+    vec3 viewDir = GetCameraViewDir(nCoord);
+
+    vec3 sampleDir = viewDir;
+
+    float NoV = abs(dot(normal, viewDir));
+    
+    if (depth < 1.0) {
+        sampleDir = reflect(viewDir, normal);
+    }
+
+    vec3 radiance = texture(environmentTex, CartesianToSpherical(sampleDir)).rgb * 0.7;
+
+    if (depth < 1.0) {
+        radiance *= pow2(1.0 - NoV);
+    }
+
+    imageStore(imageLinear, iPos, vec4(radiance, 0.0));
+}

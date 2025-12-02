@@ -2,8 +2,8 @@
 #version 460
 
 layout (local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
-layout (rgba32f) uniform image2D fftTexRe_a;
-layout (rgba32f) uniform image2D fftTexIm_a;
+layout (rgba32f) uniform image2D fftImgRe;
+layout (rgba32f) uniform image2D fftImgIm;
 
 uniform sampler2D imageLinear;
 
@@ -23,6 +23,6 @@ void main() {
         sharedBuffer[iPos.x] = result;
     }
 
-    imageStore(fftTexRe_a, iPos, vec4(sharedBuffer[iPos.x].re, 0.0));
-    imageStore(fftTexIm_a, iPos, vec4(sharedBuffer[iPos.x].im, 0.0));
+    imageStore(fftImgRe, iPos, vec4(sharedBuffer[iPos.x].re, 0.0));
+    imageStore(fftImgIm, iPos, vec4(sharedBuffer[iPos.x].im, 0.0));
 }

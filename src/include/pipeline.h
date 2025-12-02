@@ -12,12 +12,14 @@ GLenum getInternalFormatFromString(const std::string& intFmt) {
         {"RGBA16", GL_RGBA16},
         {"R16F", GL_R16F},
         {"RG16F", GL_RG16F},
+        {"RGB16F", GL_RGB16F},
         {"RGBA16F", GL_RGBA16F},
         {"R32F", GL_R32F},
         {"RG32F", GL_RG32F},
         {"RGB32F", GL_RGB32F},
         {"RGBA32F", GL_RGBA32F},
-        {"R11F_G11F_B10F", GL_R11F_G11F_B10F}
+        {"R11F_G11F_B10F", GL_R11F_G11F_B10F},
+        {"DEPTH_COMPONENT24", GL_DEPTH_COMPONENT24}
     };
     
     auto it = internalFormatMap.find(intFmt);
@@ -36,7 +38,8 @@ GLenum getPixelFormatFromString(const std::string& pixFmt) {
         {"RGB", GL_RGB},
         {"BGR", GL_BGR},
         {"RGBA", GL_RGBA},
-        {"BGRA", GL_BGRA}
+        {"BGRA", GL_BGRA},
+        {"DEPTH_COMPONENT", GL_DEPTH_COMPONENT}
     };
     
     auto it = pixelFormatMap.find(pixFmt);
@@ -56,7 +59,7 @@ GLenum getPixelTypeFromString(const std::string& pixType) {
         {"INT", GL_INT},
         {"HALF_FLOAT", GL_HALF_FLOAT},
         {"FLOAT", GL_FLOAT},
-        {"UNSIGNED_BYTE", GL_UNSIGNED_BYTE}
+        {"UNSIGNED_BYTE", GL_UNSIGNED_BYTE},
     };
     
     auto it = pixelTypeMap.find(pixType);
@@ -138,7 +141,7 @@ public:
         load();
     }
 
-    void mainLoop(const Camera& camera, const Window& window) {
+    void mainLoop(const Camera& camera, const Window& window, const AuxData& auxData) {
         for (auto& shader : computeShaders) {
             std::string programName = shader.getProgramName();
             glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, programName.size(), programName.data());
@@ -157,24 +160,28 @@ public:
                     }
                 }
                 
-
                 shader.pushIntUniform(shader.getBoundImages().at(i).c_str(), i);
             }
+            
+            std::string samplerName{};
 
             for (std::size_t i = 0; i < shader.getBoundSamplers().size(); i++) {
                 try {
-                    findTexture2DByName(shader.getBoundSamplers().at(i)).bind(i);
+                    Texture2D& texture = findTexture2DByName(shader.getBoundSamplers().at(i));
+                    texture.bind(i);
+                    samplerName = texture.getSamplerName();
                 } catch (const std::exception& e) {
                     try {
-                        findTexture3DByName(shader.getBoundSamplers().at(i)).bind(i); 
+                        Texture3D& texture = findTexture3DByName(shader.getBoundSamplers().at(i));
+                        texture.bind(i);
+                        samplerName = texture.getSamplerName(); 
                     } catch (const std::exception& e) {
                         printError();
                         std::cout << "Could not find texture " << shader.getBoundSamplers().at(i) << '\n'; 
                     }
                 }
                 
-
-                shader.pushIntUniform(shader.getBoundSamplers().at(i).c_str(), i);
+                shader.pushIntUniform(samplerName.c_str(), i);
             }
 
             shader.pushMat4Uniform("cameraViewMatrix", camera.viewMatrix);
@@ -188,6 +195,9 @@ public:
             shader.pushVec3Uniform("cameraPosition", camera.Position);
             shader.pushVec3Uniform("previousCameraPosition", camera.previousPosition);
             shader.pushFloatUniform("currentFrame", (float) window.currentFrame);
+            shader.pushFloatUniform("waveHeightMult", auxData.waveHeightMult);
+            shader.pushFloatUniform("windSpeed", auxData.windSpeed);
+            shader.pushFloatUniform("fieldSize", auxData.fieldSize);
             shader.pushBoolUniform("shouldAccumulate", window.shouldAccumulate);
             shader.pushUnsignedIntUniform("frameIndex", window.frameIndex);
             shader.pushUnsignedIntUniform("accumulationIndex", window.accumulationIndex);
@@ -262,14 +272,21 @@ private:
             GLenum filterParam = getFilterParamFromString(item.at("filter").get<std::string>());
 
             std::string fileName{};
+            std::string samplerName{};
 
             if (item.find("fileName") != item.end()) {
                 fileName = item.at("fileName");
             }
 
+            if (item.find("samplerName") != item.end()) {
+                samplerName = item.at("samplerName");
+            } else {
+                samplerName = name;
+            }
+
             std::cout << PIPELINE_HINT << "Registered texture \"" + name + "\"\n";
 
-            textures2D.emplace_back(name, fileName, width, height, internalFormat, format, pixelType, wrapParam, filterParam);
+            textures2D.emplace_back(name, fileName, samplerName, width, height, internalFormat, format, pixelType, wrapParam, filterParam);
         }
     }
 
@@ -286,14 +303,21 @@ private:
             GLenum filterParam = getFilterParamFromString(item.at("filter").get<std::string>());
 
             std::string fileName{};
+            std::string samplerName{};
 
             if (item.find("fileName") != item.end()) {
                 fileName = item.at("fileName");
             }
 
+            if (item.find("samplerName") != item.end()) {
+                samplerName = item.at("samplerName");
+            } else {
+                samplerName = name;
+            }
+
             std::cout << PIPELINE_HINT << "Registered texture \"" + name + "\"\n";
 
-            textures3D.emplace_back(name, fileName, width, height, depth, internalFormat, format, pixelType, wrapParam, filterParam);
+            textures3D.emplace_back(name, fileName, samplerName, width, height, depth, internalFormat, format, pixelType, wrapParam, filterParam);
         }
     }
 

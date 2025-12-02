@@ -4,73 +4,110 @@
     "textures2D": [
         {
             "name": "imageLinear",
-            "width": 1024,
-            "height": 1024,
+            "width": 3840,
+            "height": 2160,
             "internalFormat": "RGBA16F",
             "pixelFormat": "RGBA",
             "pixelType": "HALF_FLOAT",
             "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
+            "filter": "LINEAR"
         },
 
         {
-            "name": "fftTexRe_a",
-            "width": 1024,
-            "height": 1024,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "fftTexRe_b",
-            "width": 1024,
-            "height": 1024,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "fftTexIm_a",
-            "width": 1024,
-            "height": 1024,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "fftTexIm_b",
-            "width": 1024,
-            "height": 1024,
-            "internalFormat": "RGBA32F",
-            "pixelFormat": "RGBA",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
-        },
-
-        {
-            "name": "imageOut",
-            "width": 1024,
-            "height": 1024,
+            "name": "albedoTex",
+            "width": 3840,
+            "height": 2160,
             "internalFormat": "RGBA8",
             "pixelFormat": "RGBA",
             "pixelType": "UNSIGNED_BYTE",
             "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "NEAREST"
+            "filter": "LINEAR"
+        },
+
+        {
+            "name": "normalTex",
+            "width": 3840,
+            "height": 2160,
+            "internalFormat": "RGBA16",
+            "pixelFormat": "RGBA",
+            "pixelType": "UNSIGNED_BYTE",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "LINEAR"
+        },
+
+        {
+            "name": "depthTex",
+            "width": 3840,
+            "height": 2160,
+            "internalFormat": "DEPTH_COMPONENT24",
+            "pixelFormat": "DEPTH_COMPONENT",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "LINEAR"
+        },
+
+        {
+            "name": "fftImgRe",
+            "samplerName": "fftTexRe",
+            "width": 1024,
+            "height": 1024,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "LINEAR"
+        },
+
+        {
+            "name": "fftImgIm",
+            "samplerName": "fftTexIm",
+            "width": 1024,
+            "height": 1024,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "LINEAR"
+        },
+
+        {
+            "name": "waveImgRe",
+            "samplerName": "waveTexRe",
+            "width": 1024,
+            "height": 1024,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "REPEAT",
+            "filter": "LINEAR"
+        },
+
+        {
+            "name": "waveImgIm",
+            "samplerName": "waveTexIm",
+            "width": 1024,
+            "height": 1024,
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
+            "pixelType": "FLOAT",
+            "textureWrap": "REPEAT",
+            "filter": "LINEAR"
+        },
+
+        {
+            "name": "imageOut",
+            "width": 3840,
+            "height": 2160,
+            "internalFormat": "RGBA8",
+            "pixelFormat": "RGBA",
+            "pixelType": "UNSIGNED_BYTE",
+            "textureWrap": "REPEAT",
+            "filter": "LINEAR"
         },
 
         {
             "name": "kernelTexRe",
-            "fileName": "kernel_fft_re.dat",
+            "fileName": "psf_re.dat",
             "width": 1024,
             "height": 1024,
             "internalFormat": "RGB32F",
@@ -82,9 +119,21 @@
 
         {
             "name": "kernelTexIm",
-            "fileName": "kernel_fft_im.dat",
+            "fileName": "psf_im.dat",
             "width": 1024,
             "height": 1024,
+            "internalFormat": "RGB32F",
+            "pixelFormat": "RGB",
+            "pixelType": "FLOAT",
+            "textureWrap": "REPEAT",
+            "filter": "LINEAR"
+        },
+
+        {
+            "name": "environmentTex",
+            "fileName": "environment.dat",
+            "width": 1024,
+            "height": 512,
             "internalFormat": "RGB32F",
             "pixelFormat": "RGB",
             "pixelType": "FLOAT",
@@ -95,39 +144,13 @@
 
     "textures3D" : [
         {
-            "name": "voxelTex",
-            "fileName": "sus.dat",
-            "width": 100,
-            "height": 55,
-            "depth": 79,
-            "internalFormat": "R8",
-            "pixelFormat": "RED",
-            "pixelType": "UNSIGNED_BYTE",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "LINEAR"
-        },
-
-        {
             "name": "colorLookup",
-            "fileName": "tony_mc_mapface.dat",
+            "fileName": "displayTransform.dat",
             "width": 48,
             "height": 48,
             "depth": 48,
-            "internalFormat": "RGB32F",
-            "pixelFormat": "RGB",
-            "pixelType": "FLOAT",
-            "textureWrap": "CLAMP_TO_EDGE",
-            "filter": "LINEAR"
-        },
-
-        {
-            "name": "colorLookupPost",
-            "fileName": "FUJI_ETERNA_250D_FUJI_3510.DAT",
-            "width": 21,
-            "height": 21,
-            "depth": 21,
-            "internalFormat": "RGB32F",
-            "pixelFormat": "RGB",
+            "internalFormat": "RGBA32F",
+            "pixelFormat": "RGBA",
             "pixelType": "FLOAT",
             "textureWrap": "CLAMP_TO_EDGE",
             "filter": "LINEAR"
@@ -136,10 +159,10 @@
 
     "passes": [
         {
-            "name": "renderDiffuse",
-            "source": "renderDiffuse.comp",
-            "dispatchSizeX": 64,
-            "dispatchSizeY": 64,
+            "name": "renderWaterSurface",
+            "source": "renderWaterSurface.comp",
+            "dispatchSizeX": 240,
+            "dispatchSizeY": 135,
             "dispatchSizeZ": 1,
 
             "boundImages": [
@@ -147,7 +170,10 @@
             ],
 
             "boundSamplers": [
-                "voxelTex"
+                "albedoTex",
+                "depthTex",
+                "normalTex",
+                "environmentTex"
             ]
         },
 
@@ -159,8 +185,8 @@
             "dispatchSizeZ": 1,
 
             "boundImages": [
-                "fftTexRe_a",
-                "fftTexIm_a"
+                "fftImgRe",
+                "fftImgIm"
             ],
 
             "boundSamplers": [
@@ -176,13 +202,13 @@
             "dispatchSizeZ": 1,
 
             "boundImages": [
-                "fftTexRe_b",
-                "fftTexIm_b"
+                "fftImgRe",
+                "fftImgIm"
             ],
 
             "boundSamplers": [
-                "fftTexRe_a",
-                "fftTexIm_a",
+                "fftImgRe",
+                "fftImgIm",
                 "kernelTexRe",
                 "kernelTexIm"
             ]
@@ -196,13 +222,13 @@
             "dispatchSizeZ": 1,
 
             "boundImages": [
-                "fftTexRe_a",
-                "fftTexIm_a"
+                "fftImgRe",
+                "fftImgIm"
             ],
 
             "boundSamplers": [
-                "fftTexRe_b",
-                "fftTexIm_b"
+                "fftImgRe",
+                "fftImgIm"
             ]
         },
 
@@ -214,22 +240,58 @@
             "dispatchSizeZ": 1,
 
             "boundImages": [
-                "fftTexRe_b",
-                "fftTexIm_b"
+                "fftImgRe",
+                "fftImgIm"
             ],
 
             "boundSamplers": [
-                "fftTexRe_a",
-                "fftTexIm_a"
+                "fftImgRe",
+                "fftImgIm"
+            ]
+        },
+
+        {
+            "name": "genWaveFieldX",
+            "source": "genWaveFieldX.comp",
+            "dispatchSizeX": 1,
+            "dispatchSizeY": 1024,
+            "dispatchSizeZ": 1,
+
+            "boundImages": [
+                "waveImgRe",
+                "waveImgIm"
+            ],
+
+            "boundSamplers": [
+                "waveImgRe",
+                "waveImgIm"
+            ]
+        },
+
+        {
+            "name": "genWaveFieldY",
+            "source": "genWaveFieldY.comp",
+            "dispatchSizeX": 1024,
+            "dispatchSizeY": 1,
+            "dispatchSizeZ": 1,
+
+            "boundImages": [
+                "waveImgRe",
+                "waveImgIm"
+            ],
+
+            "boundSamplers": [
+                "waveImgRe",
+                "waveImgIm"
             ]
         },
 
         {
             "name": "postProcess",
             "source": "postProcess.comp",
-            "dispatchSizeX": 64,
-            "dispatchSizeY": 64,
-            "dispatchSizeZ": 1,
+            "dispatchSizeX": 240,
+            "dispatchSizeY": 135,
+            "dispatchSizeZ": 1,                                        
 
             "boundImages": [
                 "imageOut"
@@ -238,9 +300,9 @@
             "boundSamplers": [
                 "imageLinear",
                 "colorLookup",
-                "colorLookupPost",
-                "fftTexRe_b",
-                "kernelTexRe"
+                "fftImgRe",
+                "kernelTexRe",
+                "normalTex"
             ]
         }
     ]

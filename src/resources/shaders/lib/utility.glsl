@@ -1,6 +1,9 @@
 #if !defined UTILITY_GLSL
 #define UTILITY_GLSL
 
+#define pow2(x) pow(x, 2.0)
+#define pow4(x) pow(x, 4.0)
+
 const float PI = radians(180.0);
 const float TAU = radians(360.0);
 
@@ -40,6 +43,13 @@ vec3 UniformSampleHemisphere(vec3 normal, vec2 rand){
 
     vec3 hemisphereDir = tangent * x + normal * rand.x + bitangent * z;
     return normalize(hemisphereDir);
+}
+
+vec2 CartesianToSpherical(vec3 pos) {
+    float lat = acos(pos.y);
+    float lon = atan(-pos.x, pos.z);
+
+    return vec2(lon / TAU + 0.5, lat / PI);
 }
 
 #endif // UTILITY_GLSL

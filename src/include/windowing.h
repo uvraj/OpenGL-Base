@@ -25,7 +25,8 @@ class Window {
         unsigned int frameIndex = 0;
         unsigned int accumulationIndex = 0;
 
-        glm::vec2 viewDimensions = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
+        int viewWidth = SCREEN_WIDTH;
+        int viewHeight = SCREEN_HEIGHT;
         glm::vec2 mousePos = glm::vec2(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f);
 
         bool mouseCaught = true;
@@ -83,6 +84,7 @@ class Window {
             // Zhis function handles the user changing the resolution of the window.
             // Personal note: ALL glTexImage2D() calls related to framebuffer attachments MUST be placed inside here,
             // otherwise they won't resize!
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
             glViewport(0, 0, width, height);
             glActiveTexture(GL_TEXTURE0);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, nullptr);
@@ -133,8 +135,8 @@ class Window {
 
             glfwPollEvents();
             handleInput();
-            glfwGetFramebufferSize(glfwWindow, (int *) &viewDimensions.x, (int *) &viewDimensions.y);
-            aspectRatio = viewDimensions.x / viewDimensions.y;
+            glfwGetFramebufferSize(glfwWindow, &viewWidth, &viewHeight);
+            aspectRatio = (float)viewWidth / (float)viewHeight;
 
             if(mouseCaught) {
             // Capture our mouse
