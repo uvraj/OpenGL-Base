@@ -9,6 +9,6 @@ uniform mat4 cameraViewMatrix;
 out vec3 normal;
 
 void main() {
-    gl_Position = cameraProjectionMatrix * cameraViewMatrix * vec4(aPos.xzy * vec3(0.1, 0.1, 0.1), 1.0);
+    gl_Position = cameraProjectionMatrix * cameraViewMatrix * vec4(aPos.xzy * vec3(0.02, 0.02, 0.02), 1.0);
     normal = aNormal.xzy;
 }
