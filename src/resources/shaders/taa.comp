@@ -1,0 +1,22 @@
+#version 460 
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+layout (rgba16) uniform image2D accumulatedImage;
+
+uniform sampler2D gBuffer;
+uniform sampler2D depthTex;
+uniform sampler2D taaFeedback;
+
+uniform uint accumulationIndex;
+
+void main() {
+    ivec2 iPos = ivec2(gl_GlobalInvocationID);
+
+    vec4 current = texelFetch(gBuffer, iPos, 0);
+    vec4 previous = texelFetch(taaFeedback, iPos, 0);
+
+    vec4 combined = mix(current, previous, 0.00);
+
+    imageStore(accumulatedImage, iPos, combined);
+}

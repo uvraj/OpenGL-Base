@@ -1,5 +1,5 @@
 {
-    "finalImage": "imageOut", 
+    "finalImage": "accumulatedImage", 
     
     "textures2D": [
         {
@@ -27,15 +27,27 @@
         },
 
         {
-            "name": "imageOut",
+            "name": "accumulatedImage",
             "width": 1920,
             "height": 1080,
-            "internalFormat": "RGBA8",
+            "internalFormat": "RGBA16",
             "pixelFormat": "RGBA",
             "pixelType": "UNSIGNED_BYTE",
             "textureWrap": "CLAMP_TO_EDGE",
             "filter": "NEAREST", 
-            "clear": true
+            "clear": false
+        },
+
+        {
+            "name": "taaFeedback",
+            "width": 1920,
+            "height": 1080,
+            "internalFormat": "RGBA16",
+            "pixelFormat": "RGBA",
+            "pixelType": "UNSIGNED_BYTE",
+            "textureWrap": "CLAMP_TO_EDGE",
+            "filter": "NEAREST", 
+            "clear": false
         }
     ],
 
@@ -43,19 +55,36 @@
 
     "passes": [
         {
-            "name": "test",
-            "source": "test.comp",
+            "name": "taa",
+            "source": "taa.comp",
             "dispatchSizeX": 120,
             "dispatchSizeY": 68,
             "dispatchSizeZ": 1,
 
             "boundImages": [
-                "imageOut"
+                "accumulatedImage"
             ],
 
             "boundSamplers": [
                 "gBuffer",
-                "depthTex"
+                "depthTex",
+                "taaFeedback"
+            ]
+        },
+
+        {
+            "name": "copyTaaHistory",
+            "source": "copyTaaHistory.comp",
+            "dispatchSizeX": 120,
+            "dispatchSizeY": 68,
+            "dispatchSizeZ": 1,
+
+            "boundImages": [
+                "taaFeedback"
+            ],
+
+            "boundSamplers": [
+                "accumulatedImage"
             ]
         }
     ]

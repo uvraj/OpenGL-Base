@@ -1,0 +1,12 @@
+#version 460 
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+layout (rgba16) uniform image2D taaFeedback;
+
+uniform sampler2D accumulatedImage;
+
+void main() {
+    ivec2 iPos = ivec2(gl_GlobalInvocationID);
+    imageStore(taaFeedback, iPos, vec4(1.0));
+}
